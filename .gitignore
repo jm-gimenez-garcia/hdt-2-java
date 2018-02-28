@@ -1,6 +1,14 @@
-.DS_Store
-hdt-fuseki/config-hdt.ttl
-
-# IntelliJ IDEA project files
-.idea
+# IDEs
+.*
+!.gitignore
+/*/.*
 *.iml
+
+#Other
+*.jpage
+dependency-reduced-pom.xml
+/bin/
+/output/
+/results/
+/scripts/
+/target/
