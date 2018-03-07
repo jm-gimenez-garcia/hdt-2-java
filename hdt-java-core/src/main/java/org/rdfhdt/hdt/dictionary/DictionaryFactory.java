@@ -53,7 +53,7 @@ public class DictionaryFactory {
 	 * 
 	 * @return Dictionary
 	 */
-	public static Dictionary createDefaultDictionary()
+	public static TriplesDictionary createDefaultDictionary()
 			throws IllegalArgumentException {
 		return new FourSectionDictionary(new HDTSpecification());
 	}

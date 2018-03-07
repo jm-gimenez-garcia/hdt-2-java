@@ -26,60 +26,39 @@ package org.rdfhdt.hdt.dictionary;
  * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
-import java.io.Closeable;
-
-import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.header.Header;
-
 /**
  * Interface that specifies the basic methods for any Dictionary implementation
  *
  * @author mario.arias, Eugen, José M. Giménez-García
  *
  */
-public interface Dictionary extends Closeable {
+public interface TriplesDictionary extends Dictionary {
 
     /**
-     * Returns the string for a given id
-     *
-     * @param id
-     *            The id to convert to string
-     * @param position
-     *            TriplePosition of the id in the dictionary
-     * @return String
+     * Returns the number of subjects in the dictionary.
      */
-    CharSequence idToString(int id, TripleComponentRole position);
+    long getNsubjects();
 
     /**
-     * Returns the id for a given string
-     *
-     * @param str
-     *            The string to convert to id
-     * @param position
-     *            TriplePosition of the string in the dictionary
-     * @return int
+     * Returns the number of predicates in the dictionary.
      */
-    int stringToId(CharSequence str, TripleComponentRole position);
+    long getNpredicates();
 
     /**
-     * Returns the number of elements in the dictionary
+     * Returns the number of objects in the dictionary.
      */
-    long getNumberOfElements();
+    long getNobjects();
 
     /**
-     * Return the combined size of the sections of the dictionary (in bytes)
+     * Returns the number of subjects/objects in the dictionary.
      */
-    long size();
+    long getNshared();
 
-    /**
-     * Fills the header with information from the dictionary
-     */
-    void populateHeader(Header header, String rootNode);
+    DictionarySection getSubjects();
 
-    /**
-     * Returns the type of the dictionary (the way it is written onto file/held in memory)
-     *
-     * @return
-     */
-    String getType();
+    DictionarySection getPredicates();
+
+    DictionarySection getObjects();
+
+    DictionarySection getShared();
 }

@@ -39,7 +39,7 @@ import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdtjena.bindings.HDTId;
@@ -56,14 +56,14 @@ import org.rdfhdt.hdtjena.cache.DummyMap;
  */
 public class NodeDictionary {
 
-	private final Dictionary dictionary;
+	private final TriplesDictionary dictionary;
 
 	private final DictionaryCache[] cacheIDtoNode = new DictionaryCache[TripleComponentRole.values().length];
 	
 	@SuppressWarnings("unchecked")
 	Map<String, Integer>[] cacheNodeToId = new Map[TripleComponentRole.values().length];
 	
-	public NodeDictionary(Dictionary dictionary) {
+	public NodeDictionary(TriplesDictionary dictionary) {
 		this.dictionary = dictionary;
 		
 		// ID TO NODE	

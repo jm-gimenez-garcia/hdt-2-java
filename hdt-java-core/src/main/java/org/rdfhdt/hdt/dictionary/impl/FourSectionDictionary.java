@@ -11,18 +11,18 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.dictionary.impl;
@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
-import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.section.DictionarySectionFactory;
 import org.rdfhdt.hdt.dictionary.impl.section.PFCDictionarySection;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -47,126 +47,126 @@ import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.util.io.CountInputStream;
 import org.rdfhdt.hdt.util.listener.IntermediateListener;
 
-
 /**
- * @author mario.arias
+ * @author mario.arias, José M. Giménez-García
  *
  */
-public class FourSectionDictionary extends BaseDictionary {
+public class FourSectionDictionary extends BaseTriplesDictionary {
 
-	public FourSectionDictionary(HDTOptions spec, 
-			DictionarySectionPrivate s, DictionarySectionPrivate p, DictionarySectionPrivate o, DictionarySectionPrivate sh) {
-		super(spec);
-		this.subjects = s;
-		this.predicates = p;
-		this.objects = o;
-		this.shared = sh;
-	}
-	
-	public FourSectionDictionary(HDTOptions spec) {
-		super(spec);
-		// FIXME: Read type from spec.
-		subjects = new PFCDictionarySection(spec);
-		predicates = new PFCDictionarySection(spec);
-		objects = new PFCDictionarySection(spec);
-		shared = new PFCDictionarySection(spec);
-	}
+    public FourSectionDictionary(final HDTOptions spec,
+	    final DictionarySectionPrivate s, final DictionarySectionPrivate p, final DictionarySectionPrivate o, final DictionarySectionPrivate sh) {
+	super(spec);
+	this.subjects = s;
+	this.predicates = p;
+	this.objects = o;
+	this.shared = sh;
+    }
 
-	/* (non-Javadoc)
-	 * @see hdt.dictionary.Dictionary#load(hdt.dictionary.Dictionary)
-	 */
-	@Override
-	public void load(TempDictionary other, ProgressListener listener) {
-		IntermediateListener iListener = new IntermediateListener(listener);
-		subjects.load(other.getSubjects(), iListener);
-		predicates.load(other.getPredicates(), iListener);
-		objects.load(other.getObjects(), iListener);
-		shared.load(other.getShared(), iListener);
-	}
+    public FourSectionDictionary(final HDTOptions spec) {
+	super(spec);
+	// FIXME: Read type from spec.
+	this.subjects = new PFCDictionarySection(spec);
+	this.predicates = new PFCDictionarySection(spec);
+	this.objects = new PFCDictionarySection(spec);
+	this.shared = new PFCDictionarySection(spec);
+    }
 
-	/* (non-Javadoc)
-	 * @see hdt.dictionary.Dictionary#save(java.io.OutputStream, hdt.ControlInformation, hdt.ProgressListener)
-	 */
-	@Override
-	public void save(OutputStream output, ControlInfo ci, ProgressListener listener) throws IOException {
-		ci.setType(Type.DICTIONARY);
-		ci.setFormat(HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
-		ci.setInt("elements", this.getNumberOfElements());
-		ci.save(output);
+    /*
+     * (non-Javadoc)
+     * @see hdt.dictionary.Dictionary#load(hdt.dictionary.Dictionary)
+     */
+    @Override
+    public void load(final TriplesDictionary other, final ProgressListener listener) {
+	final IntermediateListener iListener = new IntermediateListener(listener);
+	this.subjects.load(other.getSubjects(), iListener);
+	this.predicates.load(other.getPredicates(), iListener);
+	this.objects.load(other.getObjects(), iListener);
+	this.shared.load(other.getShared(), iListener);
+    }
 
-		IntermediateListener iListener = new IntermediateListener(listener);
-		shared.save(output, iListener);
-		subjects.save(output, iListener);
-		predicates.save(output, iListener);
-		objects.save(output, iListener);
+    /*
+     * (non-Javadoc)
+     * @see hdt.dictionary.Dictionary#save(java.io.OutputStream, hdt.ControlInformation, hdt.ProgressListener)
+     */
+    @Override
+    public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	ci.setType(Type.DICTIONARY);
+	ci.setFormat(HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
+	ci.setInt("elements", this.getNumberOfElements());
+	ci.save(output);
 
-	}
+	final IntermediateListener iListener = new IntermediateListener(listener);
+	this.shared.save(output, iListener);
+	this.subjects.save(output, iListener);
+	this.predicates.save(output, iListener);
+	this.objects.save(output, iListener);
 
-	/* (non-Javadoc)
-	 * @see hdt.dictionary.Dictionary#load(java.io.InputStream)
-	 */
-	@Override
-	public void load(InputStream input, ControlInfo ci, ProgressListener listener) throws IOException {
-		if(ci.getType()!=ControlInfo.Type.DICTIONARY) {
-			throw new IllegalFormatException("Trying to read a dictionary section, but was not dictionary.");
-		}
-		
-		IntermediateListener iListener = new IntermediateListener(listener);
+    }
 
-		shared = DictionarySectionFactory.loadFrom(input, iListener);
-		subjects = DictionarySectionFactory.loadFrom(input, iListener);
-		predicates = DictionarySectionFactory.loadFrom(input, iListener);
-		objects = DictionarySectionFactory.loadFrom(input, iListener);
-	}
-	
-	@Override
-	public void mapFromFile(CountInputStream in, File f, ProgressListener listener) throws IOException {
-		ControlInformation ci = new ControlInformation();
-		ci.load(in);
-		if(ci.getType()!=ControlInfo.Type.DICTIONARY) {
-			throw new IllegalFormatException("Trying to read a dictionary section, but was not dictionary.");
-		}
-		
-		IntermediateListener iListener = new IntermediateListener(listener);
-		shared = DictionarySectionFactory.loadFrom(in, f, iListener);
-		subjects = DictionarySectionFactory.loadFrom(in, f, iListener);
-		predicates = DictionarySectionFactory.loadFrom(in, f, iListener);
-		objects = DictionarySectionFactory.loadFrom(in, f, iListener);
-		
-		// Use cache only for predicates. Preload only up to 100K predicates.
-		// FIXME: DISABLED
-//		predicates = new DictionarySectionCacheAll(predicates, predicates.getNumberOfElements()<100000);
-	}
+    /*
+     * (non-Javadoc)
+     * @see hdt.dictionary.Dictionary#load(java.io.InputStream)
+     */
+    @Override
+    public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	if (ci.getType() != ControlInfo.Type.DICTIONARY) { throw new IllegalFormatException("Trying to read a dictionary section, but was not dictionary."); }
 
-	/* (non-Javadoc)
-	 * @see hdt.dictionary.Dictionary#populateHeader(hdt.header.Header, java.lang.String)
-	 */
-	@Override
-	public void populateHeader(Header header, String rootNode) {
-		header.insert(rootNode, HDTVocabulary.DICTIONARY_TYPE, HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSUBJECTS, getNsubjects());
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMPREDICATES, getNpredicates());
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMOBJECTS, getNobjects());
-		header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSHARED, getNshared());
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXSUBJECTID, getMaxSubjectID());
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXPREDICATEID, getMaxPredicateID());
-//		header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXOBJECTTID, getMaxObjectID());
-		header.insert(rootNode, HDTVocabulary.DICTIONARY_SIZE_STRINGS, size());
-	}
+	final IntermediateListener iListener = new IntermediateListener(listener);
 
-	/* (non-Javadoc)
-	 * @see hdt.dictionary.Dictionary#getType()
-	 */
-	@Override
-	public String getType() {
-		return HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION;
-	}
+	this.shared = DictionarySectionFactory.loadFrom(input, iListener);
+	this.subjects = DictionarySectionFactory.loadFrom(input, iListener);
+	this.predicates = DictionarySectionFactory.loadFrom(input, iListener);
+	this.objects = DictionarySectionFactory.loadFrom(input, iListener);
+    }
 
-	@Override
-	public void close() throws IOException {
-		shared.close();
-		subjects.close();
-		predicates.close();
-		objects.close();
-	}
+    @Override
+    public void mapFromFile(final CountInputStream in, final File f, final ProgressListener listener) throws IOException {
+	final ControlInformation ci = new ControlInformation();
+	ci.load(in);
+	if (ci.getType() != ControlInfo.Type.DICTIONARY) { throw new IllegalFormatException("Trying to read a dictionary section, but was not dictionary."); }
+
+	final IntermediateListener iListener = new IntermediateListener(listener);
+	this.shared = DictionarySectionFactory.loadFrom(in, f, iListener);
+	this.subjects = DictionarySectionFactory.loadFrom(in, f, iListener);
+	this.predicates = DictionarySectionFactory.loadFrom(in, f, iListener);
+	this.objects = DictionarySectionFactory.loadFrom(in, f, iListener);
+
+	// Use cache only for predicates. Preload only up to 100K predicates.
+	// FIXME: DISABLED
+	// predicates = new DictionarySectionCacheAll(predicates, predicates.getNumberOfElements()<100000);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.dictionary.Dictionary#populateHeader(hdt.header.Header, java.lang.String)
+     */
+    @Override
+    public void populateHeader(final Header header, final String rootNode) {
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_TYPE, HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSUBJECTS, getNsubjects());
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMPREDICATES, getNpredicates());
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMOBJECTS, getNobjects());
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSHARED, this.getNshared());
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXSUBJECTID, getMaxSubjectID());
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXPREDICATEID, getMaxPredicateID());
+	// header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXOBJECTTID, getMaxObjectID());
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_SIZE_STRINGS, this.size());
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.dictionary.Dictionary#getType()
+     */
+    @Override
+    public String getType() {
+	return HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION;
+    }
+
+    @Override
+    public void close() throws IOException {
+	this.shared.close();
+	this.subjects.close();
+	this.predicates.close();
+	this.objects.close();
+    }
 }

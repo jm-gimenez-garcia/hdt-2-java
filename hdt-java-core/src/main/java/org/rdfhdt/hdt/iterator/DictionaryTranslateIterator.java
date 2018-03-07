@@ -27,7 +27,7 @@
 
 package org.rdfhdt.hdt.iterator;
 
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryUtil;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
@@ -45,7 +45,7 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
 	/** The iterator of TripleID */
 	IteratorTripleID iterator;
 	/** The dictionary */
-	Dictionary dictionary;
+	TriplesDictionary dictionary;
 
 	CharSequence s, p, o;
 	
@@ -60,7 +60,7 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
 	 * @param dictionary
 	 *            The dictionary to be used
 	 */
-	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, Dictionary dictionary) {
+	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, TriplesDictionary dictionary) {
 		this.iterator = iteratorTripleID;
 		this.dictionary = dictionary;
 	}
@@ -73,7 +73,7 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
 	 * @param dictionary
 	 *            The dictionary to be used
 	 */
-	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, Dictionary dictionary, CharSequence s, CharSequence p, CharSequence o) {
+	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, TriplesDictionary dictionary, CharSequence s, CharSequence p, CharSequence o) {
 		this.iterator = iteratorTripleID;
 		this.dictionary = dictionary;
 		this.s = s==null ? "" : s;

@@ -31,7 +31,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.rdf.RDFAccess;
@@ -58,7 +58,7 @@ public interface HDT extends RDFAccess,Closeable {
 	 * 
 	 * @return Dictionary
 	 */
-	Dictionary getDictionary();
+	TriplesDictionary getDictionary();
 
 	/**
 	 * Gets the triples of the HDT

@@ -30,7 +30,7 @@ import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementNamedGraph;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.util.Context;
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -169,7 +169,7 @@ public class OptimizedCount {
 			}
 			
 			// Get number
-			Dictionary dictionary = hdtg.getHDT().getDictionary();
+			TriplesDictionary dictionary = hdtg.getHDT().getDictionary();
 			if(countVar.equals(triple.getSubject())) {
 				count = dictionary.getNsubjects();
 			} else if(countVar.equals(triple.getPredicate())) {

@@ -15,7 +15,7 @@ public class DictionaryUtil {
 	 *            The Triple to convert from
 	 * @return TripleString
 	 */
-	public static TripleString tripleIDtoTripleString(Dictionary dict, TripleID tripleID) {
+	public static TripleString tripleIDtoTripleString(TriplesDictionary dict, TripleID tripleID) {
 		return new TripleString(
 				dict.idToString(tripleID.getSubject(), TripleComponentRole.SUBJECT).toString(), 
 				dict.idToString(tripleID.getPredicate(), TripleComponentRole.PREDICATE).toString(), 
@@ -30,7 +30,7 @@ public class DictionaryUtil {
 	 *            The Triple to convert from
 	 * @return TripleID
 	 */
-	public static TripleID tripleStringtoTripleID(Dictionary dict, TripleString tripleString) {
+	public static TripleID tripleStringtoTripleID(TriplesDictionary dict, TripleString tripleString) {
 		return new TripleID(
 				dict.stringToId(tripleString.getSubject().toString(), TripleComponentRole.SUBJECT), 
 				dict.stringToId(tripleString.getPredicate().toString(), TripleComponentRole.PREDICATE), 

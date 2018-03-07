@@ -38,7 +38,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
 import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.TempDictionary;
@@ -368,7 +368,7 @@ public class HDTImpl implements HDTPrivate {
 	 * @see hdt.HDT#getDictionary()
 	 */
 	@Override
-	public Dictionary getDictionary() {
+	public TriplesDictionary getDictionary() {
 		return dictionary;
 	}
 

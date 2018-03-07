@@ -38,7 +38,7 @@ import org.apache.jena.sparql.engine.optimizer.reorder.PatternTriple;
 import org.apache.jena.sparql.engine.optimizer.reorder.ReorderTransformationSubstitution;
 import org.apache.jena.sparql.graph.NodeConst;
 import org.apache.jena.sparql.sse.Item;
-import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdtjena.HDTGraph;
 
 /**
@@ -76,7 +76,7 @@ public class ReorderTransformationHDT extends ReorderTransformationSubstitution 
 		initializeMatcher();
 				
 		// FIXME: Compute exactly for using the HDT  
-		Dictionary dict = graph.getHDT().getDictionary();
+		TriplesDictionary dict = graph.getHDT().getDictionary();
 		TERM_S = dict.getNsubjects()/numTriples;
 		TERM_P = dict.getNpredicates()/numTriples;
 		TERM_O = dict.getNobjects()/numTriples;
