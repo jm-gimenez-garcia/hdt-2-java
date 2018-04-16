@@ -32,7 +32,7 @@ package org.rdfhdt.hdt.dictionary;
  * @author José M. Giménez-García, mario.arias, Eugen
  *
  */
-public interface GraphDictionary extends Dictionary {
+public interface GraphsDictionary extends Dictionary {
 
     long getNsubjects();
 

@@ -143,9 +143,9 @@ public class FourSectionDictionaryBig extends BaseTriplesDictionary {
     @Override
     public void populateHeader(final Header header, final String rootNode) {
 	header.insert(rootNode, HDTVocabulary.DICTIONARY_TYPE, HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
-	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSUBJECTS, getNsubjects());
-	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMPREDICATES, getNpredicates());
-	// header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMOBJECTS, getNobjects());
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSUBJECTS, this.getNsubjects());
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMPREDICATES, this.getNpredicates());
+	header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMOBJECTS, this.getNobjects());
 	header.insert(rootNode, HDTVocabulary.DICTIONARY_NUMSHARED, this.getNshared());
 	// header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXSUBJECTID, getMaxSubjectID());
 	// header.insert(rootNode, HDTVocabulary.DICTIONARY_MAXPREDICATEID, getMaxPredicateID());

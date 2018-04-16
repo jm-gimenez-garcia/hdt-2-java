@@ -32,7 +32,7 @@ import java.util.Iterator;
 
 import org.rdfhdt.hdt.dictionary.impl.section.HashDictionarySection;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.header.Header;
+import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.TempTriples;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -163,61 +163,6 @@ public class HashDictionary extends BaseTempTriplesDictionary {
      * (non-Javadoc)
      * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNsubjects()
      */
-    @Override
-    public long getNsubjects() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNpredicates()
-     */
-    @Override
-    public long getNpredicates() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNobjects()
-     */
-    @Override
-    public long getNobjects() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNshared()
-     */
-    @Override
-    public long getNshared() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#idToString(int, org.rdfhdt.hdt.enums.TripleComponentRole)
-     */
-    @Override
-    public CharSequence idToString(final int id, final TripleComponentRole position) {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getNumberOfElements()
-     */
-    @Override
-    public long getNumberOfElements() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
 
     /*
      * (non-Javadoc)
@@ -230,21 +175,58 @@ public class HashDictionary extends BaseTempTriplesDictionary {
 
     /*
      * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#populateHeader(org.rdfhdt.hdt.header.Header, java.lang.String)
+     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNsubjects()
      */
     @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	// TODO Auto-generated method stub
-
+    public long getNsubjects() {
+	return this.subjects.getNumberOfElements() + this.shared.getNumberOfElements();
     }
 
     /*
      * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getType()
+     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNpredicates()
      */
     @Override
-    public String getType() {
-	// TODO Auto-generated method stub
-	return null;
+    public long getNpredicates() {
+	return this.predicates.getNumberOfElements();
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNobjects()
+     */
+    @Override
+    public long getNobjects() {
+	return this.objects.getNumberOfElements() + this.shared.getNumberOfElements();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNshared()
+     */
+    @Override
+    public long getNshared() {
+	// TODO Auto-generated method stub
+	return this.shared.getNumberOfElements();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.dictionary.Dictionary#idToString(int, org.rdfhdt.hdt.enums.TripleComponentRole)
+     */
+    @Override
+    public CharSequence idToString(final int id, final TripleComponentRole position) {
+	// TODO Auto-generated method stub
+	throw new NotImplementedException();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.dictionary.Dictionary#getNumberOfElements()
+     */
+    @Override
+    public long getNumberOfElements() {
+	return this.subjects.getNumberOfElements() + this.predicates.getNumberOfElements() + this.objects.getNumberOfElements() + this.shared.getNumberOfElements();
+    }
+
 }

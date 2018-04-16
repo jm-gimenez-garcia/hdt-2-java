@@ -32,22 +32,19 @@ import java.io.IOException;
 
 import org.rdfhdt.hdt.dictionary.CompositeDictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
-import org.rdfhdt.hdt.dictionary.GraphDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.section.CompositeDictionarySection;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.exceptions.NotImplementedException;
-import org.rdfhdt.hdt.hdt.HDTVocabulary;
-import org.rdfhdt.hdt.header.Header;
 
 /**
  * @author José M. Giménez-García
  *
  */
-public class BaseReificationDictionary implements CompositeDictionary {
+public abstract class BaseReificationDictionary<T extends TriplesDictionary, G extends GraphsDictionary> implements CompositeDictionary {
 
-    protected TriplesDictionary		 triplesDictionary;
-    protected GraphDictionary		 graphDictionary;
+    protected T				 triplesDictionary;
+    protected G				 graphDictionary;
 
     protected CompositeDictionarySection shared	  = null;
     protected CompositeDictionarySection subjects = null;
@@ -56,7 +53,7 @@ public class BaseReificationDictionary implements CompositeDictionary {
 
     protected long			 maxId	  = -1;
 
-    public BaseReificationDictionary(final TriplesDictionary bd, final GraphDictionary gd) {
+    public BaseReificationDictionary(final T bd, final G gd) {
 	this.triplesDictionary = bd;
 	this.graphDictionary = gd;
     }
@@ -74,7 +71,7 @@ public class BaseReificationDictionary implements CompositeDictionary {
     }
 
     @Override
-    public GraphDictionary getGraphDictionary() {
+    public GraphsDictionary getGraphDictionary() {
 	return this.graphDictionary;
     }
 
@@ -230,25 +227,6 @@ public class BaseReificationDictionary implements CompositeDictionary {
 
     /*
      * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#populateHeader(org.rdfhdt.hdt.header.Header, java.lang.String)
-     */
-    @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	// TODO implement
-	throw new NotImplementedException();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getType()
-     */
-    @Override
-    public String getType() {
-	return HDTVocabulary.DICTIONARY_TYPE_REIFICATION;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see java.io.Closeable#close()
      */
     @Override
@@ -256,5 +234,14 @@ public class BaseReificationDictionary implements CompositeDictionary {
 	this.triplesDictionary.close();
 	this.graphDictionary.close();
     }
+
+    // /*
+    // * (non-Javadoc)
+    // * @see org.rdfhdt.hdt.dictionary.Dictionary#getType()
+    // */
+    // @Override
+    // public String getType() {
+    // return HDTVocabulary.DICTIONARY_TYPE_REIFICATION;
+    // }
 
 }

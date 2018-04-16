@@ -11,18 +11,18 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.hdt.impl;
@@ -38,10 +38,11 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
 import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -76,413 +77,413 @@ import org.rdfhdt.hdt.util.listener.IntermediateListener;
  */
 public class HDTImpl implements HDTPrivate {
 
-	private HDTOptions spec;
+    private final HDTOptions	       spec;
 
-	protected HeaderPrivate header;
-	protected DictionaryPrivate dictionary;
-	protected TriplesPrivate triples;
+    protected HeaderPrivate	       header;
+    protected TriplesDictionaryPrivate dictionary;
+    protected TriplesPrivate	       triples;
 
-	private String hdtFileName;
-	private String baseUri;
-	private boolean isMapped;
+    private String		       hdtFileName;
+    private String		       baseUri;
+    private boolean		       isMapped;
 
-	private void createComponents() {
-		header = HeaderFactory.createHeader(spec);
-        dictionary = DictionaryFactory.createDictionary(spec);
-        triples = TriplesFactory.createTriples(spec);
+    private void createComponents() {
+	this.header = HeaderFactory.createHeader(this.spec);
+	this.dictionary = DictionaryFactory.createDictionary(this.spec);
+	this.triples = TriplesFactory.createTriples(this.spec);
+    }
+
+    @Override
+    public void populateHeaderStructure(final String baseUri) {
+	this.header.insert(baseUri, HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
+	this.header.insert(baseUri, HDTVocabulary.RDF_TYPE, HDTVocabulary.VOID_DATASET);
+
+	// VOID
+	// this.header.insert(baseUri, HDTVocabulary.VOID_TRIPLES, this.triples.getNumberOfElements());
+	// this.header.insert(baseUri, HDTVocabulary.VOID_DISTINCT_SUBJECTS, this.dictionary.getNsubjects());
+	// this.header.insert(baseUri, HDTVocabulary.VOID_DISTINCT_OBJECTS, this.dictionary.getNobjects());
+
+	// Structure
+	final String formatNode = "_:format";
+	final String dictNode = "_:dictionary";
+	final String triplesNode = "_:triples";
+	final String statisticsNode = "_:statistics";
+	final String publicationInfoNode = "_:publicationInformation";
+
+	this.header.insert(baseUri, HDTVocabulary.HDT_FORMAT_INFORMATION, formatNode);
+	this.header.insert(formatNode, HDTVocabulary.HDT_DICTIONARY, dictNode);
+	this.header.insert(formatNode, HDTVocabulary.HDT_TRIPLES, triplesNode);
+	this.header.insert(baseUri, HDTVocabulary.HDT_STATISTICAL_INFORMATION, statisticsNode);
+	this.header.insert(baseUri, HDTVocabulary.HDT_PUBLICATION_INFORMATION, publicationInfoNode);
+
+	this.dictionary.populateHeader(this.header, dictNode);
+	this.triples.populateHeader(this.header, triplesNode);
+
+	this.header.insert(statisticsNode, HDTVocabulary.HDT_SIZE, this.getDictionary().size() + this.getTriples().size());
+
+	// Current time
+	this.header.insert(publicationInfoNode, HDTVocabulary.DUBLIN_CORE_ISSUED, StringUtil.formatDate(new Date()));
+    }
+
+    /**
+     * @param spec2
+     */
+    public HDTImpl(final HDTOptions spec) {
+	this.spec = spec;
+
+	this.createComponents();
+    }
+
+    @Override
+    public void loadFromHDT(final InputStream input, final ProgressListener listener) throws IOException {
+	final ControlInfo ci = new ControlInformation();
+	final IntermediateListener iListener = new IntermediateListener(listener);
+
+	// Load Global ControlInformation
+	ci.clear();
+	ci.load(input);
+	final String hdtFormat = ci.getFormat();
+	if (!hdtFormat.equals(
+		HDTVocabulary.HDT_CONTAINER)) { throw new IllegalFormatException("This software (v" + HDTVersion.HDT_VERSION + ".x.x) cannot open this version of HDT File (" + hdtFormat + ")"); }
+
+	// Load header
+	ci.clear();
+	ci.load(input);
+	iListener.setRange(0, 5);
+	this.header = HeaderFactory.createHeader(ci);
+	this.header.load(input, ci, iListener);
+
+	// Set base URI.
+	try {
+	    final IteratorTripleString it = this.header.search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
+	    if (it.hasNext()) {
+		this.baseUri = it.next().getSubject().toString();
+	    }
+	} catch (final NotFoundException e) {
+	    e.printStackTrace();
 	}
 
-	public void populateHeaderStructure(String baseUri) {
-		header.insert(baseUri, HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
-		header.insert(baseUri, HDTVocabulary.RDF_TYPE, HDTVocabulary.VOID_DATASET);
+	// Load dictionary
+	ci.clear();
+	ci.load(input);
+	iListener.setRange(5, 60);
+	this.dictionary = DictionaryFactory.createDictionary(ci);
+	this.dictionary.load(input, ci, iListener);
 
-		// VOID
-		header.insert(baseUri, HDTVocabulary.VOID_TRIPLES, triples.getNumberOfElements());
-		header.insert(baseUri, HDTVocabulary.VOID_PROPERTIES, dictionary.getNpredicates());
-		header.insert(baseUri, HDTVocabulary.VOID_DISTINCT_SUBJECTS, dictionary.getNsubjects());
-		header.insert(baseUri, HDTVocabulary.VOID_DISTINCT_OBJECTS, dictionary.getNobjects());
+	// Load Triples
+	ci.clear();
+	ci.load(input);
+	iListener.setRange(60, 100);
+	this.triples = TriplesFactory.createTriples(ci);
+	this.triples.load(input, ci, iListener);
+    }
 
-		// Structure
-		String formatNode = "_:format";
-		String dictNode = "_:dictionary";
-		String triplesNode = "_:triples";
-		String statisticsNode = "_:statistics";
-		String publicationInfoNode = "_:publicationInformation";
+    @Override
+    public void loadFromHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+	InputStream in;
+	if (hdtFileName.endsWith(".gz")) {
+	    in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(hdtFileName)));
+	} else {
+	    in = new CountInputStream(new BufferedInputStream(new FileInputStream(hdtFileName)));
+	}
+	this.loadFromHDT(in, listener);
+	in.close();
 
-		header.insert(baseUri, HDTVocabulary.HDT_FORMAT_INFORMATION, formatNode);
-		header.insert(formatNode, HDTVocabulary.HDT_DICTIONARY, dictNode);
-		header.insert(formatNode, HDTVocabulary.HDT_TRIPLES, triplesNode);
-		header.insert(baseUri, HDTVocabulary.HDT_STATISTICAL_INFORMATION, statisticsNode);
-		header.insert(baseUri, HDTVocabulary.HDT_PUBLICATION_INFORMATION, publicationInfoNode);
+	this.hdtFileName = hdtFileName;
+    }
 
-		dictionary.populateHeader(header, dictNode);
-		triples.populateHeader(header, triplesNode);
+    @Override
+    public void mapFromHDT(File f, final long offset, final ProgressListener listener) throws IOException {
+	this.hdtFileName = f.toString();
+	this.isMapped = true;
 
-		header.insert(statisticsNode, HDTVocabulary.HDT_SIZE, getDictionary().size()+getTriples().size());
+	CountInputStream input;
+	if (this.hdtFileName.endsWith(".gz")) {
+	    final File old = f;
+	    this.hdtFileName = this.hdtFileName.substring(0, this.hdtFileName.length() - 3);
+	    f = new File(this.hdtFileName);
 
-		// Current time
-		header.insert(publicationInfoNode, HDTVocabulary.DUBLIN_CORE_ISSUED, StringUtil.formatDate(new Date()));
+	    if (!f.exists()) {
+		System.err.println("We cannot map a gzipped HDT, decompressing into " + this.hdtFileName + " first.");
+		IOUtil.decompressGzip(old, f);
+		System.err.println("Gzipped HDT successfully decompressed. You might want to delete " + old.getAbsolutePath() + " to save disk space.");
+	    } else {
+		System.err.println("We cannot map a gzipped HDT, using " + this.hdtFileName + " instead.");
+	    }
 	}
 
-	/**
-	 * @param spec2
-	 */
-	public HDTImpl(HDTOptions spec) {
-		this.spec = spec;
+	input = new CountInputStream(new BufferedInputStream(new FileInputStream(this.hdtFileName)));
 
-		createComponents();
+	final ControlInfo ci = new ControlInformation();
+	final IntermediateListener iListener = new IntermediateListener(listener);
+
+	// Load Global ControlInformation
+	ci.clear();
+	ci.load(input);
+	final String hdtFormat = ci.getFormat();
+	if (!hdtFormat.equals(
+		HDTVocabulary.HDT_CONTAINER)) { throw new IllegalFormatException("This software (v" + HDTVersion.HDT_VERSION + ".x.x) cannot open this version of HDT File (" + hdtFormat + ")"); }
+
+	// Load header
+	ci.clear();
+	ci.load(input);
+	iListener.setRange(0, 5);
+	this.header = HeaderFactory.createHeader(ci);
+	this.header.load(input, ci, iListener);
+
+	// Set base URI.
+	try {
+	    final IteratorTripleString it = this.header.search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
+	    if (it.hasNext()) {
+		this.baseUri = it.next().getSubject().toString();
+	    }
+	} catch (final NotFoundException e) {
+	    e.printStackTrace();
 	}
 
-	@Override
-	public void loadFromHDT(InputStream input, ProgressListener listener) throws IOException {
-		ControlInfo ci = new ControlInformation();
-		IntermediateListener iListener = new IntermediateListener(listener);
+	// Load dictionary
+	ci.clear();
+	input.mark(1024);
+	ci.load(input);
+	input.reset();
+	iListener.setRange(5, 60);
+	this.dictionary = DictionaryFactory.createDictionary(ci);
+	this.dictionary.mapFromFile(input, f, iListener);
 
-		// Load Global ControlInformation
-		ci.clear();
-		ci.load(input);
-		String hdtFormat = ci.getFormat();
-		if(!hdtFormat.equals(HDTVocabulary.HDT_CONTAINER)) {
-			throw new IllegalFormatException("This software (v" + HDTVersion.HDT_VERSION + ".x.x) cannot open this version of HDT File (" + hdtFormat + ")");
+	// Load Triples
+	ci.clear();
+	input.mark(1024);
+	ci.load(input);
+	input.reset();
+	iListener.setRange(60, 100);
+	this.triples = TriplesFactory.createTriples(ci);
+	this.triples.mapFromFile(input, f, iListener);
+
+	input.close();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.HDT#saveToHDT(java.io.OutputStream)
+     */
+    @Override
+    public void saveToHDT(final OutputStream output, final ProgressListener listener) throws IOException {
+	final ControlInfo ci = new ControlInformation();
+	final IntermediateListener iListener = new IntermediateListener(listener);
+
+	ci.clear();
+	ci.setType(ControlInfo.Type.GLOBAL);
+	ci.setFormat(HDTVocabulary.HDT_CONTAINER);
+	ci.save(output);
+
+	ci.clear();
+	ci.setType(ControlInfo.Type.HEADER);
+	this.header.save(output, ci, iListener);
+
+	ci.clear();
+	ci.setType(ControlInfo.Type.DICTIONARY);
+	this.dictionary.save(output, ci, iListener);
+
+	ci.clear();
+	ci.setType(ControlInfo.Type.TRIPLES);
+	this.triples.save(output, ci, iListener);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.HDT#saveToHDT(java.io.OutputStream)
+     */
+    @Override
+    public void saveToHDT(final String fileName, final ProgressListener listener) throws IOException {
+	final OutputStream out = new BufferedOutputStream(new FileOutputStream(fileName));
+	// OutputStream out = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
+	this.saveToHDT(out, listener);
+	out.close();
+
+	this.hdtFileName = fileName;
+    }
+
+    @Override
+    public IteratorTripleString search(final CharSequence subject, final CharSequence predicate, final CharSequence object) throws NotFoundException {
+
+	// Conversion from TripleString to TripleID
+	final TripleID triple = new TripleID(
+		this.dictionary.stringToId(subject, TripleComponentRole.SUBJECT),
+		this.dictionary.stringToId(predicate, TripleComponentRole.PREDICATE),
+		this.dictionary.stringToId(object, TripleComponentRole.OBJECT));
+
+	if (triple.getSubject() == -1 || triple.getPredicate() == -1 || triple.getObject() == -1) {
+	    // throw new NotFoundException("String not found in dictionary");
+	    return new IteratorTripleString() {
+		@Override
+		public TripleString next() {
+		    return null;
 		}
 
-		// Load header
-		ci.clear();
-		ci.load(input);
-		iListener.setRange(0, 5);
-		header = HeaderFactory.createHeader(ci);
-		header.load(input, ci, iListener);
-
-		// Set base URI.
-		try {
-			IteratorTripleString it = header.search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
-			if(it.hasNext()) {
-				this.baseUri = it.next().getSubject().toString();
-			}
-		} catch (NotFoundException e) {
-			e.printStackTrace();
+		@Override
+		public boolean hasNext() {
+		    return false;
 		}
 
-		// Load dictionary
-		ci.clear();
-		ci.load(input);
-		iListener.setRange(5, 60);
-		dictionary = DictionaryFactory.createDictionary(ci);
-		dictionary.load(input, ci, iListener);
+		@Override
+		public TripleString previous() {
+		    return null;
+		}
 
-		// Load Triples
-		ci.clear();
-		ci.load(input);
-		iListener.setRange(60, 100);
-		triples = TriplesFactory.createTriples(ci);
-		triples.load(input, ci, iListener);
+		@Override
+		public ResultEstimationType numResultEstimation() {
+		    return ResultEstimationType.EXACT;
+		}
+
+		@Override
+		public boolean hasPrevious() {
+		    return false;
+		}
+
+		@Override
+		public void goToStart() {
+		}
+
+		@Override
+		public long estimatedNumResults() {
+		    return 0;
+		}
+	    };
 	}
 
-	@Override
-	public void loadFromHDT(String hdtFileName, ProgressListener listener)	throws IOException {
-		InputStream in;
-		if(hdtFileName.endsWith(".gz")) {
-			in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(hdtFileName)));
-		} else {
-			in = new CountInputStream(new BufferedInputStream(new FileInputStream(hdtFileName)));
-		}
-		loadFromHDT(in, listener);
-		in.close();
+	return new DictionaryTranslateIterator(this.triples.search(triple), this.dictionary, subject, predicate, object);
+    }
 
-		this.hdtFileName = hdtFileName;
+    /*
+     * (non-Javadoc)
+     * @see hdt.HDT#getHeader()
+     */
+    @Override
+    public Header getHeader() {
+	return this.header;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.HDT#getDictionary()
+     */
+    @Override
+    public TriplesDictionary getDictionary() {
+	return this.dictionary;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.HDT#getTriples()
+     */
+    @Override
+    public Triples getTriples() {
+	return this.triples;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see hdt.hdt.HDT#getSize()
+     */
+    @Override
+    public long size() {
+	return this.dictionary.size() + this.triples.size();
+    }
+
+    public void loadFromModifiableHDT(final TempHDT modHdt, final ProgressListener listener) {
+
+	modHdt.reorganizeDictionary(listener);
+	modHdt.reorganizeTriples(listener);
+
+	// Get parts
+	final TempTriples modifiableTriples = modHdt.getTriples();
+	final TempDictionary modifiableDictionary = modHdt.getDictionary();
+
+	// Convert triples to final format
+	if (this.triples.getClass().equals(modifiableTriples.getClass())) {
+	    this.triples = modifiableTriples;
+	} else {
+	    // StopWatch tripleConvTime = new StopWatch();
+	    this.triples.load(modifiableTriples, listener);
+	    // System.out.println("Triples conversion time: "+tripleConvTime.stopAndShow());
 	}
 
-	@Override
-	public void mapFromHDT(File f, long offset, ProgressListener listener) throws IOException {
-		this.hdtFileName = f.toString();
-		this.isMapped = true;
-
-		CountInputStream input;
-		if(hdtFileName.endsWith(".gz")) {
-			File old = f;
-			hdtFileName = hdtFileName.substring(0, hdtFileName.length()-3);
-			f = new File(hdtFileName);
-
-			if(!f.exists()) {
-				System.err.println("We cannot map a gzipped HDT, decompressing into "+hdtFileName+" first.");
-				IOUtil.decompressGzip(old, f);
-				System.err.println("Gzipped HDT successfully decompressed. You might want to delete "+old.getAbsolutePath()+" to save disk space.");
-			} else {
-				System.err.println("We cannot map a gzipped HDT, using "+hdtFileName+" instead.");
-			}
-		}
-
-		input = new CountInputStream(new BufferedInputStream(new FileInputStream(hdtFileName)));
-
-		ControlInfo ci = new ControlInformation();
-		IntermediateListener iListener = new IntermediateListener(listener);
-
-		// Load Global ControlInformation
-		ci.clear();
-		ci.load(input);
-		String hdtFormat = ci.getFormat();
-		if(!hdtFormat.equals(HDTVocabulary.HDT_CONTAINER)) {
-			throw new IllegalFormatException("This software (v" + HDTVersion.HDT_VERSION + ".x.x) cannot open this version of HDT File (" + hdtFormat + ")");
-		}
-
-		// Load header
-		ci.clear();
-		ci.load(input);
-		iListener.setRange(0, 5);
-		header = HeaderFactory.createHeader(ci);
-		header.load(input, ci, iListener);
-
-		// Set base URI.
-		try {
-			IteratorTripleString it = header.search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
-			if(it.hasNext()) {
-				this.baseUri = it.next().getSubject().toString();
-			}
-		} catch (NotFoundException e) {
-			e.printStackTrace();
-		}
-
-		// Load dictionary
-		ci.clear();
-		input.mark(1024);
-		ci.load(input);
-		input.reset();
-		iListener.setRange(5, 60);
-		dictionary = DictionaryFactory.createDictionary(ci);
-		dictionary.mapFromFile(input, f, iListener);
-
-		// Load Triples
-		ci.clear();
-		input.mark(1024);
-		ci.load(input);
-		input.reset();
-		iListener.setRange(60, 100);
-		triples = TriplesFactory.createTriples(ci);
-		triples.mapFromFile(input, f, iListener);
-
-		input.close();
+	// Convert dictionary to final format
+	if (this.dictionary.getClass().equals(modifiableDictionary.getClass())) {
+	    this.dictionary = (DictionaryPrivate) modifiableDictionary;
+	} else {
+	    // StopWatch dictConvTime = new StopWatch();
+	    this.dictionary.load(modifiableDictionary, listener);
+	    // System.out.println("Dictionary conversion time: "+dictConvTime.stopAndShow());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see hdt.HDT#saveToHDT(java.io.OutputStream)
-	 */
-	@Override
-	public void saveToHDT(OutputStream output, ProgressListener listener) throws IOException {
-		ControlInfo ci = new ControlInformation();
-		IntermediateListener iListener = new IntermediateListener(listener);
+	this.baseUri = modHdt.getBaseURI();
+    }
 
-		ci.clear();
-		ci.setType(ControlInfo.Type.GLOBAL);
-		ci.setFormat(HDTVocabulary.HDT_CONTAINER);
-		ci.save(output);
-
-		ci.clear();
-		ci.setType(ControlInfo.Type.HEADER);
-		header.save(output, ci, iListener);
-
-		ci.clear();
-		ci.setType(ControlInfo.Type.DICTIONARY);
-		dictionary.save(output, ci, iListener);
-
-		ci.clear();
-		ci.setType(ControlInfo.Type.TRIPLES);
-		triples.save(output, ci, iListener);
+    /*
+     * (non-Javadoc)
+     * @see hdt.hdt.HDT#generateIndex(hdt.listener.ProgressListener)
+     */
+    @Override
+    public void loadOrCreateIndex(final ProgressListener listener) {
+	final ControlInfo ci = new ControlInformation();
+	String indexName = this.hdtFileName + HDTVersion.get_index_suffix("-");
+	indexName = indexName.replaceAll("\\.hdt\\.gz", "hdt");
+	final String versionName = indexName;
+	File ff = new File(indexName);
+	// backward compatibility
+	if (!ff.isFile() || !ff.canRead()) {
+	    indexName = this.hdtFileName + (".index");
+	    indexName = indexName.replaceAll("\\.hdt\\.gz", "hdt");
+	    ff = new File(indexName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see hdt.HDT#saveToHDT(java.io.OutputStream)
-	 */
-	@Override
-	public void saveToHDT(String fileName, ProgressListener listener) throws IOException {
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(fileName));
-		//OutputStream out = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)));
-		saveToHDT(out, listener);
+	CountInputStream in = null;
+	try {
+	    in = new CountInputStream(new BufferedInputStream(new FileInputStream(ff)));
+	    ci.load(in);
+	    if (this.isMapped) {
+		this.triples.mapIndex(in, new File(indexName), ci, listener);
+	    } else {
+		this.triples.loadIndex(in, ci, listener);
+	    }
+	    // in.close();
+	} catch (final Exception e) {
+	    System.out.println("Could not read .hdt.index, Generating a new one.");
+
+	    // GENERATE
+	    this.triples.generateIndex(listener);
+
+	    FileOutputStream out = null;
+	    // SAVE
+	    try {
+		out = new FileOutputStream(versionName);
+		ci.clear();
+		this.triples.saveIndex(out, ci, listener);
 		out.close();
+	    } catch (final IOException e2) {
 
-		this.hdtFileName = fileName;
+	    } finally {
+		IOUtil.closeQuietly(out);
+	    }
+	} finally {
+	    IOUtil.closeQuietly(in);
 	}
+    }
 
-	@Override
-	public IteratorTripleString search(CharSequence subject, CharSequence predicate, CharSequence object) throws NotFoundException {
+    @Override
+    public String getBaseURI() {
+	return this.baseUri;
+    }
 
-		// Conversion from TripleString to TripleID
-		TripleID triple = new TripleID(
-				dictionary.stringToId(subject, TripleComponentRole.SUBJECT),
-				dictionary.stringToId(predicate, TripleComponentRole.PREDICATE),
-				dictionary.stringToId(object, TripleComponentRole.OBJECT)
-			);
+    protected void setTriples(final TriplesPrivate triples) {
+	this.triples = triples;
+    }
 
-		if(triple.getSubject()==-1 || triple.getPredicate()==-1 || triple.getObject()==-1) {
-			//throw new NotFoundException("String not found in dictionary");
-			return new IteratorTripleString() {
-				@Override
-				public TripleString next() {
-					return null;
-				}
-				@Override
-				public boolean hasNext() {
-					return false;
-				}
-				@Override
-				public TripleString previous() {
-					return null;
-				}
-				@Override
-				public ResultEstimationType numResultEstimation() {
-					return ResultEstimationType.EXACT;
-				}
-				@Override
-				public boolean hasPrevious() {
-					return false;
-				}
-				@Override
-				public void goToStart() {
-				}
-				@Override
-				public long estimatedNumResults() {
-					return 0;
-				}
-			};
-		}
-
-		return new DictionaryTranslateIterator(triples.search(triple), dictionary, subject, predicate, object);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see hdt.HDT#getHeader()
-	 */
-	@Override
-	public Header getHeader() {
-		return header;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see hdt.HDT#getDictionary()
-	 */
-	@Override
-	public TriplesDictionary getDictionary() {
-		return dictionary;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see hdt.HDT#getTriples()
-	 */
-	@Override
-	public Triples getTriples() {
-		return triples;
-	}
-
-	/* (non-Javadoc)
-	 * @see hdt.hdt.HDT#getSize()
-	 */
-	@Override
-	public long size() {
-		return dictionary.size()+triples.size();
-	}
-
-	public void loadFromModifiableHDT(TempHDT modHdt, ProgressListener listener) {
-
-		modHdt.reorganizeDictionary(listener);
-		modHdt.reorganizeTriples(listener);
-
-        // Get parts
-        TempTriples modifiableTriples = (TempTriples) modHdt.getTriples();
-        TempDictionary modifiableDictionary = (TempDictionary) modHdt.getDictionary();
-
-        // Convert triples to final format
-        if(triples.getClass().equals(modifiableTriples.getClass())) {
-                triples = modifiableTriples;
-        } else {
-        		//StopWatch tripleConvTime = new StopWatch();
-                triples.load(modifiableTriples, listener);
-                //System.out.println("Triples conversion time: "+tripleConvTime.stopAndShow());
-        }
-
-        // Convert dictionary to final format
-        if(dictionary.getClass().equals(modifiableDictionary.getClass())) {
-                dictionary = (DictionaryPrivate)modifiableDictionary;
-        } else {
-                //StopWatch dictConvTime = new StopWatch();
-                dictionary.load(modifiableDictionary, listener);
-                //System.out.println("Dictionary conversion time: "+dictConvTime.stopAndShow());
-        }
-
-        this.baseUri = modHdt.getBaseURI();
-	}
-
-	/* (non-Javadoc)
-	 * @see hdt.hdt.HDT#generateIndex(hdt.listener.ProgressListener)
-	 */
-	@Override
-	public void loadOrCreateIndex(ProgressListener listener) {
-		ControlInfo ci = new ControlInformation();
-		String indexName = hdtFileName+ HDTVersion.get_index_suffix("-");
-		indexName = indexName.replaceAll("\\.hdt\\.gz", "hdt");
-		String versionName = indexName;
-		File ff = new File(indexName);
-		// backward compatibility
-		if (!ff.isFile() || !ff.canRead()){
-			indexName = hdtFileName+ (".index");
-			indexName = indexName.replaceAll("\\.hdt\\.gz", "hdt");
-			ff = new File(indexName);
-		}
-		
-		CountInputStream in =null;
-		try {
-			in = new CountInputStream(new BufferedInputStream(new FileInputStream(ff)));
-			ci.load(in);
-			if(isMapped) {
-				triples.mapIndex(in, new File(indexName), ci, listener);
-			} else {
-				triples.loadIndex(in, ci, listener);
-			}
-			//in.close();
-		} catch (Exception e) {
-			System.out.println("Could not read .hdt.index, Generating a new one.");
-
-			// GENERATE
-			triples.generateIndex(listener);
-
-			FileOutputStream out=null;
-			// SAVE
-			try {
-				out = new FileOutputStream(versionName);
-				ci.clear();
-				triples.saveIndex(out, ci, listener);
-				out.close();
-			} catch (IOException e2) {
-
-			} finally {
-				IOUtil.closeQuietly(out);
-			}
-		} finally {
-			IOUtil.closeQuietly(in);
-		}
-	}
-
-	@Override
-	public String getBaseURI() {
-		return baseUri;
-	}
-
-	protected void setTriples(TriplesPrivate triples) {
-		this.triples = triples;
-	}
-
-	@Override
-	public void close() throws IOException {
-		dictionary.close();
-		triples.close();
-	}
+    @Override
+    public void close() throws IOException {
+	this.dictionary.close();
+	this.triples.close();
+    }
 
 }

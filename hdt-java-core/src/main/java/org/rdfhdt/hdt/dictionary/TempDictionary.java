@@ -26,8 +26,6 @@ package org.rdfhdt.hdt.dictionary;
  * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
-import java.io.Closeable;
-
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.TempTriples;
 
@@ -37,23 +35,23 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author Eugen
  *
  */
-public interface TempDictionary extends Closeable {
+public interface TempDictionary {
 
     /**
      * To be executed at the start of the processing
-     * 
+     *
      */
     void startProcessing();
 
     /**
      * To be executed at the end of the processing
-     * 
+     *
      */
     void endProcessing();
 
     /**
      * Inserts a string in the dictionary in a position
-     * 
+     *
      * @param str
      *            The string to be inserted
      * @param position
@@ -64,7 +62,7 @@ public interface TempDictionary extends Closeable {
     /**
      * Reorganizes the dictionary (Extract shared SO, sort sections).
      * (used for two-pass way of work).
-     * 
+     *
      */
     void reorganize();
 
@@ -80,13 +78,4 @@ public interface TempDictionary extends Closeable {
      * Empty all the strings of the dictionary.
      */
     void clear();
-
-    /**
-     * Get the ID of a given String
-     * 
-     * @param subject
-     * @param role
-     * @return
-     */
-    int stringToId(CharSequence subject, TripleComponentRole role);
 }

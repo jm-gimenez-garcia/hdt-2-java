@@ -11,18 +11,18 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.dictionary;
@@ -39,58 +39,52 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 
 /**
  * Factory that creates Dictionary objects
- * 
+ *
  */
 public class DictionaryFactory {
 
-	public static final String MOD_DICT_IMPL_HASH = "hash";
-	public static final String DICTIONARY_TYPE_FOUR_SECTION_BIG ="dictionaryFourBig";
+    public static final String MOD_DICT_IMPL_HASH		= "hash";
+    public static final String DICTIONARY_TYPE_FOUR_SECTION_BIG	= "dictionaryFourBig";
 
-	private DictionaryFactory() {}
+    private DictionaryFactory() {
+    }
 
-	/**
-	 * Creates a default dictionary (HashDictionary)
-	 * 
-	 * @return Dictionary
-	 */
-	public static TriplesDictionary createDefaultDictionary()
-			throws IllegalArgumentException {
-		return new FourSectionDictionary(new HDTSpecification());
-	}
-	
-	/**
-	 * Creates a default dictionary (HashDictionary)
-	 * 
-	 * @return Dictionary
-	 */
-	public static TempDictionary createTempDictionary(HDTOptions spec) {
-		String dictImpl = spec.get("tempDictionary.impl");
-		
-		// Implementations available in the Core
-		if(dictImpl==null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) {
-			return new HashDictionary(spec);
-		}
-		
-		// Implementations available in the HDT-Disk module.
-		return HDTFactory.getTempFactory().getDictionary(spec);
-	}
-	
-	public static DictionaryPrivate createDictionary(HDTOptions spec) {
-		String name = spec.get("dictionary.type");
-		if(name==null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
-			return new FourSectionDictionary(spec);
-		}
-		else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)){
-			return new FourSectionDictionaryBig(spec);
-		}
-		throw new IllegalFormatException("Implementation of ditionary not found for "+name);
-	}
-	
-	public static DictionaryPrivate createDictionary(ControlInfo ci) {
-		String name = ci.getFormat();
-		if(HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
-			return new FourSectionDictionary(new HDTSpecification());
-		}
-		throw new IllegalFormatException("Implementation of ditionary not found for "+name);
-	}
+    /**
+     * Creates a default dictionary (HashDictionary)
+     * 
+     * @return Dictionary
+     */
+    public static TriplesDictionary createDefaultDictionary()
+	    throws IllegalArgumentException {
+	return new FourSectionDictionary(new HDTSpecification());
+    }
+
+    /**
+     * Creates a default dictionary (HashDictionary)
+     * 
+     * @return Dictionary
+     */
+    public static TempDictionary createTempDictionary(final HDTOptions spec) {
+	final String dictImpl = spec.get("tempDictionary.impl");
+
+	// Implementations available in the Core
+	if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) { return new HashDictionary(spec); }
+
+	// Implementations available in the HDT-Disk module.
+	return HDTFactory.getTempFactory().getDictionary(spec);
+    }
+
+    public static DictionaryPrivate<?> createDictionary(final HDTOptions spec) {
+	final String name = spec.get("dictionary.type");
+	if (name == null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
+	    return new FourSectionDictionary(spec);
+	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) { return new FourSectionDictionaryBig(spec); }
+	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
+    }
+
+    public static DictionaryPrivate createDictionary(final ControlInfo ci) {
+	final String name = ci.getFormat();
+	if (HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) { return new FourSectionDictionary(new HDTSpecification()); }
+	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
+    }
 }

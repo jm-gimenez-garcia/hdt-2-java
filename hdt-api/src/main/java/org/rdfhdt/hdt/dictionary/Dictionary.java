@@ -29,7 +29,6 @@ package org.rdfhdt.hdt.dictionary;
 import java.io.Closeable;
 
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.header.Header;
 
 /**
  * Interface that specifies the basic methods for any Dictionary implementation
@@ -71,15 +70,4 @@ public interface Dictionary extends Closeable {
      */
     long size();
 
-    /**
-     * Fills the header with information from the dictionary
-     */
-    void populateHeader(Header header, String rootNode);
-
-    /**
-     * Returns the type of the dictionary (the way it is written onto file/held in memory)
-     *
-     * @return
-     */
-    String getType();
 }

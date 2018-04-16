@@ -29,7 +29,7 @@ package org.rdfhdt.hdt.dictionary.impl;
 
 import java.util.Iterator;
 
-import org.rdfhdt.hdt.dictionary.GraphDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TempDictionary;
 import org.rdfhdt.hdt.dictionary.TempDictionarySection;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
@@ -45,7 +45,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author José M. Giménez-García, Eugen
  *
  */
-public abstract class BaseTempGraphDictionary implements TempDictionary, GraphDictionary {
+public abstract class BaseTempGraphDictionary implements TempDictionary, GraphsDictionary {
 
     HDTOptions			    spec;
     protected boolean		    isOrganized;
@@ -65,19 +65,24 @@ public abstract class BaseTempGraphDictionary implements TempDictionary, GraphDi
      */
     @Override
     public int insert(final CharSequence str, final TripleComponentRole position) {
+	int returnValue;
 	switch (position) {
 	    case SUBJECT:
-		this.isOrganized = false;
-		return this.subjects.add(str);
-	    case GRAPH:
-		this.isOrganized = false;
-		return this.graphs.add(str);
+		returnValue = this.subjects.add(str);
+		this.isOrganized &= this.subjects.isSorted();
+		break;
 	    case OBJECT:
-		this.isOrganized = false;
-		return this.objects.add(str);
+		returnValue = this.objects.add(str);
+		this.isOrganized &= this.objects.isSorted();
+		break;
+	    case GRAPH:
+		returnValue = this.graphs.add(str);
+		this.isOrganized &= this.graphs.isSorted();
+		break;
 	    default:
 		throw new IllegalArgumentException();
 	}
+	return returnValue;
     }
 
     @Override

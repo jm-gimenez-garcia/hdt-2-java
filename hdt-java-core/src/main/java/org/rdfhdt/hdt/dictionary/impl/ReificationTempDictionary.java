@@ -29,37 +29,92 @@ package org.rdfhdt.hdt.dictionary.impl;
 
 import java.io.IOException;
 
-import org.rdfhdt.hdt.dictionary.CompositeDictionary;
-import org.rdfhdt.hdt.dictionary.GraphDictionary;
 import org.rdfhdt.hdt.dictionary.TempDictionary;
-import org.rdfhdt.hdt.dictionary.TempDictionarySection;
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.triples.TempTriples;
 
 /**
  * @author José M. Giménez-García
  *
  */
-public class ReificationTempDictionary implements CompositeDictionary, TempDictionary {
-
-    protected BaseTempTriplesDictionary	triplesDictionary;
-    protected BaseTempGraphDictionary	graphDictionary;
+public class ReificationTempDictionary extends BaseReificationDictionary<BaseTempTriplesDictionary, BaseTempGraphDictionary> implements TempDictionary {
 
     public ReificationTempDictionary(final BaseTempTriplesDictionary td, final BaseTempGraphDictionary gd) {
-	this.triplesDictionary = td;
-	this.graphDictionary = gd;
+	super(td, gd);
+    }
+
+    @Override
+    public void reorganize() {
+
+	// If a resource is at S and G, or O and G, then move it to the Graph Dictionary
+	this.graphDictionary.getGraphs().getEntries().forEachRemaining(G -> {
+	    int graphId = this.triplesDictionary.getSubjects().locate(G);
+	    if (graphId > 0) {
+		this.graphDictionary.getSubjects().add(G);
+		this.triplesDictionary.getSubjects().remove(G);
+	    }
+	    graphId = this.triplesDictionary.getObjects().locate(G);
+	    if (graphId > 0) {
+		this.graphDictionary.getObjects().add(G);
+		this.triplesDictionary.getObjects().remove(G);
+	    }
+	});
+
+	// Then organize each section separately
+	this.triplesDictionary.reorganize();
+	this.graphDictionary.reorganize();
     }
 
     /*
      * (non-Javadoc)
      * @see hdt.dictionary.Dictionary#reorganize(hdt.triples.TempTriples)
+     * The memory footprint of this method is horrible, please try to use reorganize() instead.
      */
     @Override
     public void reorganize(final TempTriples triples) {
-	this.triplesDictionary.reorganize();
-	this.graphDictionary.reorganize();
+
+	final DictionaryIDMapping mapSubjects = new DictionaryIDMapping(this.triplesDictionary.subjects.getNumberOfElements());
+	final DictionaryIDMapping mapPredicates = new DictionaryIDMapping(this.triplesDictionary.predicates.getNumberOfElements());
+	final DictionaryIDMapping mapObjects = new DictionaryIDMapping(this.triplesDictionary.objects.getNumberOfElements());
+	final DictionaryIDMapping mapGraphs = new DictionaryIDMapping(this.graphDictionary.objects.getNumberOfElements());
+
+	// Get the old IDs
+	this.triplesDictionary.getSubjects().getEntries().forEachRemaining(S -> mapSubjects.add(S));
+	this.triplesDictionary.getPredicates().getEntries().forEachRemaining(P -> mapPredicates.add(P));
+	this.triplesDictionary.getObjects().getEntries().forEachRemaining(O -> mapObjects.add(O));
+	this.graphDictionary.getGraphs().getEntries().forEachRemaining(G -> mapGraphs.add(G));
+
+	// Reorganize
+	this.reorganize();
+
+	// Map old IDs to new IDs
+	mapSubjects.getEntries().forEachRemaining(S -> S.setNewId(this.stringToId(S.getStr(), TripleComponentRole.SUBJECT)));
+	mapPredicates.getEntries().forEachRemaining(P -> P.setNewId(this.stringToId(P.getStr(), TripleComponentRole.PREDICATE)));
+	mapObjects.getEntries().forEachRemaining(O -> O.setNewId(this.stringToId(O.getStr(), TripleComponentRole.OBJECT)));
+	mapGraphs.getEntries().forEachRemaining(G -> G.setNewId(this.stringToId(G.getStr(), TripleComponentRole.GRAPH)));
+
+	// Change IDs in Triples
+	triples.searchAll().forEachRemaining(T -> T.setAll(mapSubjects.getNewID(T.getSubject()), mapPredicates.getNewID(T.getPredicate()), mapObjects.getNewID(T.getObject())));
+    }
+
+    @Override
+    public void close() throws IOException {
+	this.triplesDictionary.close();
+	this.graphDictionary.close();
+    }
+
+    @Override
+    public int insert(final CharSequence str, final TripleComponentRole position) {
+	if (position == TripleComponentRole.GRAPH) {
+	    return this.graphDictionary.insert(str, position);
+	} else {
+	    return this.triplesDictionary.insert(str, position);
+	}
+    }
+
+    @Override
+    public boolean isOrganized() {
+	return this.triplesDictionary.isOrganized() && this.graphDictionary.isOrganized();
     }
 
     @Override
@@ -70,55 +125,8 @@ public class ReificationTempDictionary implements CompositeDictionary, TempDicti
 
     @Override
     public void endProcessing() {
-	this.triplesDictionary.startProcessing();
-	this.graphDictionary.startProcessing();
-    }
-
-    @Override
-    public void close() throws IOException {
-	this.triplesDictionary.close();
-	this.graphDictionary.close();
-    }
-
-    @Override
-    public TempDictionarySection getSubjects() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    @Override
-    public TempDictionarySection getPredicates() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    @Override
-    public TempDictionarySection getObjects() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    @Override
-    public TempDictionarySection getShared() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    @Override
-    public int insert(final CharSequence str, final TripleComponentRole position) {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    @Override
-    public void reorganize() {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean isOrganized() {
-	return this.triplesDictionary.isOrganized() && this.graphDictionary.isOrganized();
+	this.triplesDictionary.endProcessing();
+	this.graphDictionary.endProcessing();
     }
 
     @Override
@@ -127,134 +135,4 @@ public class ReificationTempDictionary implements CompositeDictionary, TempDicti
 	this.graphDictionary.clear();
     }
 
-    @Override
-    public int stringToId(final CharSequence subject, final TripleComponentRole role) {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    @Override
-    public TempDictionarySection getGraphs() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNsubjects()
-     */
-    @Override
-    public long getNsubjects() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNpredicates()
-     */
-    @Override
-    public long getNpredicates() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNobjects()
-     */
-    @Override
-    public long getNobjects() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.TriplesDictionary#getNshared()
-     */
-    @Override
-    public long getNshared() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#idToString(int, org.rdfhdt.hdt.enums.TripleComponentRole)
-     */
-    @Override
-    public CharSequence idToString(final int id, final TripleComponentRole position) {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getNumberOfElements()
-     */
-    @Override
-    public long getNumberOfElements() {
-	return this.triplesDictionary.getNumberOfElements() + this.graphDictionary.getNumberOfElements();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#size()
-     */
-    @Override
-    public long size() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#populateHeader(org.rdfhdt.hdt.header.Header, java.lang.String)
-     */
-    @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getType()
-     */
-    @Override
-    public String getType() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.GraphDictionary#getNgraphs()
-     */
-    @Override
-    public long getNgraphs() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.CompositeDictionary#getTriplesDictionary()
-     */
-    @Override
-    public TriplesDictionary getTriplesDictionary() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.CompositeDictionary#getGraphDictionary()
-     */
-    @Override
-    public GraphDictionary getGraphDictionary() {
-	// TODO Auto-generated method stub
-	return null;
-    }
 }

@@ -65,19 +65,24 @@ public abstract class BaseTempTriplesDictionary implements TempDictionary, Tripl
      */
     @Override
     public int insert(final CharSequence str, final TripleComponentRole position) {
+	int returnValue = 0;
 	switch (position) {
 	    case SUBJECT:
-		this.isOrganized = false;
-		return this.subjects.add(str);
+		returnValue = this.subjects.add(str);
+		this.isOrganized &= this.subjects.isSorted();
+		break;
 	    case PREDICATE:
-		this.isOrganized = false;
-		return this.predicates.add(str);
+		returnValue = this.predicates.add(str);
+		this.isOrganized &= this.predicates.isSorted();
+		break;
 	    case OBJECT:
-		this.isOrganized = false;
-		return this.objects.add(str);
+		returnValue = this.objects.add(str);
+		this.isOrganized &= this.objects.isSorted();
+		break;
 	    default:
 		throw new IllegalArgumentException();
 	}
+	return returnValue;
     }
 
     @Override

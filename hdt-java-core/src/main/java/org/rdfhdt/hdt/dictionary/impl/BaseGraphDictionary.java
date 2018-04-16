@@ -28,10 +28,11 @@
 
 package org.rdfhdt.hdt.dictionary.impl;
 
-import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.BaseDictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
-import org.rdfhdt.hdt.dictionary.GraphDictionary;
+import org.rdfhdt.hdt.dictionary.GraphDictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.options.HDTOptions;
@@ -45,7 +46,7 @@ import org.rdfhdt.hdt.util.string.CompactString;
  * @author José M. Giménez-García, mario.arias, Eugen
  *
  */
-public abstract class BaseGraphDictionary implements DictionaryPrivate<GraphDictionary>, GraphDictionary {
+public abstract class BaseGraphDictionary extends BaseDictionary<GraphsDictionary> implements GraphDictionaryPrivate {
 
     protected HDTOptions	       spec;
 
@@ -55,31 +56,33 @@ public abstract class BaseGraphDictionary implements DictionaryPrivate<GraphDict
     protected DictionarySectionPrivate shared;
 
     public BaseGraphDictionary(final HDTOptions spec) {
-	this.spec = spec;
+	super(spec);
     }
 
+    @Override
     protected int getGlobalId(final int id, final DictionarySectionRole position) {
-	switch (position) {
-	    case SUBJECT:
-	    case OBJECT:
-		return this.shared.getNumberOfElements() + id;
-
-	    case GRAPH:
-	    case SHARED:
-		return id;
-	    default:
-		throw new IllegalArgumentException();
+	final int globalId = super.getGlobalId(id, position);
+	if (globalId > 0) {
+	    return globalId;
+	} else {
+	    switch (position) {
+		case GRAPH:
+		    return this.shared.getNumberOfElements() + Math.max(this.subjects.getNumberOfElements(), this.objects.getNumberOfElements()) + id;
+		default:
+		    throw new IllegalArgumentException();
+	    }
 	}
     }
 
+    @Override
     protected int getLocalId(final int id, final TripleComponentRole position) {
 	switch (position) {
 	    case SUBJECT:
 	    case OBJECT:
 		if (id <= this.shared.getNumberOfElements()) {
-		    return id;
+		    return id - this.graphs.getNumberOfElements();
 		} else {
-		    return id - this.shared.getNumberOfElements();
+		    return id - this.shared.getNumberOfElements() - this.graphs.getNumberOfElements();
 		}
 	    case GRAPH:
 		return id;

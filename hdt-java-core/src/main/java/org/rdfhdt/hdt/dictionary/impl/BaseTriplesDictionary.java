@@ -28,10 +28,11 @@
 
 package org.rdfhdt.hdt.dictionary.impl;
 
-import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.BaseDictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.options.HDTOptions;
@@ -45,7 +46,7 @@ import org.rdfhdt.hdt.util.string.CompactString;
  * @author mario.arias, Eugen, José M. Giménez-García
  *
  */
-public abstract class BaseTriplesDictionary implements DictionaryPrivate<TriplesDictionary>, TriplesDictionary {
+public abstract class BaseTriplesDictionary extends BaseDictionary<TriplesDictionary> implements TriplesDictionaryPrivate {
 
     protected HDTOptions	       spec;
 
@@ -55,36 +56,36 @@ public abstract class BaseTriplesDictionary implements DictionaryPrivate<Triples
     protected DictionarySectionPrivate shared;
 
     public BaseTriplesDictionary(final HDTOptions spec) {
-	this.spec = spec;
+	super(spec);
     }
 
+    @Override
     protected int getGlobalId(final int id, final DictionarySectionRole position) {
-	switch (position) {
-	    case SUBJECT:
-	    case OBJECT:
-		return this.shared.getNumberOfElements() + id;
-
-	    case PREDICATE:
-	    case SHARED:
-		return id;
-	    default:
-		throw new IllegalArgumentException();
+	final int globalId = super.getGlobalId(id, position);
+	if (globalId > 0) {
+	    return globalId;
+	} else {
+	    switch (position) {
+		case PREDICATE:
+		    return id;
+		default:
+		    throw new IllegalArgumentException();
+	    }
 	}
     }
 
+    @Override
     protected int getLocalId(final int id, final TripleComponentRole position) {
-	switch (position) {
-	    case SUBJECT:
-	    case OBJECT:
-		if (id <= this.shared.getNumberOfElements()) {
+	final int localId = super.getLocalId(id, position);
+	if (localId > 0) {
+	    return localId;
+	} else {
+	    switch (position) {
+		case PREDICATE:
 		    return id;
-		} else {
-		    return id - this.shared.getNumberOfElements();
-		}
-	    case PREDICATE:
-		return id;
-	    default:
-		throw new IllegalArgumentException();
+		default:
+		    throw new IllegalArgumentException();
+	    }
 	}
     }
 
