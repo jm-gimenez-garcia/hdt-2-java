@@ -29,9 +29,8 @@ package org.rdfhdt.hdt.dictionary.impl;
 
 import java.util.Iterator;
 
-import org.rdfhdt.hdt.dictionary.TempDictionary;
 import org.rdfhdt.hdt.dictionary.TempDictionarySection;
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.NotImplementedException;
@@ -45,7 +44,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author Eugen
  *
  */
-public abstract class BaseTempTriplesDictionary implements TempDictionary, TriplesDictionary {
+public abstract class BaseTempTriplesDictionary implements TriplesTempDictionary {
 
     HDTOptions			    spec;
     protected boolean		    isOrganized;

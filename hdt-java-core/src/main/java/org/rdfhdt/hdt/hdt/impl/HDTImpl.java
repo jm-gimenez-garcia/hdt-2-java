@@ -39,10 +39,9 @@ import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
-import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
-import org.rdfhdt.hdt.dictionary.TempDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -397,7 +396,7 @@ public class HDTImpl implements HDTPrivate {
 
 	// Get parts
 	final TempTriples modifiableTriples = modHdt.getTriples();
-	final TempDictionary modifiableDictionary = modHdt.getDictionary();
+	final TriplesTempDictionary modifiableDictionary = modHdt.getDictionary();
 
 	// Convert triples to final format
 	if (this.triples.getClass().equals(modifiableTriples.getClass())) {
@@ -410,7 +409,7 @@ public class HDTImpl implements HDTPrivate {
 
 	// Convert dictionary to final format
 	if (this.dictionary.getClass().equals(modifiableDictionary.getClass())) {
-	    this.dictionary = (DictionaryPrivate) modifiableDictionary;
+	    this.dictionary = (TriplesDictionaryPrivate) modifiableDictionary;
 	} else {
 	    // StopWatch dictConvTime = new StopWatch();
 	    this.dictionary.load(modifiableDictionary, listener);

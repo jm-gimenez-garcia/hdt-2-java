@@ -11,25 +11,25 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.hdt;
 
 import java.io.Closeable;
 
-import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.triples.TempTriples;
@@ -39,42 +39,42 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * to gather the information while building an HDT file. Allows adding
  * and removing triples, and operations to reorganize the internal information
  * (Typically extracting shared, sorting sections, removing duplicates...)
- * 
+ *
  * @author mario.arias
  *
  */
 public interface TempHDT extends Closeable {
-	
-	void insert(CharSequence subject, CharSequence predicate, CharSequence object);
-	
-	/**
-	 * This method should be used before reorganizing triples!
-	 * 
-	 * It reorganizes the dictionary and updates it's ID's
-	 * (usually done just by calling reorganize method of
-	 * dictionary)
-	 * 
-	 * @param listener
-	 */
-	void reorganizeDictionary(ProgressListener listener);
-	
-	/**
-	 * 
-	 * It sorts the triples and removes duplicates.
-	 * 
-	 * @param listener
-	 */
-	void reorganizeTriples(ProgressListener listener);
-	
-	boolean isOrganized();
-	
-	void clear();
 
-	TempDictionary getDictionary();
+    void insert(CharSequence subject, CharSequence predicate, CharSequence object);
 
-	TempTriples getTriples();
-	
-	Header getHeader();
+    /**
+     * This method should be used before reorganizing triples!
+     * 
+     * It reorganizes the dictionary and updates it's ID's
+     * (usually done just by calling reorganize method of
+     * dictionary)
+     * 
+     * @param listener
+     */
+    void reorganizeDictionary(ProgressListener listener);
 
-	String getBaseURI();
+    /**
+     * 
+     * It sorts the triples and removes duplicates.
+     * 
+     * @param listener
+     */
+    void reorganizeTriples(ProgressListener listener);
+
+    boolean isOrganized();
+
+    void clear();
+
+    TriplesTempDictionary getDictionary();
+
+    TempTriples getTriples();
+
+    Header getHeader();
+
+    String getBaseURI();
 }

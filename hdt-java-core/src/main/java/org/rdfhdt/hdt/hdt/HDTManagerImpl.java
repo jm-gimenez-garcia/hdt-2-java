@@ -19,135 +19,133 @@ import org.rdfhdt.hdt.util.StopWatch;
 
 public class HDTManagerImpl extends HDTManager {
 
-	@Override
-	public HDTOptions doReadOptions(String file) throws IOException {
-		return new HDTSpecification(file);
+    @Override
+    public HDTOptions doReadOptions(final String file) throws IOException {
+	return new HDTSpecification(file);
+    }
+
+    @Override
+    public HDT doLoadHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.loadFromHDT(hdtFileName, listener);
+	return hdt;
+    }
+
+    @Override
+    protected HDT doMapHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.mapFromHDT(new File(hdtFileName), 0, listener);
+	return hdt;
+    }
+
+    @Override
+    public HDT doLoadHDT(final InputStream hdtFile, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.loadFromHDT(hdtFile, listener);
+	return hdt;
+    }
+
+    @Override
+    public HDT doLoadIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.loadFromHDT(hdtFileName, listener);
+	hdt.loadOrCreateIndex(listener);
+	return hdt;
+    }
+
+    @Override
+    protected HDT doMapIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.mapFromHDT(new File(hdtFileName), 0, listener);
+	hdt.loadOrCreateIndex(listener);
+	return hdt;
+    }
+
+    @Override
+    public HDT doLoadIndexedHDT(final InputStream hdtFile, final ProgressListener listener) throws IOException {
+	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
+	hdt.loadFromHDT(hdtFile, listener);
+	hdt.loadOrCreateIndex(listener);
+	return hdt;
+    }
+
+    @Override
+    public HDT doIndexedHDT(final HDT hdt, final ProgressListener listener) {
+	((HDTPrivate) hdt).loadOrCreateIndex(listener);
+	return hdt;
+    }
+
+    @Override
+    public HDT doGenerateHDT(final String rdfFileName, final String baseURI, final RDFNotation rdfNotation, final HDTOptions spec, final boolean reif, final ProgressListener listener)
+	    throws IOException, ParserException {
+
+	// Let implementations override the one/two pass.
+	try {
+	    HDTFactory.getTempFactory().checkTwoPass(spec);
+	} catch (final Exception e) {
+
 	}
 
-	@Override
-	public HDT doLoadHDT(String hdtFileName, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.loadFromHDT(hdtFileName, listener);
-		return hdt;
-	}
-	
-	@Override
-	protected HDT doMapHDT(String hdtFileName, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.mapFromHDT(new File(hdtFileName), 0, listener);
-		return hdt;
+	// choose the importer
+	final String loaderType = spec.get("loader.type");
+	TempHDTImporter loader;
+	if ("two-pass".equals(loaderType)) {
+	    loader = new TempHDTImporterTwoPass();
+	} else {
+	    loader = new TempHDTImporterOnePass();
 	}
 
+	final StopWatch st = new StopWatch();
 
-	@Override
-	public HDT doLoadHDT(InputStream hdtFile, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.loadFromHDT(hdtFile, listener);
-		return hdt;
+	// Create TempHDT
+	final TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, reif, listener);
+
+	// Convert to HDT
+	final HDTImpl hdt = new HDTImpl(spec);
+	hdt.loadFromModifiableHDT(modHdt, listener);
+	hdt.populateHeaderStructure(modHdt.getBaseURI());
+
+	// Add file size to Header
+	try {
+	    final long originalSize = HeaderUtil.getPropertyLong(modHdt.getHeader(), "_:statistics", HDTVocabulary.ORIGINAL_SIZE);
+	    hdt.getHeader().insert("_:statistics", HDTVocabulary.ORIGINAL_SIZE, originalSize);
+	} catch (final NotFoundException e) {
 	}
 
-	@Override
-	public HDT doLoadIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.loadFromHDT(hdtFileName, listener);
-		hdt.loadOrCreateIndex(listener);
-		return hdt;
-	}
-	
+	System.out.println("File converted in: " + st.stopAndShow());
 
+	modHdt.close();
 
-	@Override
-	protected HDT doMapIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.mapFromHDT(new File(hdtFileName), 0, listener);
-		hdt.loadOrCreateIndex(listener);
-		return hdt;
-	}
+	return hdt;
+    }
 
-	@Override
-	public HDT doLoadIndexedHDT(InputStream hdtFile, ProgressListener listener) throws IOException {
-		HDTPrivate hdt = new HDTImpl(new HDTSpecification());
-		hdt.loadFromHDT(hdtFile, listener);
-		hdt.loadOrCreateIndex(listener);
-		return hdt;
-	}
+    @Override
+    public HDT doGenerateHDT(final IteratorTripleString triples, final String baseURI, final HDTOptions spec, final ProgressListener listener) throws IOException {
+	// choose the importer
+	final TempHDTImporterOnePass loader = new TempHDTImporterOnePass();
 
-	@Override
-	public HDT doIndexedHDT(HDT hdt, ProgressListener listener) {
-		((HDTPrivate)hdt).loadOrCreateIndex(listener);
-		return hdt;
+	final StopWatch st = new StopWatch();
+
+	// Create TempHDT
+	final TempHDT modHdt = loader.loadFromTriples(spec, triples, baseURI, listener);
+
+	// Convert to HDT
+	final HDTImpl hdt = new HDTImpl(spec);
+	hdt.loadFromModifiableHDT(modHdt, listener);
+	hdt.populateHeaderStructure(modHdt.getBaseURI());
+
+	// Add file size to Header
+	try {
+	    final long originalSize = HeaderUtil.getPropertyLong(modHdt.getHeader(), "_:statistics", HDTVocabulary.ORIGINAL_SIZE);
+	    hdt.getHeader().insert("_:statistics", HDTVocabulary.ORIGINAL_SIZE, originalSize);
+	} catch (final NotFoundException e) {
 	}
 
-	@Override
-	public HDT doGenerateHDT(String rdfFileName, String baseURI, RDFNotation rdfNotation, HDTOptions spec, ProgressListener listener) throws IOException, ParserException {
-		
-		// Let implementations override the one/two pass.
-		try {
-			HDTFactory.getTempFactory().checkTwoPass(spec);
-		} catch (Exception e) {
-			
-		}
-		
-		//choose the importer
-		String loaderType = spec.get("loader.type");
-		TempHDTImporter loader;
-		if ("two-pass".equals(loaderType)) {
-			loader = new TempHDTImporterTwoPass();
-		} else {
-			loader = new TempHDTImporterOnePass();
-		}
-		
-		StopWatch st = new StopWatch();
-		
-		// Create TempHDT
-		TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, listener);
-		
-		// Convert to HDT
-		HDTImpl hdt = new HDTImpl(spec); 
-		hdt.loadFromModifiableHDT(modHdt, listener);
-		hdt.populateHeaderStructure(modHdt.getBaseURI());
-		
-		// Add file size to Header
-		try {
-			long originalSize = HeaderUtil.getPropertyLong(modHdt.getHeader(), "_:statistics", HDTVocabulary.ORIGINAL_SIZE);
-			hdt.getHeader().insert("_:statistics", HDTVocabulary.ORIGINAL_SIZE, originalSize);
-		} catch (NotFoundException e) {
-		}
-		
-		System.out.println("File converted in: "+st.stopAndShow());
-		
-		modHdt.close();
-		
-		return hdt;
-	}
+	System.out.println("File converted in: " + st.stopAndShow());
 
-	@Override
-	public HDT doGenerateHDT(IteratorTripleString triples, String baseURI, HDTOptions spec, ProgressListener listener) throws IOException {
-		//choose the importer
-		TempHDTImporterOnePass loader = new TempHDTImporterOnePass();
-		
-		StopWatch st = new StopWatch();
-		
-		// Create TempHDT
-		TempHDT modHdt = loader.loadFromTriples(spec, triples, baseURI, listener);
-		
-		// Convert to HDT
-		HDTImpl hdt = new HDTImpl(spec); 
-		hdt.loadFromModifiableHDT(modHdt, listener);
-		hdt.populateHeaderStructure(modHdt.getBaseURI());
-		
-		// Add file size to Header
-		try {
-			long originalSize = HeaderUtil.getPropertyLong(modHdt.getHeader(), "_:statistics", HDTVocabulary.ORIGINAL_SIZE);
-			hdt.getHeader().insert("_:statistics", HDTVocabulary.ORIGINAL_SIZE, originalSize);
-		} catch (NotFoundException e) {
-		}
-		
-		System.out.println("File converted in: "+st.stopAndShow());
-		
-		modHdt.close();
-		
-		return hdt;
-	}
-	
+	modHdt.close();
+
+	return hdt;
+    }
+
 }

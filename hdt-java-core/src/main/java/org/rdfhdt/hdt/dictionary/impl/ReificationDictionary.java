@@ -46,9 +46,9 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
  * @author José M. Giménez-García
  *
  */
-public class ReificationDictionary extends BaseReificationDictionary<BaseTriplesDictionary, BaseGraphDictionary> implements DictionaryPrivate<CompositeDictionary> {
+public class ReificationDictionary extends BaseReificationDictionary<BaseTriplesDictionary, BaseGraphsDictionary> implements DictionaryPrivate<CompositeDictionary> {
 
-    public ReificationDictionary(final BaseTriplesDictionary td, final BaseGraphDictionary gd) {
+    public ReificationDictionary(final BaseTriplesDictionary td, final BaseGraphsDictionary gd) {
 	super(td, gd);
     }
 
@@ -98,7 +98,7 @@ public class ReificationDictionary extends BaseReificationDictionary<BaseTriples
     @Override
     public void load(final CompositeDictionary other, final ProgressListener listener) {
 	this.triplesDictionary.load(other.getTriplesDictionary(), listener);
-	this.graphDictionary.load(other.getGraphDictionary(), listener);
+	this.graphDictionary.load(other.getGraphsDictionary(), listener);
     }
 
     /*

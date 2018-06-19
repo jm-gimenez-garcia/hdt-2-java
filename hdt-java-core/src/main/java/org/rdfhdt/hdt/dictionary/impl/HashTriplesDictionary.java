@@ -42,9 +42,9 @@ import org.rdfhdt.hdt.util.StopWatch;
  * @author mario.arias, Eugen
  *
  */
-public class HashDictionary extends BaseTempTriplesDictionary {
+public class HashTriplesDictionary extends BaseTempTriplesDictionary {
 
-    public HashDictionary(final HDTOptions spec) {
+    public HashTriplesDictionary(final HDTOptions spec) {
 	super(spec);
 
 	// FIXME: Read types from spec

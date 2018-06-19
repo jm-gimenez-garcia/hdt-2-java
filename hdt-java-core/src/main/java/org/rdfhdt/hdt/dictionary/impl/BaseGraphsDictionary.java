@@ -46,7 +46,7 @@ import org.rdfhdt.hdt.util.string.CompactString;
  * @author José M. Giménez-García, mario.arias, Eugen
  *
  */
-public abstract class BaseGraphDictionary extends BaseDictionary<GraphsDictionary> implements GraphDictionaryPrivate {
+public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictionary> implements GraphDictionaryPrivate {
 
     protected HDTOptions	       spec;
 
@@ -55,7 +55,7 @@ public abstract class BaseGraphDictionary extends BaseDictionary<GraphsDictionar
     protected DictionarySectionPrivate objects;
     protected DictionarySectionPrivate shared;
 
-    public BaseGraphDictionary(final HDTOptions spec) {
+    public BaseGraphsDictionary(final HDTOptions spec) {
 	super(spec);
     }
 

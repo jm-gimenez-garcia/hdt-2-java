@@ -37,9 +37,9 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author José M. Giménez-García
  *
  */
-public class ReificationTempDictionary extends BaseReificationDictionary<BaseTempTriplesDictionary, BaseTempGraphDictionary> implements TempDictionary {
+public class ReificationTempDictionary extends BaseReificationDictionary<BaseTempTriplesDictionary, BaseTempGraphsDictionary> implements TempDictionary {
 
-    public ReificationTempDictionary(final BaseTempTriplesDictionary td, final BaseTempGraphDictionary gd) {
+    public ReificationTempDictionary(final BaseTempTriplesDictionary td, final BaseTempGraphsDictionary gd) {
 	super(td, gd);
     }
 

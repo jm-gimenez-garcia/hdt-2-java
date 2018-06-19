@@ -73,6 +73,7 @@ public class HDTVocabulary {
     public static final String DICTIONARY_NUMPREDICATES	    = HDT_DICTIONARY_BASE + "numPredicates>";
     public static final String DICTIONARY_NUMOBJECTS	    = HDT_DICTIONARY_BASE + "numObjects>";
     public static final String DICTIONARY_NUMSHARED	    = HDT_DICTIONARY_BASE + "numSharedSubjectObject>";
+    public static final String DICTIONARY_NUMGRAPHS	    = HDT_DICTIONARY_BASE + "numGraphs>";
     public static final String DICTIONARY_MAXSUBJECTID	    = HDT_DICTIONARY_BASE + "maxSubjectID>";
     public static final String DICTIONARY_MAXPREDICATEID    = HDT_DICTIONARY_BASE + "maxPredicateID>";
     public static final String DICTIONARY_MAXOBJECTTID	    = HDT_DICTIONARY_BASE + "maxObjectID>";

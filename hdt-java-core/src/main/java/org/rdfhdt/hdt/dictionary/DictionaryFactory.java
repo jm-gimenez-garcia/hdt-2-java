@@ -27,9 +27,9 @@
 
 package org.rdfhdt.hdt.dictionary;
 
-import org.rdfhdt.hdt.dictionary.impl.FourSectionDictionary;
-import org.rdfhdt.hdt.dictionary.impl.FourSectionDictionaryBig;
-import org.rdfhdt.hdt.dictionary.impl.HashDictionary;
+import org.rdfhdt.hdt.dictionary.impl.HashTriplesDictionary;
+import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionary;
+import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionaryBig;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
 import org.rdfhdt.hdt.hdt.HDTFactory;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
@@ -51,40 +51,45 @@ public class DictionaryFactory {
 
     /**
      * Creates a default dictionary (HashDictionary)
-     * 
+     *
      * @return Dictionary
      */
     public static TriplesDictionary createDefaultDictionary()
 	    throws IllegalArgumentException {
-	return new FourSectionDictionary(new HDTSpecification());
+	return new TriplesFourSectionDictionary(new HDTSpecification());
     }
 
     /**
      * Creates a default dictionary (HashDictionary)
-     * 
+     *
      * @return Dictionary
      */
-    public static TempDictionary createTempDictionary(final HDTOptions spec) {
+    public static TriplesTempDictionary createTempDictionary(final HDTOptions spec, final boolean reif) {
 	final String dictImpl = spec.get("tempDictionary.impl");
 
 	// Implementations available in the Core
-	if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) { return new HashDictionary(spec); }
+	if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) {
+	    // if (reif) {return new ReificationDictionary(new HashDictionary(spec), new HashDictionary(spec))}
+	    // else {
+	    return new HashTriplesDictionary(spec);
+	    // }
+	}
 
 	// Implementations available in the HDT-Disk module.
 	return HDTFactory.getTempFactory().getDictionary(spec);
     }
 
-    public static DictionaryPrivate<?> createDictionary(final HDTOptions spec) {
+    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec) {
 	final String name = spec.get("dictionary.type");
 	if (name == null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
-	    return new FourSectionDictionary(spec);
-	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) { return new FourSectionDictionaryBig(spec); }
+	    return new TriplesFourSectionDictionary(spec);
+	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) { return new TriplesFourSectionDictionaryBig(spec); }
 	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
     }
 
-    public static DictionaryPrivate createDictionary(final ControlInfo ci) {
+    public static TriplesDictionaryPrivate createDictionary(final ControlInfo ci) {
 	final String name = ci.getFormat();
-	if (HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) { return new FourSectionDictionary(new HDTSpecification()); }
+	if (HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) { return new TriplesFourSectionDictionary(new HDTSpecification()); }
 	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
     }
 }

@@ -11,5 +11,5 @@ public interface CompositeDictionary extends TriplesDictionary, GraphsDictionary
 
     TriplesDictionary getTriplesDictionary();
 
-    GraphsDictionary getGraphDictionary();
+    GraphsDictionary getGraphsDictionary();
 }

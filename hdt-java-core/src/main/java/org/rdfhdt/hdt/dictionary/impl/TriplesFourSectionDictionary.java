@@ -51,9 +51,9 @@ import org.rdfhdt.hdt.util.listener.IntermediateListener;
  * @author mario.arias, José M. Giménez-García
  *
  */
-public class FourSectionDictionary extends BaseTriplesDictionary {
+public class TriplesFourSectionDictionary extends BaseTriplesDictionary {
 
-    public FourSectionDictionary(final HDTOptions spec,
+    public TriplesFourSectionDictionary(final HDTOptions spec,
 	    final DictionarySectionPrivate s, final DictionarySectionPrivate p, final DictionarySectionPrivate o, final DictionarySectionPrivate sh) {
 	super(spec);
 	this.subjects = s;
@@ -62,7 +62,7 @@ public class FourSectionDictionary extends BaseTriplesDictionary {
 	this.shared = sh;
     }
 
-    public FourSectionDictionary(final HDTOptions spec) {
+    public TriplesFourSectionDictionary(final HDTOptions spec) {
 	super(spec);
 	// FIXME: Read type from spec.
 	this.subjects = new PFCDictionarySection(spec);

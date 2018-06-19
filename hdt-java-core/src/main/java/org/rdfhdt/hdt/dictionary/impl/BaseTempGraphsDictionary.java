@@ -45,7 +45,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author José M. Giménez-García, Eugen
  *
  */
-public abstract class BaseTempGraphDictionary implements TempDictionary, GraphsDictionary {
+public abstract class BaseTempGraphsDictionary implements TempDictionary, GraphsDictionary {
 
     HDTOptions			    spec;
     protected boolean		    isOrganized;
@@ -55,7 +55,7 @@ public abstract class BaseTempGraphDictionary implements TempDictionary, GraphsD
     protected TempDictionarySection objects;
     protected TempDictionarySection shared;
 
-    public BaseTempGraphDictionary(final HDTOptions spec) {
+    public BaseTempGraphsDictionary(final HDTOptions spec) {
 	this.spec = spec;
     }
 

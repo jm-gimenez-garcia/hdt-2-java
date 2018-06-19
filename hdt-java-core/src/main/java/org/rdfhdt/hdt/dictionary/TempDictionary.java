@@ -35,7 +35,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author Eugen
  *
  */
-public interface TempDictionary {
+public interface TempDictionary extends Dictionary {
 
     /**
      * To be executed at the start of the processing

@@ -71,7 +71,7 @@ public abstract class BaseReificationDictionary<T extends TriplesDictionary, G e
     }
 
     @Override
-    public GraphsDictionary getGraphDictionary() {
+    public GraphsDictionary getGraphsDictionary() {
 	return this.graphDictionary;
     }
 

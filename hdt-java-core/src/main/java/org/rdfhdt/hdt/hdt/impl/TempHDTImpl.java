@@ -11,18 +11,18 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.hdt.impl;
@@ -30,7 +30,7 @@ package org.rdfhdt.hdt.hdt.impl;
 import java.io.IOException;
 
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
-import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.hdt.TempHDT;
 import org.rdfhdt.hdt.header.Header;
@@ -46,110 +46,111 @@ import org.rdfhdt.hdt.triples.TriplesFactory;
  */
 public class TempHDTImpl implements TempHDT {
 
-	protected Header header;
-	protected TempDictionary dictionary;
-	protected TempTriples triples;
+    protected Header		    header;
+    protected TriplesTempDictionary dictionary;
+    protected TempTriples	    triples;
 
-	protected String baseUri;
-	
-	protected ModeOfLoading modeOfLoading;
-	protected boolean isOrganized;
-	protected long rawsize;
+    protected String		    baseUri;
 
-	public TempHDTImpl(HDTOptions spec, String baseUri, ModeOfLoading modeOfLoading) {
-		
-		this.baseUri = baseUri;
-		this.modeOfLoading = modeOfLoading;
+    protected ModeOfLoading	    modeOfLoading;
+    protected boolean		    isOrganized;
+    protected long		    rawsize;
 
-		this.header = HeaderFactory.createHeader(spec);
-		this.dictionary = DictionaryFactory.createTempDictionary(spec);
-		this.triples = TriplesFactory.createTempTriples(spec);
+    public TempHDTImpl(final HDTOptions spec, final String baseUri, final ModeOfLoading modeOfLoading, final boolean reif) {
+
+	this.baseUri = baseUri;
+	this.modeOfLoading = modeOfLoading;
+
+	this.header = HeaderFactory.createHeader(spec);
+	this.dictionary = DictionaryFactory.createTempDictionary(spec, reif);
+	this.triples = TriplesFactory.createTempTriples(spec, reif);
+    }
+
+    @Override
+    public Header getHeader() {
+	return this.header;
+    }
+
+    @Override
+    public TriplesTempDictionary getDictionary() {
+	return this.dictionary;
+    }
+
+    @Override
+    public TempTriples getTriples() {
+	return this.triples;
+    }
+
+    @Override
+    public void insert(final CharSequence subject, final CharSequence predicate, final CharSequence object) {
+	this.rawsize += subject.length() + predicate.length() + object.length() + 4;
+	this.triples.insert(
+		this.dictionary.insert(subject, TripleComponentRole.SUBJECT),
+		this.dictionary.insert(predicate, TripleComponentRole.PREDICATE),
+		this.dictionary.insert(object, TripleComponentRole.OBJECT));
+	this.isOrganized = false;
+	this.modeOfLoading = null;
+    }
+
+    @Override
+    public void clear() {
+	this.dictionary.clear();
+	this.triples.clear();
+
+	this.isOrganized = false;
+    }
+
+    @Override
+    public void close() throws IOException {
+	this.dictionary.close();
+	this.triples.close();
+    }
+
+    @Override
+    public String getBaseURI() {
+	return this.baseUri;
+    }
+
+    @Override
+    public void reorganizeDictionary(final ProgressListener listener) {
+	if (this.isOrganized || this.dictionary.isOrganized())
+	    return;
+
+	// Reorganize dictionary
+	// StopWatch reorgStp = new StopWatch();
+	if (ModeOfLoading.ONE_PASS.equals(this.modeOfLoading)) {
+	    this.dictionary.reorganize(this.triples);
+	} else if (ModeOfLoading.TWO_PASS.equals(this.modeOfLoading)) {
+	    this.dictionary.reorganize();
+	} else if (this.modeOfLoading == null) {
+	    this.dictionary.reorganize(this.triples);
 	}
-	
-	@Override
-	public Header getHeader() {
-		return header;
-	}
+	// System.out.println("Dictionary reorganized in "+reorgStp.stopAndShow());
+    }
 
-	@Override
-	public TempDictionary getDictionary() {
-		return dictionary;
-	}
+    @Override
+    public void reorganizeTriples(final ProgressListener listener) {
+	if (this.isOrganized)
+	    return;
 
-	@Override
-	public TempTriples getTriples() {
-		return triples;
-	}
+	if (!this.dictionary.isOrganized())
+	    throw new RuntimeException("Cannot reorganize triples before dictionary is reorganized!");
 
-	public void insert(CharSequence subject, CharSequence predicate, CharSequence object) {
-		rawsize += subject.length()+predicate.length()+object.length()+4;
-		this.triples.insert(
-				dictionary.insert(subject, TripleComponentRole.SUBJECT),
-				dictionary.insert(predicate, TripleComponentRole.PREDICATE),
-				dictionary.insert(object, TripleComponentRole.OBJECT)
-				);
-		isOrganized = false;
-		modeOfLoading = null;
-	}
+	// Sort and remove duplicates.
+	// StopWatch sortDupTime = new StopWatch();
+	this.triples.sort(listener);
+	this.triples.removeDuplicates(listener);
+	// System.out.println("Sort triples and remove duplicates: "+sortDupTime.stopAndShow());
 
-	@Override
-	public void clear() {
-		dictionary.clear();
-		triples.clear();
-		
-		isOrganized = false;
-	}
+	this.isOrganized = true;
+    }
 
-	@Override
-	public void close() throws IOException {
-		dictionary.close();
-		triples.close();
-	}
+    @Override
+    public boolean isOrganized() {
+	return this.isOrganized;
+    }
 
-	@Override
-	public String getBaseURI() {
-		return baseUri;
-	}
-
-	@Override
-	public void reorganizeDictionary(ProgressListener listener) {
-		if(isOrganized || dictionary.isOrganized())
-			return;
-
-		// Reorganize dictionary
-//		StopWatch reorgStp = new StopWatch();
-		if (ModeOfLoading.ONE_PASS.equals(modeOfLoading)) {
-			dictionary.reorganize(triples);
-		} else if (ModeOfLoading.TWO_PASS.equals(modeOfLoading)) {
-			dictionary.reorganize();
-		} else if (modeOfLoading==null) {
-			dictionary.reorganize(triples);
-		}
-		//System.out.println("Dictionary reorganized in "+reorgStp.stopAndShow());
-	}
-
-	@Override
-	public void reorganizeTriples(ProgressListener listener) {
-		if (isOrganized)
-			return;
-		
-		if (!dictionary.isOrganized())
-			throw new RuntimeException("Cannot reorganize triples before dictionary is reorganized!");
-
-		// Sort and remove duplicates.
-		//StopWatch sortDupTime = new StopWatch();
-		triples.sort(listener);
-		triples.removeDuplicates(listener);
-		//System.out.println("Sort triples and remove duplicates: "+sortDupTime.stopAndShow());
-
-		isOrganized = true;
-	}
-	
-	public boolean isOrganized() {
-		return isOrganized;
-	}
-
-	public long getRawSize() {
-		return rawsize;
-	}
+    public long getRawSize() {
+	return this.rawsize;
+    }
 }
