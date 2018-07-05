@@ -43,6 +43,7 @@ public class HDTVocabulary {
     public static final String HDT_QUADS_BASE		    = HDT_BASE + "quads";
     public static final String HDT_TRIPLES		    = HDT_TRIPLES_BASE + ">";
     public static final String HDT_SEQ_BASE		    = HDT_BASE + "seq";
+	public static final String HDT_PERM_BASE = HDT_BASE+"perm";
     public static final String HDT_BITMAP_BASE		    = HDT_BASE + "bitmap";
 
     // External Vocabularies
@@ -122,6 +123,9 @@ public class HDTVocabulary {
     public static final String SEQ_TYPE_LOG		    = HDT_SEQ_BASE + "Log>";
     public static final String SEQ_TYPE_HUFFMAN		    = HDT_SEQ_BASE + "Huffman>";
     public static final String SEQ_TYPE_WAVELET		    = HDT_SEQ_BASE + "Wavelet>";
+    
+    //Permutation
+  	public static final String PERM_TYPE_MRRR = HDT_PERM_BASE+"MRRR>";
 
     // Bitmaps
     public static final String BITMAP_TYPE_PLAIN	    = HDT_BITMAP_BASE + "Plain>";
