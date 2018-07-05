@@ -27,7 +27,9 @@
 
 package org.rdfhdt.hdt.dictionary;
 
+import org.rdfhdt.hdt.dictionary.impl.HashGraphsDictionary;
 import org.rdfhdt.hdt.dictionary.impl.HashTriplesDictionary;
+import org.rdfhdt.hdt.dictionary.impl.ReificationTempDictionary;
 import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionary;
 import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionaryBig;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -69,10 +71,12 @@ public class DictionaryFactory {
 
 	// Implementations available in the Core
 	if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) {
-	    // if (reif) {return new ReificationDictionary(new HashDictionary(spec), new HashDictionary(spec))}
-	    // else {
-	    return new HashTriplesDictionary(spec);
-	    // }
+	    if (reif) {
+		return new ReificationTempDictionary(new HashTriplesDictionary(spec), new HashGraphsDictionary(spec));
+	    }
+	    else {
+		return new HashTriplesDictionary(spec);
+	    }
 	}
 
 	// Implementations available in the HDT-Disk module.

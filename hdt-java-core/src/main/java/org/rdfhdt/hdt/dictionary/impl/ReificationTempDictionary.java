@@ -29,7 +29,8 @@ package org.rdfhdt.hdt.dictionary.impl;
 
 import java.io.IOException;
 
-import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsTempDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.TempTriples;
 
@@ -37,7 +38,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author José M. Giménez-García
  *
  */
-public class ReificationTempDictionary extends BaseReificationDictionary<BaseTempTriplesDictionary, BaseTempGraphsDictionary> implements TempDictionary {
+public class ReificationTempDictionary extends BaseReificationDictionary<BaseTempTriplesDictionary, BaseTempGraphsDictionary> implements TriplesTempDictionary, GraphsTempDictionary {
 
     public ReificationTempDictionary(final BaseTempTriplesDictionary td, final BaseTempGraphsDictionary gd) {
 	super(td, gd);

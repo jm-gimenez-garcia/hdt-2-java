@@ -166,8 +166,9 @@ public abstract class HDTManager {
      * @return
      * @throws IOException
      */
-    public static HDT generateHDT(final IteratorTripleString iterator, final String baseURI, final HDTOptions hdtFormat, final ProgressListener listener) throws IOException, ParserException {
-	return HDTManager.getInstance().doGenerateHDT(iterator, baseURI, hdtFormat, listener);
+    public static HDT generateHDT(final IteratorTripleString iterator, final String baseURI, final HDTOptions hdtFormat, final boolean reif, final ProgressListener listener)
+	    throws IOException, ParserException {
+	return HDTManager.getInstance().doGenerateHDT(iterator, baseURI, hdtFormat, reif, listener);
     }
 
     // Abstract methods for the current implementation
@@ -190,5 +191,5 @@ public abstract class HDTManager {
     protected abstract HDT doGenerateHDT(String rdfFileName, String baseURI, RDFNotation rdfNotation, HDTOptions hdtFormat, boolean reif, ProgressListener listener)
 	    throws IOException, ParserException;
 
-    protected abstract HDT doGenerateHDT(IteratorTripleString iterator, String baseURI, HDTOptions hdtFormat, ProgressListener listener) throws IOException;
+    protected abstract HDT doGenerateHDT(IteratorTripleString iterator, String baseURI, HDTOptions hdtFormat, boolean reif, ProgressListener listener) throws IOException;
 }

@@ -51,7 +51,7 @@ public class TempHDTImpl implements TempHDT {
     protected TempTriples	    triples;
 
     protected String		    baseUri;
-
+    protected boolean		    reif;
     protected ModeOfLoading	    modeOfLoading;
     protected boolean		    isOrganized;
     protected long		    rawsize;
@@ -60,10 +60,19 @@ public class TempHDTImpl implements TempHDT {
 
 	this.baseUri = baseUri;
 	this.modeOfLoading = modeOfLoading;
-
+	this.reif = reif;
 	this.header = HeaderFactory.createHeader(spec);
 	this.dictionary = DictionaryFactory.createTempDictionary(spec, reif);
 	this.triples = TriplesFactory.createTempTriples(spec, reif);
+    }
+
+    /**
+     * @param spec
+     * @param baseUri
+     * @param modeOfLoading
+     */
+    public TempHDTImpl(final HDTOptions spec, final String baseUri, final ModeOfLoading modeOfLoading) {
+	this(spec, baseUri, modeOfLoading, false);
     }
 
     @Override
@@ -84,6 +93,17 @@ public class TempHDTImpl implements TempHDT {
     @Override
     public void insert(final CharSequence subject, final CharSequence predicate, final CharSequence object) {
 	this.rawsize += subject.length() + predicate.length() + object.length() + 4;
+	this.triples.insert(
+		this.dictionary.insert(subject, TripleComponentRole.SUBJECT),
+		this.dictionary.insert(predicate, TripleComponentRole.PREDICATE),
+		this.dictionary.insert(object, TripleComponentRole.OBJECT));
+	this.isOrganized = false;
+	this.modeOfLoading = null;
+    }
+
+    @Override
+    public void insert(final CharSequence subject, final CharSequence predicate, final CharSequence object, final CharSequence graph) {
+	this.rawsize += subject.length() + predicate.length() + object.length() + graph.length() + 4;
 	this.triples.insert(
 		this.dictionary.insert(subject, TripleComponentRole.SUBJECT),
 		this.dictionary.insert(predicate, TripleComponentRole.PREDICATE),

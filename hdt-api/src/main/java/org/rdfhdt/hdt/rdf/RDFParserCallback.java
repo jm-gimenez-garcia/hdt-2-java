@@ -31,19 +31,22 @@ import java.io.InputStream;
 
 import org.rdfhdt.hdt.enums.RDFNotation;
 import org.rdfhdt.hdt.exceptions.ParserException;
+import org.rdfhdt.hdt.triples.QuadString;
 import org.rdfhdt.hdt.triples.TripleString;
 
 /**
  * Parser that uses a callback to notify of each successfully parsed triple.
- * 
+ *
  * @author mario.arias
  *
  */
 public interface RDFParserCallback {
-	interface RDFCallback {
-		void processTriple(TripleString triple, long pos);
-	}
-	
-	void doParse(String fileName, String baseUri, RDFNotation notation, RDFCallback callback) throws ParserException;
-	void doParse(InputStream in, String baseUri, RDFNotation notation, RDFCallback callback) throws ParserException;
+    interface RDFCallback {
+	void processTriple(TripleString triple, long pos);
+
+	void processQuad(QuadString quad, long pos);
+    }
+
+    void doParse(String fileName, String baseUri, RDFNotation notation, RDFCallback callback) throws ParserException;
+    void doParse(InputStream in, String baseUri, RDFNotation notation, RDFCallback callback) throws ParserException;
 }

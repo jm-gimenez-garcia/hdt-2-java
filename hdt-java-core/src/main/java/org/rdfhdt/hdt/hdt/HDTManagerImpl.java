@@ -89,16 +89,22 @@ public class HDTManagerImpl extends HDTManager {
 	// choose the importer
 	final String loaderType = spec.get("loader.type");
 	TempHDTImporter loader;
-	if ("two-pass".equals(loaderType)) {
-	    loader = new TempHDTImporterTwoPass();
+
+	// If doing reification we do only two-pass for now
+	if (reif) {
+	    loader = new TempHDTImporterTwoPass(reif);
 	} else {
-	    loader = new TempHDTImporterOnePass();
+	    if ("two-pass".equals(loaderType)) {
+		loader = new TempHDTImporterTwoPass(false);
+	    } else {
+		loader = new TempHDTImporterOnePass();
+	    }
 	}
 
 	final StopWatch st = new StopWatch();
 
 	// Create TempHDT
-	final TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, reif, listener);
+	final TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, listener);
 
 	// Convert to HDT
 	final HDTImpl hdt = new HDTImpl(spec);
@@ -120,14 +126,14 @@ public class HDTManagerImpl extends HDTManager {
     }
 
     @Override
-    public HDT doGenerateHDT(final IteratorTripleString triples, final String baseURI, final HDTOptions spec, final ProgressListener listener) throws IOException {
+    public HDT doGenerateHDT(final IteratorTripleString triples, final String baseURI, final HDTOptions spec, final boolean reif, final ProgressListener listener) throws IOException {
 	// choose the importer
 	final TempHDTImporterOnePass loader = new TempHDTImporterOnePass();
 
 	final StopWatch st = new StopWatch();
 
 	// Create TempHDT
-	final TempHDT modHdt = loader.loadFromTriples(spec, triples, baseURI, listener);
+	final TempHDT modHdt = loader.loadFromTriples(spec, triples, baseURI, reif, listener);
 
 	// Convert to HDT
 	final HDTImpl hdt = new HDTImpl(spec);

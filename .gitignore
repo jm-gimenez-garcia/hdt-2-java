@@ -51,6 +51,8 @@ doc/
 *.pydevproject
 .project
 .metadata
+.settings
+.prefs
 bin/**
 tmp/**
 tmp/**/*

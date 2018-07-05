@@ -3,18 +3,9 @@
  */
 package org.rdfhdt.hdt.dictionary;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.header.Header;
-import org.rdfhdt.hdt.listener.ProgressListener;
-import org.rdfhdt.hdt.options.ControlInfo;
 import org.rdfhdt.hdt.options.HDTOptions;
-import org.rdfhdt.hdt.util.io.CountInputStream;
 import org.rdfhdt.hdt.util.string.CompactString;
 
 /**
@@ -100,95 +91,4 @@ public abstract class BaseDictionary<T extends Dictionary> implements Dictionary
 		return -1;
 	}
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#getNumberOfElements()
-     */
-    @Override
-    public long getNumberOfElements() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.Dictionary#size()
-     */
-    @Override
-    public long size() {
-	// TODO Auto-generated method stub
-	return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see java.io.Closeable#close()
-     */
-    @Override
-    public void close() throws IOException {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#load(java.io.InputStream, org.rdfhdt.hdt.options.ControlInfo, org.rdfhdt.hdt.listener.ProgressListener)
-     */
-    @Override
-    public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#mapFromFile(org.rdfhdt.hdt.util.io.CountInputStream, java.io.File, org.rdfhdt.hdt.listener.ProgressListener)
-     */
-    @Override
-    public void mapFromFile(final CountInputStream in, final File f, final ProgressListener listener) throws IOException {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#load(org.rdfhdt.hdt.dictionary.Dictionary, org.rdfhdt.hdt.listener.ProgressListener)
-     */
-    @Override
-    public void load(final Dictionary other, final ProgressListener listener) {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#save(java.io.OutputStream, org.rdfhdt.hdt.options.ControlInfo, org.rdfhdt.hdt.listener.ProgressListener)
-     */
-    @Override
-    public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#populateHeader(org.rdfhdt.hdt.header.Header, java.lang.String)
-     */
-    @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	// TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#getType()
-     */
-    @Override
-    public String getType() {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
 }

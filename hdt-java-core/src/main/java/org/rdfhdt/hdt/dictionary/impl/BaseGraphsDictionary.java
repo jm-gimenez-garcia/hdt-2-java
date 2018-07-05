@@ -47,13 +47,14 @@ import org.rdfhdt.hdt.util.string.CompactString;
  *
  */
 public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictionary> implements GraphDictionaryPrivate {
+    // public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictionary> implements GraphsDictionary {
 
     protected HDTOptions	       spec;
 
-    protected DictionarySectionPrivate subjects;
+    // protected DictionarySectionPrivate subjects;
+    // protected DictionarySectionPrivate objects;
+    // protected DictionarySectionPrivate shared;
     protected DictionarySectionPrivate graphs;
-    protected DictionarySectionPrivate objects;
-    protected DictionarySectionPrivate shared;
 
     public BaseGraphsDictionary(final HDTOptions spec) {
 	super(spec);

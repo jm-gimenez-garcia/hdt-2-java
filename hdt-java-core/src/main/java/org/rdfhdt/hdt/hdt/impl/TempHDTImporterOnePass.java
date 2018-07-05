@@ -43,6 +43,8 @@ import org.rdfhdt.hdt.rdf.RDFParserCallback;
 import org.rdfhdt.hdt.rdf.RDFParserCallback.RDFCallback;
 import org.rdfhdt.hdt.rdf.RDFParserFactory;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
+import org.rdfhdt.hdt.triples.QuadString;
+import org.rdfhdt.hdt.triples.TempQuads;
 import org.rdfhdt.hdt.triples.TempTriples;
 import org.rdfhdt.hdt.triples.TripleString;
 import org.rdfhdt.hdt.triples.TriplesFactory;
@@ -74,10 +76,26 @@ public class TempHDTImporterOnePass implements TempHDTImporter {
 	    this.size += triple.getSubject().length() + triple.getPredicate().length() + triple.getObject().length() + 4; // Spaces and final dot
 	    ListenerUtil.notifyCond(this.listener, "Loaded " + this.num + " triples", this.num, 0, 100);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.rdfhdt.hdt.rdf.RDFParserCallback.RDFCallback#processQuad(org.rdfhdt.hdt.triples.QuadString, long)
+	 */
+	@Override
+	public void processQuad(final QuadString quad, final long pos) {
+	    ((TempQuads) this.triples).insert(
+		    this.dict.stringToId(quad.getSubject(), TripleComponentRole.SUBJECT),
+		    this.dict.stringToId(quad.getPredicate(), TripleComponentRole.PREDICATE),
+		    this.dict.stringToId(quad.getObject(), TripleComponentRole.OBJECT),
+		    this.dict.stringToId(quad.getGraph(), TripleComponentRole.GRAPH));
+	    this.num++;
+	    this.size += quad.getSubject().length() + quad.getPredicate().length() + quad.getObject().length() + quad.getGraph().length() + 4; // Spaces and final dot
+	    ListenerUtil.notifyCond(this.listener, "Loaded " + this.num + " triples", this.num, 0, 100);
+	}
     };
 
     @Override
-    public TempHDT loadFromRDF(final HDTOptions specs, final String filename, final String baseUri, final RDFNotation notation, final boolean reif, final ProgressListener listener)
+    public TempHDT loadFromRDF(final HDTOptions specs, final String filename, final String baseUri, final RDFNotation notation, final ProgressListener listener)
 	    throws IOException, ParserException {
 
 	final RDFParserCallback parser = RDFParserFactory.getParserCallback(notation);
@@ -109,11 +127,11 @@ public class TempHDTImporterOnePass implements TempHDTImporter {
 	return modHDT;
     }
 
-    public TempHDT loadFromTriples(final HDTOptions specs, final IteratorTripleString iterator, final String baseUri, final ProgressListener listener)
+    public TempHDT loadFromTriples(final HDTOptions specs, final IteratorTripleString iterator, final String baseUri, final boolean reif, final ProgressListener listener)
 	    throws IOException {
 
 	// Create Modifiable Instance
-	final TempHDT modHDT = new TempHDTImpl(specs, baseUri, ModeOfLoading.ONE_PASS);
+	final TempHDT modHDT = new TempHDTImpl(specs, baseUri, ModeOfLoading.ONE_PASS, reif);
 	final TempDictionary dictionary = modHDT.getDictionary();
 	final TempTriples triples = modHDT.getTriples();
 

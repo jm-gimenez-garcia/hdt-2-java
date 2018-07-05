@@ -47,6 +47,7 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 import org.rdfhdt.hdt.rdf.RDFParserCallback.RDFCallback;
 import org.rdfhdt.hdt.rdf.parsers.RDFParserSimple;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
+import org.rdfhdt.hdt.triples.QuadString;
 import org.rdfhdt.hdt.triples.TripleString;
 import org.rdfhdt.hdt.util.io.IOUtil;
 
@@ -55,128 +56,134 @@ import org.rdfhdt.hdt.util.io.IOUtil;
  *
  */
 public class PlainHeader implements HeaderPrivate, RDFCallback {
-	
-	protected HDTOptions spec;
-	protected List<TripleString> triples= new ArrayList<TripleString>();
-	
-	public PlainHeader() {
-		spec = new HDTSpecification();
+
+    protected HDTOptions spec;
+    protected List<TripleString> triples= new ArrayList<>();
+
+    public PlainHeader() {
+	this.spec = new HDTSpecification();
+    }
+
+    public PlainHeader(final HDTOptions spec) {
+	this.spec = spec;
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.rdf.RDFStorage#insert(java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void insert(final CharSequence subject, final CharSequence predicate, final CharSequence object) {
+	final String objStr = object.toString();
+	if(objStr.charAt(0)=='<'|| objStr.charAt(0)=='"' || objStr.startsWith("http://")||objStr.startsWith("file://")) {
+	    this.triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), object));
+	} else {
+	    this.triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), '"'+objStr+'"'));
 	}
-	
-	public PlainHeader(HDTOptions spec) {
-		this.spec = spec;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see hdt.rdf.RDFStorage#insert(java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void insert(CharSequence subject, CharSequence predicate, CharSequence object) {
-		String objStr = object.toString();
-		if(objStr.charAt(0)=='<'|| objStr.charAt(0)=='"' || objStr.startsWith("http://")||objStr.startsWith("file://")) {
-			triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), object));
-		} else {
-			triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), '"'+objStr+'"'));
-		}
-	}
+    /* (non-Javadoc)
+     * @see hdt.rdf.RDFStorage#insert(java.lang.String, java.lang.String, long)
+     */
+    @Override
+    public void insert(final CharSequence subject, final CharSequence predicate, final long object) {
+	this.triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), '"'+Long.toString(object)+'"'));
+    }
 
-	/* (non-Javadoc)
-	 * @see hdt.rdf.RDFStorage#insert(java.lang.String, java.lang.String, long)
-	 */
-	@Override
-	public void insert(CharSequence subject, CharSequence predicate, long object) {
-		triples.add(new TripleString(HeaderUtil.cleanURI(subject), HeaderUtil.cleanURI(predicate), '"'+Long.toString(object)+'"'));
-	}
+    /* (non-Javadoc)
+     * @see hdt.header.Header#save(java.io.OutputStream, hdt.ControlInfo, hdt.ProgressListener)
+     */
+    @Override
+    public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
 
-	/* (non-Javadoc)
-	 * @see hdt.header.Header#save(java.io.OutputStream, hdt.ControlInfo, hdt.ProgressListener)
-	 */
-	@Override
-	public void save(OutputStream output, ControlInfo ci, ProgressListener listener) throws IOException {
-
-		// Dump header into an array to calculate size and have it prepared.
-		ByteArrayOutputStream headerData = new ByteArrayOutputStream();
-		IteratorTripleString iterator = this.search("", "", "");
-		while(iterator.hasNext()) {
-			TripleString next = iterator.next();
-			IOUtil.writeString(headerData, next.asNtriple().toString());
-		}
-
-		// Create ControlInfo
-		ci.clear();
-		ci.setType(ControlInfo.Type.HEADER);
-		ci.setFormat(HDTVocabulary.HEADER_NTRIPLES);
-		ci.setInt("length",headerData.size());
-		ci.save(output);
-		
-		// Save Data
-		output.write(headerData.toByteArray());
+	// Dump header into an array to calculate size and have it prepared.
+	final ByteArrayOutputStream headerData = new ByteArrayOutputStream();
+	final IteratorTripleString iterator = this.search("", "", "");
+	while(iterator.hasNext()) {
+	    final TripleString next = iterator.next();
+	    IOUtil.writeString(headerData, next.asNtriple().toString());
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.header.Header#load(java.io.InputStream, hdt.ControlInfo, hdt.ProgressListener)
-	 */
-	@Override
-	public void load(InputStream input, ControlInfo ci, ProgressListener listener) throws IOException {
-		String format = ci.getFormat();
-		if(!format.equals(HDTVocabulary.HEADER_NTRIPLES)) {
-			// FIXME: Add support for other formats
-			throw new IllegalArgumentException("Cannot parse this Header Format");
-		}		
-		
-		long headerSize = ci.getInt("length");
-		byte [] headerData = IOUtil.readBuffer(input, (int)headerSize, listener);
-		
-		try {
-			RDFParserSimple parser = new RDFParserSimple();
-			parser.doParse(new ByteArrayInputStream(headerData), "http://www.rdfhdt.org", RDFNotation.NTRIPLES, this);
-		} catch (ParserException e) {
-			e.printStackTrace();
-			throw new IllegalFormatException("Error parsing header");
-		}
+	// Create ControlInfo
+	ci.clear();
+	ci.setType(ControlInfo.Type.HEADER);
+	ci.setFormat(HDTVocabulary.HEADER_NTRIPLES);
+	ci.setInt("length",headerData.size());
+	ci.save(output);
+
+	// Save Data
+	output.write(headerData.toByteArray());
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.header.Header#load(java.io.InputStream, hdt.ControlInfo, hdt.ProgressListener)
+     */
+    @Override
+    public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	final String format = ci.getFormat();
+	if(!format.equals(HDTVocabulary.HEADER_NTRIPLES)) {
+	    // FIXME: Add support for other formats
+	    throw new IllegalArgumentException("Cannot parse this Header Format");
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.header.Header#getNumberOfElements()
-	 */
-	@Override
-	public int getNumberOfElements() {
-		return triples.size();
-	}
+	final long headerSize = ci.getInt("length");
+	final byte [] headerData = IOUtil.readBuffer(input, (int)headerSize, listener);
 
-	/* (non-Javadoc)
-	 * @see hdt.header.Header#search(java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public IteratorTripleString search(CharSequence subject, CharSequence predicate, CharSequence object) {
-		TripleString pattern = new TripleString(subject.toString(), predicate.toString(), object.toString());
-		return new PlainHeaderIterator(this, pattern);
+	try {
+	    final RDFParserSimple parser = new RDFParserSimple();
+	    parser.doParse(new ByteArrayInputStream(headerData), "http://www.rdfhdt.org", RDFNotation.NTRIPLES, this);
+	} catch (final ParserException e) {
+	    e.printStackTrace();
+	    throw new IllegalFormatException("Error parsing header");
 	}
+    }
 
-	@Override
-	public void processTriple(TripleString triple, long pos) {
-		triples.add(new TripleString(triple));
-	}
+    /* (non-Javadoc)
+     * @see hdt.header.Header#getNumberOfElements()
+     */
+    @Override
+    public int getNumberOfElements() {
+	return this.triples.size();
+    }
 
-	@Override
-	public void remove(CharSequence subject, CharSequence predicate, CharSequence object) {
-		TripleString pattern = new TripleString(subject.toString(), predicate.toString(), object.toString());
-		Iterator<TripleString> iter = triples.iterator();
-		while(iter.hasNext()) {
-			TripleString next = iter.next();
-			if(next.match(pattern)) {
-				iter.remove();
-			}
-		}
-	}
+    /* (non-Javadoc)
+     * @see hdt.header.Header#search(java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public IteratorTripleString search(final CharSequence subject, final CharSequence predicate, final CharSequence object) {
+	final TripleString pattern = new TripleString(subject.toString(), predicate.toString(), object.toString());
+	return new PlainHeaderIterator(this, pattern);
+    }
 
-	@Override
-	public CharSequence getBaseURI() {
-		IteratorTripleString it = search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
-		if(it.hasNext()) {
-			TripleString ts = it.next();
-			return ts.getSubject();
-		}
-		return "";
+    @Override
+    public void processTriple(final TripleString triple, final long pos) {
+	this.triples.add(new TripleString(triple));
+    }
+
+    @Override
+    public void processQuad(final QuadString quad, final long pos) {
+	this.processTriple(quad, pos);
+    }
+
+    @Override
+    public void remove(final CharSequence subject, final CharSequence predicate, final CharSequence object) {
+	final TripleString pattern = new TripleString(subject.toString(), predicate.toString(), object.toString());
+	final Iterator<TripleString> iter = this.triples.iterator();
+	while(iter.hasNext()) {
+	    final TripleString next = iter.next();
+	    if(next.match(pattern)) {
+		iter.remove();
+	    }
 	}
+    }
+
+    @Override
+    public CharSequence getBaseURI() {
+	final IteratorTripleString it = this.search("", HDTVocabulary.RDF_TYPE, HDTVocabulary.HDT_DATASET);
+	if(it.hasNext()) {
+	    final TripleString ts = it.next();
+	    return ts.getSubject();
+	}
+	return "";
+    }
+
 }

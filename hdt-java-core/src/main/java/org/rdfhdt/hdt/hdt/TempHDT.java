@@ -47,21 +47,23 @@ public interface TempHDT extends Closeable {
 
     void insert(CharSequence subject, CharSequence predicate, CharSequence object);
 
+    void insert(CharSequence subject, CharSequence predicate, CharSequence object, CharSequence graph);
+
     /**
      * This method should be used before reorganizing triples!
-     * 
+     *
      * It reorganizes the dictionary and updates it's ID's
      * (usually done just by calling reorganize method of
      * dictionary)
-     * 
+     *
      * @param listener
      */
     void reorganizeDictionary(ProgressListener listener);
 
     /**
-     * 
+     *
      * It sorts the triples and removes duplicates.
-     * 
+     *
      * @param listener
      */
     void reorganizeTriples(ProgressListener listener);

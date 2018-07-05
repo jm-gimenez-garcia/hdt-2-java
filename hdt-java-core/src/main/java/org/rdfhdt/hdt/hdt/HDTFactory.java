@@ -11,18 +11,18 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.hdt;
@@ -35,56 +35,57 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 
 /**
  * Factory that creates HDT objects
- * 
+ *
  */
 public class HDTFactory {
-	private static TempDictTriplesFactory tempFactory;
-	
-	private HDTFactory() {}
-	
-	public static TempDictTriplesFactory getTempFactory() {
-		if(tempFactory==null) {
-			try {
-				Class<?> managerImplClass = Class.forName("org.rdfhdt.hdtdisk.HDTDiskFactory");
-				tempFactory = (TempDictTriplesFactory) managerImplClass.newInstance();
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException("Class org.rdfhdt.hdtdisk.HDTDiskFactory not found. Did you include the hdt-disk.jar in the classpath?");
-			} catch (InstantiationException e) {
-				throw new RuntimeException("Cannot create implementation for HDTDiskFactory. Does the class org.rdfhdt.hdtdisk.HDTDiskFactory implement TempDictTriplesFactory?");
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return tempFactory;
-	}
-	
-	/**
-	 * Creates a default HDT
-	 * 
-	 * @return HDT
-	 */
-	public static HDT createHDT() {
-		return new HDTImpl(new HDTSpecification());
-	}
+    private static TempDictTriplesFactory tempFactory;
 
-	/**
-	 * Creates an HDT with the specified spec
-	 * 
-	 * @return HDT
-	 */
-	public static HDT createHDT(HDTOptions spec) {
-		return new HDTImpl(spec);
+    private HDTFactory() {
+    }
+
+    public static TempDictTriplesFactory getTempFactory() {
+	if (tempFactory == null) {
+	    try {
+		final Class<?> managerImplClass = Class.forName("org.rdfhdt.hdtdisk.HDTDiskFactory");
+		tempFactory = (TempDictTriplesFactory) managerImplClass.newInstance();
+	    } catch (final ClassNotFoundException e) {
+		throw new RuntimeException("Class org.rdfhdt.hdtdisk.HDTDiskFactory not found. Did you include the hdt-disk.jar in the classpath?");
+	    } catch (final InstantiationException e) {
+		throw new RuntimeException("Cannot create implementation for HDTDiskFactory. Does the class org.rdfhdt.hdtdisk.HDTDiskFactory implement TempDictTriplesFactory?");
+	    } catch (final IllegalAccessException e) {
+		throw new RuntimeException(e);
+	    }
 	}
-	
-	/**
-	 * Creates a TempHDT with the specified spec, baseUri and ModeOfLoading.
-	 * 
-	 * ModeOfLoading can be null if the TempHDT is not meant to be populated from RDF
-	 * (i.e. ModHDTImporter object not used).
-	 * 
-	 * @return TempHDT
-	 */
-	public static TempHDT createTempHDT(HDTSpecification spec, String baseUri, ModeOfLoading modeOfLoading) {
-		return new TempHDTImpl(spec, baseUri, modeOfLoading);
-	}
+	return tempFactory;
+    }
+
+    /**
+     * Creates a default HDT
+     * 
+     * @return HDT
+     */
+    public static HDT createHDT() {
+	return new HDTImpl(new HDTSpecification());
+    }
+
+    /**
+     * Creates an HDT with the specified spec
+     * 
+     * @return HDT
+     */
+    public static HDT createHDT(final HDTOptions spec) {
+	return new HDTImpl(spec);
+    }
+
+    /**
+     * Creates a TempHDT with the specified spec, baseUri and ModeOfLoading.
+     * 
+     * ModeOfLoading can be null if the TempHDT is not meant to be populated from RDF
+     * (i.e. ModHDTImporter object not used).
+     * 
+     * @return TempHDT
+     */
+    public static TempHDT createTempHDT(final HDTSpecification spec, final String baseUri, final boolean reif, final ModeOfLoading modeOfLoading) {
+	return new TempHDTImpl(spec, baseUri, modeOfLoading, reif);
+    }
 }

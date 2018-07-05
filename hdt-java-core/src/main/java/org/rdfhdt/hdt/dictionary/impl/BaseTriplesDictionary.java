@@ -50,10 +50,10 @@ public abstract class BaseTriplesDictionary extends BaseDictionary<TriplesDictio
 
     protected HDTOptions	       spec;
 
-    protected DictionarySectionPrivate subjects;
+    // protected DictionarySectionPrivate subjects;
+    // protected DictionarySectionPrivate objects;
+    // protected DictionarySectionPrivate shared;
     protected DictionarySectionPrivate predicates;
-    protected DictionarySectionPrivate objects;
-    protected DictionarySectionPrivate shared;
 
     public BaseTriplesDictionary(final HDTOptions spec) {
 	super(spec);

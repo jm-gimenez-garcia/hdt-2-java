@@ -43,6 +43,6 @@ import org.rdfhdt.hdt.options.HDTOptions;
  */
 public interface TempHDTImporter {
 
-    TempHDT loadFromRDF(HDTOptions spec, String filename, String baseUri, RDFNotation notation, boolean reif, ProgressListener listener) throws IOException, ParserException;
+    TempHDT loadFromRDF(HDTOptions spec, String filename, String baseUri, RDFNotation notation, ProgressListener listener) throws IOException, ParserException;
 
 }

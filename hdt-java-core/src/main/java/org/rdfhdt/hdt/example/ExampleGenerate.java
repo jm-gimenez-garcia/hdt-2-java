@@ -11,25 +11,25 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  *
  * Contacting the authors:
- *   Mario Arias:               mario.arias@deri.org
- *   Javier D. Fernandez:       jfergar@infor.uva.es
- *   Miguel A. Martinez-Prieto: migumar2@infor.uva.es
- *   Alejandro Andres:          fuzzy.alej@gmail.com
+ * Mario Arias: mario.arias@deri.org
+ * Javier D. Fernandez: jfergar@infor.uva.es
+ * Miguel A. Martinez-Prieto: migumar2@infor.uva.es
+ * Alejandro Andres: fuzzy.alej@gmail.com
  */
 
 package org.rdfhdt.hdt.example;
+
 import org.rdfhdt.hdt.enums.RDFNotation;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
-import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.options.HDTSpecification;
 
 /**
@@ -38,36 +38,35 @@ import org.rdfhdt.hdt.options.HDTSpecification;
  */
 public class ExampleGenerate {
 
-	public static void main(String[] args) throws Exception {
-		// Configuration variables
-		 String baseURI = "http://example.com/3.5";
-		//String rdfInput = "/nfsmnt/proto_space/dbpedia/3.5/dbpedia";
-		String rdfInput = "/nfsmnt/proto_space/dbpedia/3.5/dbpedia";
-		String inputType = "ntriples";
-		String hdtOutput = "/home/ludab/hdt-java/hdt-java-core/3_5_0.hdt";
-	 	
-		String configFile = "/home/ludab/hdt-java/hdt-java-core/hdt.cfg";
-		// Create HDT from RDF file
-		
-		HDT hdt = HDTManager.generateHDT(rdfInput, baseURI, RDFNotation.parse(inputType), new HDTSpecification(configFile), null);
-		
-		// Add additional domain-specific properties to the header:
-		//Header header = hdt.getHeader();
-		//header.insert("myResource1", "property" , "value");
-		
-		//System.out.println("now try to save to file"); 
-		// Save generated HDT to a file
-		hdt.saveToHDT(hdtOutput, null); 
-		
-		//HDT mhdt = HDTManager.loadHDT("/home/ludab/hdt-java/hdt-java-core/3_8_0.hdt", null);
-		
-		//HDT hdt = HDTManager.mapHDT(args[0], null);
+    public static void main(final String[] args) throws Exception {
+	// Configuration variables
+	final String baseURI = "http://example.com/3.5";
+	// String rdfInput = "/nfsmnt/proto_space/dbpedia/3.5/dbpedia";
+	final String rdfInput = "/nfsmnt/proto_space/dbpedia/3.5/dbpedia";
+	final String inputType = "ntriples";
+	final String hdtOutput = "/home/ludab/hdt-java/hdt-java-core/3_5_0.hdt";
 
-		
-		hdt = HDTManager.indexedHDT(hdt,null);
-		if (hdt!=null) {
-			hdt.close();
-		}
-			
+	final String configFile = "/home/ludab/hdt-java/hdt-java-core/hdt.cfg";
+	// Create HDT from RDF file
+
+	HDT hdt = HDTManager.generateHDT(rdfInput, baseURI, RDFNotation.parse(inputType), new HDTSpecification(configFile), false, null);
+
+	// Add additional domain-specific properties to the header:
+	// Header header = hdt.getHeader();
+	// header.insert("myResource1", "property" , "value");
+
+	// System.out.println("now try to save to file");
+	// Save generated HDT to a file
+	hdt.saveToHDT(hdtOutput, null);
+
+	// HDT mhdt = HDTManager.loadHDT("/home/ludab/hdt-java/hdt-java-core/3_8_0.hdt", null);
+
+	// HDT hdt = HDTManager.mapHDT(args[0], null);
+
+	hdt = HDTManager.indexedHDT(hdt, null);
+	if (hdt != null) {
+	    hdt.close();
 	}
+
+    }
 }
