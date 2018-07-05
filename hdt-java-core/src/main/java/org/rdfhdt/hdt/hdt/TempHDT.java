@@ -27,10 +27,7 @@
 
 package org.rdfhdt.hdt.hdt;
 
-import java.io.Closeable;
-
-import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
-import org.rdfhdt.hdt.header.Header;
+import org.rdfhdt.hdt.dictionary.TempDictionary;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.triples.TempTriples;
 
@@ -43,7 +40,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author mario.arias
  *
  */
-public interface TempHDT extends Closeable {
+public interface TempHDT extends HDT {
 
     void insert(CharSequence subject, CharSequence predicate, CharSequence object);
 
@@ -72,11 +69,10 @@ public interface TempHDT extends Closeable {
 
     void clear();
 
-    TriplesTempDictionary getDictionary();
+    @Override
+    TempDictionary getDictionary();
 
+    @Override
     TempTriples getTriples();
 
-    Header getHeader();
-
-    String getBaseURI();
 }

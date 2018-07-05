@@ -28,13 +28,9 @@
 package org.rdfhdt.hdt.hdt;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.OutputStream;
 
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.header.Header;
-import org.rdfhdt.hdt.listener.ProgressListener;
-import org.rdfhdt.hdt.rdf.RDFAccess;
 import org.rdfhdt.hdt.triples.Triples;
 
 /**
@@ -43,7 +39,7 @@ import org.rdfhdt.hdt.triples.Triples;
  * @author mario.arias
  *
  */
-public interface HDT extends RDFAccess, Closeable {
+public interface HDT extends Closeable {
 
     /**
      * Gets the header of the HDT
@@ -57,7 +53,7 @@ public interface HDT extends RDFAccess, Closeable {
      *
      * @return Dictionary
      */
-    TriplesDictionary getDictionary();
+    Dictionary getDictionary();
 
     /**
      * Gets the triples of the HDT
@@ -65,29 +61,6 @@ public interface HDT extends RDFAccess, Closeable {
      * @return Triples
      */
     Triples getTriples();
-
-    /**
-     * Saves to OutputStream in HDT format
-     *
-     * @param output
-     *            The OutputStream to save to
-     */
-    void saveToHDT(OutputStream output, ProgressListener listener) throws IOException;
-
-    /**
-     * Saves to a file in HDT format
-     *
-     * @param output
-     *            The OutputStream to save to
-     */
-    void saveToHDT(String fileName, ProgressListener listener) throws IOException;
-
-    /**
-     * Returns the size of the Data Structure in bytes.
-     *
-     * @return
-     */
-    long size();
 
     /**
      * Get the Base URI for the Dataset.

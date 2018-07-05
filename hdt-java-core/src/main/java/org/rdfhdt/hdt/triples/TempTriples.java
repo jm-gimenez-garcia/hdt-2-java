@@ -34,84 +34,84 @@ import org.rdfhdt.hdt.listener.ProgressListener;
 
 /**
  * Interface for TempTriples implementation.
- * 
+ *
  * This is a dynamic interface. For static(read-only) behaviour have a look at
  * {@link Triples}
- * 
+ *
  */
 public interface TempTriples extends TriplesPrivate, Closeable {
-	/**
-	 * Add one triple
-	 * @param subject
-	 * @param predicate
-	 * @param object
-	 * @return
-	 */
-	boolean insert(int subject, int predicate, int object);
-	
-	/**
-	 * Adds one or more triples
-	 * 
-	 * @param triples
-	 *            The triples to be inserted
-	 * @return boolean
-	 */
-	boolean insert(TripleID... triples);
-	
-	/**
-	 * Updates the given TripleID with the new values.
-	 * 
-	 * The control has to be given over this method to the TempTriples
-	 * implementation instead of changing the triple manually because some
-	 * implementations might not react well to that (TriplesSet for example, changing
-	 * the triple will not trigger reordering)
-	 * 
-	 * @param triple
-	 * @param subj
-	 * @param pred
-	 * @param obj
-	 * @return
-	 */
-	boolean update(TripleID triple, int subj, int pred, int obj);
+    /**
+     * Add one triple
+     * @param subject
+     * @param predicate
+     * @param object
+     * @return
+     */
+    boolean insert(int subject, int predicate, int object);
 
-	/**
-	 * Deletes one or more triples according to a pattern
-	 * 
-	 * @param pattern
-	 *            The pattern to match against
-	 * @return boolean
-	 */
-	boolean remove(TripleID... pattern);
+    /**
+     * Adds one or more triples
+     *
+     * @param triples
+     *            The triples to be inserted
+     * @return boolean
+     */
+    boolean insert(TripleID... triples);
 
-	/**
-	 * Sorts the triples based on the order(TripleComponentOrder) of the
-	 * triples.
-	 * If you want to sort in a different order use setOrder first.
-	 */
-	void sort(ProgressListener listener);
+    /**
+     * Updates the given TripleID with the new values.
+     *
+     * The control has to be given over this method to the TempTriples
+     * implementation instead of changing the triple manually because some
+     * implementations might not react well to that (TriplesSet for example, changing
+     * the triple will not trigger reordering)
+     *
+     * @param triple
+     * @param subj
+     * @param pred
+     * @param obj
+     * @return
+     */
+    boolean update(TripleID triple, int subj, int pred, int obj);
 
-	void removeDuplicates(ProgressListener listener);
-	
-	/**
-	 * Sets a type of order(TripleComponentOrder)
-	 * 
-	 * @param order
-	 *            The order to set
-	 */
-	void setOrder(TripleComponentOrder order);
-	
-	/**
-	 * Gets the currently set order(TripleComponentOrder)
-	 */
-	TripleComponentOrder getOrder();
-	
-	/**
-	 * Clear all triples, resulting in an empty triples section.
-	 */
-	void clear();
-	
-	/**
-	 * Load triples from another instance.
-	 */
-	void load(Triples triples, ProgressListener listener);
+    /**
+     * Deletes one or more triples according to a pattern
+     *
+     * @param pattern
+     *            The pattern to match against
+     * @return boolean
+     */
+    boolean remove(TripleID... pattern);
+
+    /**
+     * Sorts the triples based on the order(TripleComponentOrder) of the
+     * triples.
+     * If you want to sort in a different order use setOrder first.
+     */
+    void sort(ProgressListener listener);
+
+    void removeDuplicates(ProgressListener listener);
+
+    /**
+     * Sets a type of order(TripleComponentOrder)
+     *
+     * @param order
+     *            The order to set
+     */
+    void setOrder(TripleComponentOrder order);
+
+    /**
+     * Gets the currently set order(TripleComponentOrder)
+     */
+    TripleComponentOrder getOrder();
+
+    /**
+     * Clear all triples, resulting in an empty triples section.
+     */
+    void clear();
+
+    /**
+     * Load triples from another instance.
+     */
+    void load(Triples triples, ProgressListener listener);
 }

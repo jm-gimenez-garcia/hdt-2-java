@@ -59,7 +59,7 @@ public abstract class HDTManager {
      * @return
      * @throws IOException
      */
-    public static HDT mapHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    public static HDTPrivate mapHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	return HDTManager.getInstance().doMapHDT(hdtFileName, listener);
     }
 
@@ -86,7 +86,7 @@ public abstract class HDTManager {
      * @return
      * @throws IOException
      */
-    public static HDT loadIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    public static HDTPrivate loadIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	return HDTManager.getInstance().doLoadIndexedHDT(hdtFileName, listener);
     }
 
@@ -99,7 +99,7 @@ public abstract class HDTManager {
      * @return
      * @throws IOException
      */
-    public static HDT mapIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    public static HDTPrivate mapIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	return HDTManager.getInstance().doMapIndexedHDT(hdtFileName, listener);
     }
 
@@ -124,7 +124,7 @@ public abstract class HDTManager {
      *            Listener to get notified of loading progress. Can be null if no notifications needed.
      * @return
      */
-    public static HDT indexedHDT(final HDT hdt, final ProgressListener listener) {
+    public static HDTPrivate indexedHDT(final HDTPrivate hdt, final ProgressListener listener) {
 	return HDTManager.getInstance().doIndexedHDT(hdt, listener);
     }
 
@@ -147,7 +147,7 @@ public abstract class HDTManager {
      * @throws IOException
      * @throws ParserException
      */
-    public static HDT generateHDT(final String rdfFileName, final String baseURI, final RDFNotation rdfNotation, final HDTOptions hdtFormat, final boolean reif, final ProgressListener listener)
+    public static HDTPrivate generateHDT(final String rdfFileName, final String baseURI, final RDFNotation rdfNotation, final HDTOptions hdtFormat, final boolean reif, final ProgressListener listener)
 	    throws IOException, ParserException {
 	return HDTManager.getInstance().doGenerateHDT(rdfFileName, baseURI, rdfNotation, hdtFormat, reif, listener);
     }
@@ -178,17 +178,17 @@ public abstract class HDTManager {
 
     protected abstract HDT doLoadHDT(InputStream hdtFile, ProgressListener listener) throws IOException;
 
-    protected abstract HDT doMapHDT(String hdtFileName, ProgressListener listener) throws IOException;
+    protected abstract HDTPrivate doMapHDT(String hdtFileName, ProgressListener listener) throws IOException;
 
-    protected abstract HDT doLoadIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException;
+    protected abstract HDTPrivate doLoadIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException;
 
     protected abstract HDT doLoadIndexedHDT(InputStream hdtFileName, ProgressListener listener) throws IOException;
 
-    protected abstract HDT doMapIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException;
+    protected abstract HDTPrivate doMapIndexedHDT(String hdtFileName, ProgressListener listener) throws IOException;
 
-    protected abstract HDT doIndexedHDT(HDT hdt, ProgressListener listener);
+    protected abstract HDTPrivate doIndexedHDT(HDTPrivate hdt, ProgressListener listener);
 
-    protected abstract HDT doGenerateHDT(String rdfFileName, String baseURI, RDFNotation rdfNotation, HDTOptions hdtFormat, boolean reif, ProgressListener listener)
+    protected abstract HDTPrivate doGenerateHDT(String rdfFileName, String baseURI, RDFNotation rdfNotation, HDTOptions hdtFormat, boolean reif, ProgressListener listener)
 	    throws IOException, ParserException;
 
     protected abstract HDT doGenerateHDT(IteratorTripleString iterator, String baseURI, HDTOptions hdtFormat, boolean reif, ProgressListener listener) throws IOException;

@@ -32,7 +32,9 @@ import org.rdfhdt.hdt.hdt.HDTVocabulary;
 import org.rdfhdt.hdt.options.ControlInfo;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.options.HDTSpecification;
+import org.rdfhdt.hdt.triples.impl.BitmapQuads;
 import org.rdfhdt.hdt.triples.impl.BitmapTriples;
+import org.rdfhdt.hdt.triples.impl.QuadsList;
 import org.rdfhdt.hdt.triples.impl.TriplesList;
 
 /**
@@ -48,7 +50,7 @@ public class TriplesFactory {
 
     /**
      * Creates a new TempTriples (writable triples structure)
-     * 
+     *
      * @return TempTriples
      */
     static public TempTriples createTempTriples(final HDTOptions spec, final boolean reif) {
@@ -63,28 +65,28 @@ public class TriplesFactory {
 
     /**
      * Creates a new Triples based on an HDTOptions
-     * 
+     *
      * @param specification
      *            The HDTOptions to read
      * @return Triples
      */
-    static public TriplesPrivate createTriples(final HDTOptions spec) {
+    static public TriplesPrivate createTriples(final HDTOptions spec, final boolean reif) {
 	final String type = spec.get("triples.format");
 
 	if (type == null) {
-	    return new BitmapTriples(spec);
+	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
 	} else if (HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST.equals(type)) {
-	    return new TriplesList(spec);
+	    return reif ? new QuadsList(spec) : new TriplesList(spec);
 	} else if (HDTVocabulary.TRIPLES_TYPE_BITMAP.equals(type)) {
-	    return new BitmapTriples(spec);
+	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
 	} else {
-	    return new BitmapTriples(spec);
+	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
 	}
     }
 
     /**
      * Creates a new Triples based on a ControlInformation
-     * 
+     *
      * @param specification
      *            The HDTOptions to read
      * @return Triples

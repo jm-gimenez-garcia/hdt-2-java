@@ -12,7 +12,7 @@ import org.rdfhdt.hdt.util.string.CompactString;
  * @author José M. Giménez-García
  *
  */
-public abstract class BaseDictionary<T extends Dictionary> implements DictionaryPrivate<T> {
+public abstract class BaseDictionary implements DictionaryPrivate {
 
     protected HDTOptions	       spec;
 

@@ -56,6 +56,7 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TempTriples;
 import org.rdfhdt.hdt.triples.TripleID;
+import org.rdfhdt.hdt.triples.Triples;
 import org.rdfhdt.hdt.triples.TriplesPrivate;
 import org.rdfhdt.hdt.util.BitUtil;
 import org.rdfhdt.hdt.util.StopWatch;
@@ -86,7 +87,7 @@ public class BitmapTriples implements TriplesPrivate {
     protected AdjacencyList	   adjY, adjZ, adjIndex;
 
     // Index for Y
-    PredicateIndex		   predicateIndex;
+    protected PredicateIndex	   predicateIndex;
 
     public BitmapTriples() {
 	this(new HDTSpecification());
@@ -207,9 +208,11 @@ public class BitmapTriples implements TriplesPrivate {
      * @see hdt.triples.Triples#load(hdt.triples.TempTriples, hdt.ProgressListener)
      */
     @Override
-    public void load(final TempTriples triples, final ProgressListener listener) {
-	triples.setOrder(this.order);
-	triples.sort(listener);
+    public void load(final Triples triples, final ProgressListener listener) {
+	if (triples instanceof TempTriples) {
+	    ((TempTriples) triples).setOrder(this.order);
+	    ((TempTriples) triples).sort(listener);
+	}
 
 	final IteratorTripleID it = triples.searchAll();
 	this.load(it, listener);

@@ -28,8 +28,8 @@
 package org.rdfhdt.hdt.example;
 
 import org.rdfhdt.hdt.enums.RDFNotation;
-import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
+import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.options.HDTSpecification;
 
 /**
@@ -49,7 +49,7 @@ public class ExampleGenerate {
 	final String configFile = "/home/ludab/hdt-java/hdt-java-core/hdt.cfg";
 	// Create HDT from RDF file
 
-	HDT hdt = HDTManager.generateHDT(rdfInput, baseURI, RDFNotation.parse(inputType), new HDTSpecification(configFile), false, null);
+	HDTPrivate hdt = HDTManager.generateHDT(rdfInput, baseURI, RDFNotation.parse(inputType), new HDTSpecification(configFile), false, null);
 
 	// Add additional domain-specific properties to the header:
 	// Header header = hdt.getHeader();

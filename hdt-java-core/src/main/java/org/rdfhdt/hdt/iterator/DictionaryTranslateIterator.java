@@ -27,8 +27,8 @@
 
 package org.rdfhdt.hdt.iterator;
 
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryUtil;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
@@ -38,137 +38,137 @@ import org.rdfhdt.hdt.triples.TripleString;
 
 /**
  * Iterator of TripleStrings based on IteratorTripleID
- * 
+ *
  */
 public class DictionaryTranslateIterator implements IteratorTripleString {
 
-	/** The iterator of TripleID */
-	IteratorTripleID iterator;
-	/** The dictionary */
-	TriplesDictionary dictionary;
+    /** The iterator of TripleID */
+    IteratorTripleID iterator;
+    /** The dictionary */
+    TriplesDictionary dictionary;
 
-	CharSequence s, p, o;
-	
-	int lastSid, lastPid, lastOid;
-	CharSequence lastSstr, lastPstr, lastOstr;
-	
-	/**
-	 * Basic constructor
-	 * 
-	 * @param iteratorTripleID
-	 *            Iterator of TripleID to be used
-	 * @param dictionary
-	 *            The dictionary to be used
-	 */
-	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, TriplesDictionary dictionary) {
-		this.iterator = iteratorTripleID;
-		this.dictionary = dictionary;
-	}
-	
-	/**
-	 * Basic constructor
-	 * 
-	 * @param iteratorTripleID
-	 *            Iterator of TripleID to be used
-	 * @param dictionary
-	 *            The dictionary to be used
-	 */
-	public DictionaryTranslateIterator(IteratorTripleID iteratorTripleID, TriplesDictionary dictionary, CharSequence s, CharSequence p, CharSequence o) {
-		this.iterator = iteratorTripleID;
-		this.dictionary = dictionary;
-		this.s = s==null ? "" : s;
-		this.p = p==null ? "" : p;
-		this.o = o==null ? "" : o;
-	}
+    CharSequence s, p, o;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.Iterator#hasNext()
-	 */
-	@Override
-	public boolean hasNext() {
-		return iterator.hasNext();
-	}
+    int lastSid, lastPid, lastOid;
+    CharSequence lastSstr, lastPstr, lastOstr;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.Iterator#next()
-	 */
-	@Override
-	public TripleString next() {
-		TripleID triple = iterator.next();
-		// convert the tripleID to TripleString
-		
-		if(s.length()!=0) {
-			lastSstr = s;
-		} else if(triple.getSubject()!=lastSid) {
-			lastSid = triple.getSubject();
-			lastSstr = dictionary.idToString(lastSid, TripleComponentRole.SUBJECT);
-		}
-		
-		if(p.length()!=0) {
-			lastPstr = p;
-		} else if(triple.getPredicate()!=lastPid) {
-			lastPstr = dictionary.idToString(triple.getPredicate(), TripleComponentRole.PREDICATE);
-			lastPid = triple.getPredicate();
-		}
-		
-		if(o.length()!=0) {
-			lastOstr = o;
-		} else if(triple.getObject()!=lastOid) {
-			lastOstr = dictionary.idToString(triple.getObject(), TripleComponentRole.OBJECT);
-			lastOid = triple.getObject();
-		}
-		
-		return new TripleString(lastSstr, lastPstr, lastOstr);
-//		return DictionaryUtil.tripleIDtoTripleString(dictionary, triple);
+    /**
+     * Basic constructor
+     *
+     * @param iteratorTripleID
+     *            Iterator of TripleID to be used
+     * @param dictionary
+     *            The dictionary to be used
+     */
+    public DictionaryTranslateIterator(final IteratorTripleID iteratorTripleID, final TriplesDictionary dictionary) {
+	this.iterator = iteratorTripleID;
+	this.dictionary = dictionary;
+    }
+
+    /**
+     * Basic constructor
+     *
+     * @param iteratorTripleID
+     *            Iterator of TripleID to be used
+     * @param dictionary
+     *            The dictionary to be used
+     */
+    public DictionaryTranslateIterator(final IteratorTripleID iteratorTripleID, final TriplesDictionary dictionary, final CharSequence s, final CharSequence p, final CharSequence o) {
+	this.iterator = iteratorTripleID;
+	this.dictionary = dictionary;
+	this.s = s==null ? "" : s;
+	this.p = p==null ? "" : p;
+	this.o = o==null ? "" : o;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Iterator#hasNext()
+     */
+    @Override
+    public boolean hasNext() {
+	return this.iterator.hasNext();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Iterator#next()
+     */
+    @Override
+    public TripleString next() {
+	final TripleID triple = this.iterator.next();
+	// convert the tripleID to TripleString
+
+	if(this.s.length()!=0) {
+	    this.lastSstr = this.s;
+	} else if(triple.getSubject()!=this.lastSid) {
+	    this.lastSid = triple.getSubject();
+	    this.lastSstr = this.dictionary.idToString(this.lastSid, TripleComponentRole.SUBJECT);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.Iterator#remove()
-	 */
-	@Override
-	public void remove() {
-		iterator.remove();
+	if(this.p.length()!=0) {
+	    this.lastPstr = this.p;
+	} else if(triple.getPredicate()!=this.lastPid) {
+	    this.lastPstr = this.dictionary.idToString(triple.getPredicate(), TripleComponentRole.PREDICATE);
+	    this.lastPid = triple.getPredicate();
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.iterator.IteratorTripleString#hasPrevious()
-	 */
-	@Override
-	public boolean hasPrevious() {
-		return iterator.hasPrevious();
+	if(this.o.length()!=0) {
+	    this.lastOstr = this.o;
+	} else if(triple.getObject()!=this.lastOid) {
+	    this.lastOstr = this.dictionary.idToString(triple.getObject(), TripleComponentRole.OBJECT);
+	    this.lastOid = triple.getObject();
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.iterator.IteratorTripleString#previous()
-	 */
-	@Override
-	public TripleString previous() {
-		TripleID triple = iterator.previous();
-		return DictionaryUtil.tripleIDtoTripleString(dictionary, triple);
-	}
+	return new TripleString(this.lastSstr, this.lastPstr, this.lastOstr);
+	//		return DictionaryUtil.tripleIDtoTripleString(dictionary, triple);
+    }
 
-	/* (non-Javadoc)
-	 * @see hdt.iterator.IteratorTripleString#goToStart()
-	 */
-	@Override
-	public void goToStart() {
-		iterator.goToStart();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Iterator#remove()
+     */
+    @Override
+    public void remove() {
+	this.iterator.remove();
+    }
 
-	@Override
-	public long estimatedNumResults() {
-		return iterator.estimatedNumResults();
-	}
+    /* (non-Javadoc)
+     * @see hdt.iterator.IteratorTripleString#hasPrevious()
+     */
+    @Override
+    public boolean hasPrevious() {
+	return this.iterator.hasPrevious();
+    }
 
-	@Override
-	public ResultEstimationType numResultEstimation() {		
-		return iterator.numResultEstimation();
-	}
+    /* (non-Javadoc)
+     * @see hdt.iterator.IteratorTripleString#previous()
+     */
+    @Override
+    public TripleString previous() {
+	final TripleID triple = this.iterator.previous();
+	return DictionaryUtil.tripleIDtoTripleString(this.dictionary, triple);
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.iterator.IteratorTripleString#goToStart()
+     */
+    @Override
+    public void goToStart() {
+	this.iterator.goToStart();
+    }
+
+    @Override
+    public long estimatedNumResults() {
+	return this.iterator.estimatedNumResults();
+    }
+
+    @Override
+    public ResultEstimationType numResultEstimation() {
+	return this.iterator.numResultEstimation();
+    }
 
 }

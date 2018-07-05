@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.section.DictionarySectionFactory;
@@ -76,12 +77,16 @@ public class TriplesFourSectionDictionary extends BaseTriplesDictionary {
      * @see hdt.dictionary.Dictionary#load(hdt.dictionary.Dictionary)
      */
     @Override
-    public void load(final TriplesDictionary other, final ProgressListener listener) {
+    public void load(final Dictionary other, final ProgressListener listener) {
 	final IntermediateListener iListener = new IntermediateListener(listener);
 	this.subjects.load(other.getSubjects(), iListener);
-	this.predicates.load(other.getPredicates(), iListener);
 	this.objects.load(other.getObjects(), iListener);
 	this.shared.load(other.getShared(), iListener);
+	if (other instanceof TriplesDictionary) {
+	    this.predicates.load(((TriplesDictionary) other).getPredicates(), iListener);
+	} else {
+	    System.out.println("WARNING: Trying to load a non-triples dictionary into a triples dictionary");
+	}
     }
 
     /*
@@ -169,4 +174,5 @@ public class TriplesFourSectionDictionary extends BaseTriplesDictionary {
 	this.predicates.close();
 	this.objects.close();
     }
+
 }

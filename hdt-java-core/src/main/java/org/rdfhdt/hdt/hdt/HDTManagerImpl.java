@@ -32,7 +32,7 @@ public class HDTManagerImpl extends HDTManager {
     }
 
     @Override
-    protected HDT doMapHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    protected HDTPrivate doMapHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
 	hdt.mapFromHDT(new File(hdtFileName), 0, listener);
 	return hdt;
@@ -46,7 +46,7 @@ public class HDTManagerImpl extends HDTManager {
     }
 
     @Override
-    public HDT doLoadIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    public HDTPrivate doLoadIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
 	hdt.loadFromHDT(hdtFileName, listener);
 	hdt.loadOrCreateIndex(listener);
@@ -54,7 +54,7 @@ public class HDTManagerImpl extends HDTManager {
     }
 
     @Override
-    protected HDT doMapIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
+    protected HDTPrivate doMapIndexedHDT(final String hdtFileName, final ProgressListener listener) throws IOException {
 	final HDTPrivate hdt = new HDTImpl(new HDTSpecification());
 	hdt.mapFromHDT(new File(hdtFileName), 0, listener);
 	hdt.loadOrCreateIndex(listener);
@@ -70,13 +70,13 @@ public class HDTManagerImpl extends HDTManager {
     }
 
     @Override
-    public HDT doIndexedHDT(final HDT hdt, final ProgressListener listener) {
-	((HDTPrivate) hdt).loadOrCreateIndex(listener);
+    public HDTPrivate doIndexedHDT(final HDTPrivate hdt, final ProgressListener listener) {
+	hdt.loadOrCreateIndex(listener);
 	return hdt;
     }
 
     @Override
-    public HDT doGenerateHDT(final String rdfFileName, final String baseURI, final RDFNotation rdfNotation, final HDTOptions spec, final boolean reif, final ProgressListener listener)
+    public HDTPrivate doGenerateHDT(final String rdfFileName, final String baseURI, final RDFNotation rdfNotation, final HDTOptions spec, final boolean reif, final ProgressListener listener)
 	    throws IOException, ParserException {
 
 	// Let implementations override the one/two pass.
@@ -107,8 +107,8 @@ public class HDTManagerImpl extends HDTManager {
 	final TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, listener);
 
 	// Convert to HDT
-	final HDTImpl hdt = new HDTImpl(spec);
-	hdt.loadFromModifiableHDT(modHdt, listener);
+	final HDTImpl hdt = new HDTImpl(spec, reif);
+	hdt.loadFromHDT(modHdt, listener);
 	hdt.populateHeaderStructure(modHdt.getBaseURI());
 
 	// Add file size to Header
@@ -137,7 +137,7 @@ public class HDTManagerImpl extends HDTManager {
 
 	// Convert to HDT
 	final HDTImpl hdt = new HDTImpl(spec);
-	hdt.loadFromModifiableHDT(modHdt, listener);
+	hdt.loadFromHDT(modHdt, listener);
 	hdt.populateHeaderStructure(modHdt.getBaseURI());
 
 	// Add file size to Header

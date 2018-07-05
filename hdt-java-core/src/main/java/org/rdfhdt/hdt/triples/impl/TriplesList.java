@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
 import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
@@ -57,457 +56,370 @@ import org.rdfhdt.hdt.util.listener.ListenerUtil;
 
 /**
  * Implementation of TempTriples using a List of TripleID.
- * 
+ *
  */
 public class TriplesList implements TempTriples {
 
-	/** The array to hold the triples */
-	private ArrayList<TripleID> arrayOfTriples;
+    /** The array to hold the triples */
+    ArrayList<TripleID> arrayOfTriples;
 
-	/** The order of the triples */
-	private TripleComponentOrder order;
-	private long numValidTriples;
+    /** The order of the triples */
+    private TripleComponentOrder order;
+    protected long		 numValidTriples;
 
-	private boolean sorted;
+    protected boolean		 sorted;
 
-	/**
-	 * Constructor, given an order to sort by
-	 * 
-	 * @param order
-	 *            The order to sort by
-	 */
-	public TriplesList(HDTOptions specification) {
+    /**
+     * Constructor, given an order to sort by
+     *
+     * @param order
+     *            The order to sort by
+     */
+    public TriplesList(final HDTOptions specification) {
 
-		//precise allocation of the array (minimal memory wasting)
-		long numTriples = RDFInfo.getTriples(specification);
-		numTriples = (numTriples>0)?numTriples:100;
-		this.arrayOfTriples = new ArrayList<TripleID>((int)numTriples);
+	//precise allocation of the array (minimal memory wasting)
+	long numTriples = RDFInfo.getTriples(specification);
+	numTriples = (numTriples>0)?numTriples:100;
+	this.arrayOfTriples = new ArrayList<>((int)numTriples);
 
-		//choosing starting(or default) component order
-		String orderStr = specification.get("triplesOrder");
-		if(orderStr==null) {
-			orderStr = "SPO";
+	//choosing starting(or default) component order
+	String orderStr = specification.get("triplesOrder");
+	if(orderStr==null) {
+	    orderStr = "SPO";
+	}
+	this.order = TripleComponentOrder.valueOf(orderStr);
+
+	this.numValidTriples = 0;
+    }
+
+    /**
+     * A method for setting the size of the arrayList (so no reallocation occurs).
+     * If not empty does nothing and returns false.
+     */
+    public boolean reallocateIfEmpty(final int numTriples){
+	if (this.arrayOfTriples.isEmpty()) {
+	    this.arrayOfTriples = new ArrayList<>(numTriples);
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.Triples#search(hdt.triples.TripleID)
+     */
+    @Override
+    public IteratorTripleID search(final TripleID pattern) {
+	final String patternStr = pattern.getPatternString();
+	if(patternStr.equals("???")) {
+	    return new TriplesListIterator(this);
+	} else {
+	    return new SequentialSearchIteratorTripleID(pattern, new TriplesListIterator(this));
+	}
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.triples.Triples#searchAll()
+     */
+    @Override
+    public IteratorTripleID searchAll() {
+	final TripleID all = new TripleID(0,0,0);
+	return this.search(all);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.Triples#getNumberOfElements()
+     */
+    @Override
+    public long getNumberOfElements() {
+	return this.numValidTriples;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.Triples#size()
+     */
+    @Override
+    public long size() {
+	return this.getNumberOfElements()*TripleID.size();
+    }
+
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.Triples#save(java.io.OutputStream)
+     */
+    @Override
+    public void save(final OutputStream output, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
+	controlInformation.clear();
+	controlInformation.setInt("numTriples", this.numValidTriples);
+	controlInformation.setFormat(HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST);
+	controlInformation.setInt("order", this.order.ordinal());
+	controlInformation.save(output);
+
+	final DataOutputStream dout = new DataOutputStream(output);
+	int count = 0;
+	for (final TripleID triple : this.arrayOfTriples) {
+	    if(triple.isValid()) {
+		dout.writeInt(triple.getSubject());
+		dout.writeInt(triple.getPredicate());
+		dout.writeInt(triple.getObject());
+		ListenerUtil.notifyCond(listener, "Saving TriplesList", count, this.arrayOfTriples.size());
+	    }
+	    count++;
+	}
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.Triples#load(java.io.InputStream)
+     */
+    @Override
+    public void load(final InputStream input, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
+	this.order = TripleComponentOrder.values()[(int)controlInformation.getInt("order")];
+	final long totalTriples = controlInformation.getInt("numTriples");
+
+	int numRead=0;
+
+	while(numRead<totalTriples) {
+	    this.arrayOfTriples.add(new TripleID(IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input)));
+	    numRead++;
+	    this.numValidTriples++;
+	    ListenerUtil.notifyCond(listener, "Loading TriplesList", numRead, totalTriples);
+	}
+
+	this.sorted = false;
+    }
+
+    /**
+     * @param order
+     *            the order to set
+     */
+    @Override
+    public void setOrder(final TripleComponentOrder order) {
+	if (this.order.equals(order))
+	    return;
+	this.order = order;
+	this.sorted = false;
+    }
+
+    @Override
+    public TripleComponentOrder getOrder() {
+	return this.order;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.TempTriples#insert(hdt.triples.TripleID[])
+     */
+    @Override
+    public boolean insert(final TripleID... triples) {
+	for (final TripleID triple : triples) {
+	    this.arrayOfTriples.add(new TripleID(triple));
+	    this.numValidTriples++;
+	}
+	this.sorted = false;
+	return true;
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.triples.TempTriples#insert(int, int, int)
+     */
+    @Override
+    public boolean insert(final int subject, final int predicate, final int object) {
+	this.arrayOfTriples.add(new TripleID(subject,predicate,object));
+	this.numValidTriples++;
+	this.sorted = false;
+	return true;
+    }
+
+    @Override
+    public boolean update(final TripleID triple, final int subj, final int pred, final int obj) {
+	if (triple==null)
+	    return false;
+
+	triple.setAll(subj, pred, obj);
+	this.sorted = false;
+	return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.TempTriples#delete(hdt.triples.TripleID[])
+     */
+    @Override
+    public boolean remove(final TripleID... patterns) {
+	boolean removed = false;
+	for(final TripleID triple : this.arrayOfTriples){
+	    for(final TripleID pattern : patterns) {
+		if(triple.match(pattern)) {
+		    triple.clear();
+		    removed = true;
+		    this.numValidTriples--;
+		    break;
 		}
-		this.order = TripleComponentOrder.valueOf(orderStr);
-
-		this.numValidTriples = 0;
+	    }
 	}
 
-	/**
-	 * A method for setting the size of the arrayList (so no reallocation occurs).
-	 * If not empty does nothing and returns false.
-	 */
-	public boolean reallocateIfEmpty(int numTriples){
-		if (arrayOfTriples.isEmpty()) {
-			arrayOfTriples = new ArrayList<TripleID>(numTriples);
-			return true;
-		} else {
-			return false;
-		}
+	return removed;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see hdt.triples.TempTriples#sort(datatypes.TripleComponentOrder)
+     */
+    @Override
+    public void sort(final ProgressListener listener) {
+	if(!this.sorted) {
+	    Collections.sort(this.arrayOfTriples, TripleIDComparator.getComparator(this.order));
+	}
+	this.sorted = true;
+    }
+
+    /**
+     * If called while triples not sorted nothing will happen!
+     */
+    @Override
+    public void removeDuplicates(final ProgressListener listener) {
+	if(this.arrayOfTriples.size()<=1 || !this.sorted) {
+	    return;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#search(hdt.triples.TripleID)
-	 */
-	@Override
-	public IteratorTripleID search(TripleID pattern) {
-		String patternStr = pattern.getPatternString();
-		if(patternStr.equals("???")) {
-			return new TriplesListIterator(this);
-		} else {
-			return new SequentialSearchIteratorTripleID(pattern, new TriplesListIterator(this));
-		}
+	if(this.order==TripleComponentOrder.Unknown || !this.sorted) {
+	    throw new IllegalArgumentException("Cannot remove duplicates unless sorted");
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.triples.Triples#searchAll()
-	 */
-	@Override
-	public IteratorTripleID searchAll() {
-		TripleID all = new TripleID(0,0,0);
-		return this.search(all);
+	int j = 0;
+
+	for(int i=1; i<this.arrayOfTriples.size(); i++) {
+	    if(this.arrayOfTriples.get(i).compareTo(this.arrayOfTriples.get(j))!=0) {
+		j++;
+		this.arrayOfTriples.set(j, this.arrayOfTriples.get(i));
+	    }
+	    ListenerUtil.notifyCond(listener, "Removing duplicate triples", i, this.arrayOfTriples.size());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#getNumberOfElements()
-	 */
-	@Override
-	public long getNumberOfElements() {
-		return numValidTriples;
+	while(this.arrayOfTriples.size()>j+1) {
+	    this.arrayOfTriples.remove(this.arrayOfTriples.size()-1);
 	}
+	this.arrayOfTriples.trimToSize();
+	this.numValidTriples = j+1;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#size()
-	 */
-	@Override
-	public long size() {
-		return this.getNumberOfElements()*TripleID.size();
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+	return "TriplesList [" + this.arrayOfTriples + "\n order=" + this.order + "]";
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.triples.Triples#populateHeader(hdt.header.Header, java.lang.String)
+     */
+    @Override
+    public void populateHeader(final Header header, final String rootNode) {
+	header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST);
+	header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, this.getNumberOfElements() );
+	header.insert(rootNode, HDTVocabulary.TRIPLES_ORDER, this.order.ordinal() );
+    }
+
+    @Override
+    public String getType() {
+	return HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST;
+    }
+
+    @Override
+    public void clear() {
+	this.arrayOfTriples.clear();
+	this.numValidTriples=0;
+	this.order = TripleComponentOrder.Unknown;
+	this.sorted = false;
+    }
+
+    @Override
+    public void load(final Triples triples, final ProgressListener listener) {
+	this.clear();
+	final IteratorTripleID it = triples.searchAll();
+	while(it.hasNext()) {
+	    final TripleID triple = it.next();
+	    this.insert(triple.getSubject(), triple.getPredicate(), triple.getObject());
 	}
+	this.sorted = false;
+    }
 
+    // @Override
+    // public void load(final TempTriples input, final ProgressListener listener) {
+    // final IteratorTripleID iterator = input.searchAll();
+    // while (iterator.hasNext()) {
+    // this.arrayOfTriples.add(iterator.next());
+    // this.numValidTriples++;
+    // }
+    //
+    // this.sorted = false;
+    // }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#save(java.io.OutputStream)
-	 */
-	@Override
-	public void save(OutputStream output, ControlInfo controlInformation, ProgressListener listener) throws IOException {
-		controlInformation.clear();
-		controlInformation.setInt("numTriples", numValidTriples);
-		controlInformation.setFormat(HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST);
-		controlInformation.setInt("order", order.ordinal());
-		controlInformation.save(output);
+    @Override
+    public void close() throws IOException {
+	// Nothing to do
+    }
 
-		DataOutputStream dout = new DataOutputStream(output);
-		int count = 0;
-		for (TripleID triple : arrayOfTriples) {
-			if(triple.isValid()) {
-				dout.writeInt(triple.getSubject());
-				dout.writeInt(triple.getPredicate());
-				dout.writeInt(triple.getObject());
-				ListenerUtil.notifyCond(listener, "Saving TriplesList", count, arrayOfTriples.size());
-			}
-			count++;
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.triples.TriplesPrivate#mapFromFile(org.rdfhdt.hdt.util.io.CountInputStream, java.io.File, org.rdfhdt.hdt.listener.ProgressListener)
+     */
+    @Override
+    public void mapFromFile(final CountInputStream in, final File f, final ProgressListener listener) throws IOException {
+	throw new NotImplementedException();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#load(java.io.InputStream)
-	 */
-	@Override
-	public void load(InputStream input, ControlInfo controlInformation, ProgressListener listener) throws IOException {
-		order = TripleComponentOrder.values()[(int)controlInformation.getInt("order")];
-		long totalTriples = controlInformation.getInt("numTriples");
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.triples.TriplesPrivate#generateIndex(org.rdfhdt.hdt.listener.ProgressListener)
+     */
+    @Override
+    public void generateIndex(final ProgressListener listener) {
+	throw new NotImplementedException();
+    }
 
-		int numRead=0;
-		
-		while(numRead<totalTriples) {
-			arrayOfTriples.add(new TripleID(IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input)));
-			numRead++;
-			numValidTriples++;
-			ListenerUtil.notifyCond(listener, "Loading TriplesList", numRead, totalTriples);
-		}
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.triples.TriplesPrivate#loadIndex(java.io.InputStream, org.rdfhdt.hdt.options.ControlInfo, org.rdfhdt.hdt.listener.ProgressListener)
+     */
+    @Override
+    public void loadIndex(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	throw new NotImplementedException();
+    }
 
-		sorted = false;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.triples.TriplesPrivate#mapIndex(org.rdfhdt.hdt.util.io.CountInputStream, java.io.File, org.rdfhdt.hdt.options.ControlInfo, org.rdfhdt.hdt.listener.ProgressListener)
+     */
+    @Override
+    public void mapIndex(final CountInputStream input, final File f, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	throw new NotImplementedException();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.Triples#load(hdt.triples.TempTriples)
-	 */
-	@Override
-	public void load(TempTriples input, ProgressListener listener) {
-		IteratorTripleID iterator = input.searchAll();
-		while (iterator.hasNext()) {
-			arrayOfTriples.add(iterator.next());
-			numValidTriples++;
-		}
-
-		sorted = false;
-	}
-
-	/**
-	 * @param order
-	 *            the order to set
-	 */
-	public void setOrder(TripleComponentOrder order) {
-		if (this.order.equals(order))
-			return;
-		this.order = order;
-		sorted = false;
-	}
-
-	@Override
-	public TripleComponentOrder getOrder() {
-		return order;
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.TempTriples#insert(hdt.triples.TripleID[])
-	 */
-	@Override
-	public boolean insert(TripleID... triples) {
-		for (TripleID triple : triples) {
-			arrayOfTriples.add(new TripleID(triple));
-			numValidTriples++;
-		}
-		sorted = false;
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see hdt.triples.TempTriples#insert(int, int, int)
-	 */
-	@Override
-	public boolean insert(int subject, int predicate, int object) {
-		arrayOfTriples.add(new TripleID(subject,predicate,object));
-		numValidTriples++;
-		sorted = false;
-		return true;
-	}
-
-	@Override
-	public boolean update(TripleID triple, int subj, int pred, int obj) {
-		if (triple==null)
-			return false;
-
-		triple.setAll(subj, pred, obj);
-		sorted = false;
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.TempTriples#delete(hdt.triples.TripleID[])
-	 */
-	@Override
-	public boolean remove(TripleID... patterns) {
-		boolean removed = false;
-		for(TripleID triple : arrayOfTriples){
-			for(TripleID pattern : patterns) {
-				if(triple.match(pattern)) {
-					triple.clear();
-					removed = true;
-					numValidTriples--;
-					break;
-				}
-			}
-		}
-
-		return removed;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hdt.triples.TempTriples#sort(datatypes.TripleComponentOrder)
-	 */
-	@Override
-	public void sort(ProgressListener listener) {
-		if(!sorted) {
-			Collections.sort(arrayOfTriples, TripleIDComparator.getComparator(order));
-		}
-		sorted = true;
-	}
-
-	/**
-	 * If called while triples not sorted nothing will happen!
-	 */
-	@Override
-	public void removeDuplicates(ProgressListener listener) {
-		if(arrayOfTriples.size()<=1 || !sorted) {
-			return;
-		}
-
-		if(order==TripleComponentOrder.Unknown || !sorted) {
-			throw new IllegalArgumentException("Cannot remove duplicates unless sorted");
-		}
-
-		int j = 0;
-
-		for(int i=1; i<arrayOfTriples.size(); i++) {
-			if(arrayOfTriples.get(i).compareTo(arrayOfTriples.get(j))!=0) {
-				j++;
-				arrayOfTriples.set(j, arrayOfTriples.get(i));
-			}
-			ListenerUtil.notifyCond(listener, "Removing duplicate triples", i, arrayOfTriples.size());
-		}
-
-		while(arrayOfTriples.size()>j+1) {
-			arrayOfTriples.remove(arrayOfTriples.size()-1);
-		}
-		arrayOfTriples.trimToSize();
-		numValidTriples = j+1;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "TriplesList [" + arrayOfTriples + "\n order=" + order + "]";
-	}
-
-	/* (non-Javadoc)
-	 * @see hdt.triples.Triples#populateHeader(hdt.header.Header, java.lang.String)
-	 */
-	@Override
-	public void populateHeader(Header header, String rootNode) {
-		header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST);
-		header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, getNumberOfElements() );
-		header.insert(rootNode, HDTVocabulary.TRIPLES_ORDER, order.ordinal() );
-	}
-
-	public String getType() {
-		return HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST;
-	}
-
-	@Override
-	public void generateIndex(ProgressListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void loadIndex(InputStream input, ControlInfo ci, ProgressListener listener) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void saveIndex(OutputStream output, ControlInfo ci, ProgressListener listener) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void clear() {
-		this.arrayOfTriples.clear();
-		this.numValidTriples=0;
-		this.order = TripleComponentOrder.Unknown;
-		sorted = false;
-	}
-
-	@Override
-	public void load(Triples triples, ProgressListener listener) {
-		this.clear();
-		IteratorTripleID it = triples.searchAll();
-		while(it.hasNext()) {
-			TripleID triple = it.next();
-			this.insert(triple.getSubject(), triple.getPredicate(), triple.getObject());
-		}
-		sorted = false;
-	}
-
-	@Override
-	public void close() throws IOException {
-
-	}
-
-	/**
-	 * Iterator implementation to iterate over a TriplesList object
-	 * 
-	 * @author mario.arias
-	 *
-	 */
-	public class TriplesListIterator implements IteratorTripleID {
-
-		private TriplesList triplesList;
-		private int pos;
-
-		public TriplesListIterator(TriplesList triplesList) {
-			this.triplesList = triplesList;
-			this.pos = 0;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#hasNext()
-		 */
-		@Override
-		public boolean hasNext() {
-			return pos<triplesList.getNumberOfElements();
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#next()
-		 */
-		@Override
-		public TripleID next() {
-			return triplesList.arrayOfTriples.get((int)pos++);
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#hasPrevious()
-		 */
-		@Override
-		public boolean hasPrevious() {
-			return pos>0;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#previous()
-		 */
-		@Override
-		public TripleID previous() {
-			return triplesList.arrayOfTriples.get((int)--pos);
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#goToStart()
-		 */
-		@Override
-		public void goToStart() {
-			pos = 0;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#estimatedNumResults()
-		 */
-		@Override
-		public long estimatedNumResults() {
-			return triplesList.getNumberOfElements();
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#numResultEstimation()
-		 */
-		@Override
-		public ResultEstimationType numResultEstimation() {
-			return ResultEstimationType.EXACT;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#canGoTo()
-		 */
-		@Override
-		public boolean canGoTo() {
-			return true;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#goTo(int)
-		 */
-		@Override
-		public void goTo(long pos) {
-			this.pos = (int)pos;
-		}
-
-		/* (non-Javadoc)
-		 * @see hdt.iterator.IteratorTripleID#getOrder()
-		 */
-		@Override
-		public TripleComponentOrder getOrder() {
-			return triplesList.getOrder();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	@Override
-	public void mapFromFile(CountInputStream in, File f, ProgressListener listener) throws IOException {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void mapIndex(CountInputStream input, File f, ControlInfo ci, ProgressListener listener) throws IOException {		
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.rdfhdt.hdt.triples.TriplesPrivate#saveIndex(java.io.OutputStream, org.rdfhdt.hdt.options.ControlInfo, org.rdfhdt.hdt.listener.ProgressListener)
+     */
+    @Override
+    public void saveIndex(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
+	throw new NotImplementedException();
+    }
 
 }

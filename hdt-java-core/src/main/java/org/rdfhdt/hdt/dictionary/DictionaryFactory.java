@@ -27,8 +27,11 @@
 
 package org.rdfhdt.hdt.dictionary;
 
+import org.rdfhdt.hdt.dictionary.impl.GraphsFourSectionDictionary;
+import org.rdfhdt.hdt.dictionary.impl.GraphsFourSectionDictionaryBig;
 import org.rdfhdt.hdt.dictionary.impl.HashGraphsDictionary;
 import org.rdfhdt.hdt.dictionary.impl.HashTriplesDictionary;
+import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
 import org.rdfhdt.hdt.dictionary.impl.ReificationTempDictionary;
 import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionary;
 import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionaryBig;
@@ -83,12 +86,18 @@ public class DictionaryFactory {
 	return HDTFactory.getTempFactory().getDictionary(spec);
     }
 
-    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec) {
+    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec, final boolean reif) {
 	final String name = spec.get("dictionary.type");
 	if (name == null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
-	    return new TriplesFourSectionDictionary(spec);
-	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) { return new TriplesFourSectionDictionaryBig(spec); }
+	    return reif ? new ReificationDictionary(new TriplesFourSectionDictionary(spec), new GraphsFourSectionDictionary(spec)) : new TriplesFourSectionDictionary(spec);
+	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) {
+	    return reif ? new ReificationDictionary(new TriplesFourSectionDictionaryBig(spec), new GraphsFourSectionDictionaryBig(spec)) : new TriplesFourSectionDictionaryBig(spec);
+	}
 	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
+    }
+
+    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec) {
+	return createDictionary(spec, false);
     }
 
     public static TriplesDictionaryPrivate createDictionary(final ControlInfo ci) {

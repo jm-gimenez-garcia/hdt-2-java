@@ -54,11 +54,6 @@ public interface TriplesDictionary extends Dictionary {
      */
     long getNshared();
 
-    DictionarySection getSubjects();
-
     DictionarySection getPredicates();
 
-    DictionarySection getObjects();
-
-    DictionarySection getShared();
 }

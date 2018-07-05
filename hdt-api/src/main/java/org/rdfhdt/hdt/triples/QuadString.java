@@ -19,9 +19,11 @@ public class QuadString extends TripleString {
 	this.graph = graph;
     }
 
-    public QuadString(final QuadString other) {
+    public QuadString(final TripleString other) {
 	super(other);
-	this.graph = other.graph;
+	if (other instanceof QuadString) {
+	    this.graph = other instanceof QuadString ? ((QuadString) other).graph : null;
+	}
     }
 
     public CharSequence getGraph() {
@@ -37,12 +39,21 @@ public class QuadString extends TripleString {
 	this.graph = graph;
     }
 
-    public boolean equals(final QuadString other) {
-	return !(super.equals(other) || !this.graph.equals(other.graph));
+    @Override
+    public boolean equals(final TripleString other) {
+	return super.equals(other) && (other instanceof QuadString ? this.graph.equals(((QuadString) other).getGraph()) : true);
     }
 
-    public boolean match(final QuadString pattern) {
-	return super.match(pattern) && pattern.getGraph().equals(this.graph);
+    @Override
+    public boolean match(final TripleString pattern) {
+	boolean result = true;
+
+	if (pattern instanceof QuadString) {
+	    final CharSequence graphPattern = ((QuadString) pattern).getGraph();
+	    result = (graphPattern == "" || this.getGraph() == graphPattern);
+	}
+
+	return result && super.match(pattern);
     }
 
     @Override

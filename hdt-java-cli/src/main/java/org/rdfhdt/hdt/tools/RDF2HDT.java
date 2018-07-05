@@ -34,8 +34,8 @@ import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
 import org.rdfhdt.hdt.enums.RDFNotation;
 import org.rdfhdt.hdt.exceptions.ParserException;
-import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
+import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.hdt.HDTVersion;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.options.HDTSpecification;
@@ -113,7 +113,7 @@ public class RDF2HDT implements ProgressListener {
 	    }
 	}
 
-	HDT hdt = HDTManager.generateHDT(this.rdfInput, this.baseURI, notation, spec, this.reif, this);
+	HDTPrivate hdt = HDTManager.generateHDT(this.rdfInput, this.baseURI, notation, spec, this.reif, this);
 
 	try {
 	    // Show Basic stats

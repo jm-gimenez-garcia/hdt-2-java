@@ -40,6 +40,7 @@ public class HDTVocabulary {
     public static final String HDT_DICTIONARY_BASE	    = HDT_BASE + "dictionary";
     public static final String HDT_DICTIONARY		    = HDT_DICTIONARY_BASE + ">";
     public static final String HDT_TRIPLES_BASE		    = HDT_BASE + "triples";
+    public static final String HDT_QUADS_BASE		    = HDT_BASE + "quads";
     public static final String HDT_TRIPLES		    = HDT_TRIPLES_BASE + ">";
     public static final String HDT_SEQ_BASE		    = HDT_BASE + "seq";
     public static final String HDT_BITMAP_BASE		    = HDT_BASE + "bitmap";
@@ -54,6 +55,7 @@ public class HDTVocabulary {
     public static final String VOID_BASE		    = "<http://rdfs.org/ns/void#";
     public static final String VOID_DATASET		    = VOID_BASE + "Dataset>";
     public static final String VOID_TRIPLES		    = VOID_BASE + "triples>";
+    public static final String VOID_QUADS		    = VOID_BASE + "quads>";
     public static final String VOID_ENTITIES		    = VOID_BASE + "entities>";
     public static final String VOID_CLASSES		    = VOID_BASE + "classes>";
     public static final String VOID_PROPERTIES		    = VOID_BASE + "properties>";
@@ -62,6 +64,7 @@ public class HDTVocabulary {
 
     // Header
     public static final String HEADER_NTRIPLES		    = "ntriples";
+    public static final String HEADER_NQUADS		    = "nquads";
     public static final String HDT_DATASET		    = HDT_BASE + "Dataset>";
     public static final String HDT_FORMAT_INFORMATION	    = HDT_BASE + "formatInformation>";
     public static final String HDT_STATISTICAL_INFORMATION  = HDT_BASE + "statisticalInformation>";
@@ -77,6 +80,7 @@ public class HDTVocabulary {
     public static final String DICTIONARY_MAXSUBJECTID	    = HDT_DICTIONARY_BASE + "maxSubjectID>";
     public static final String DICTIONARY_MAXPREDICATEID    = HDT_DICTIONARY_BASE + "maxPredicateID>";
     public static final String DICTIONARY_MAXOBJECTTID	    = HDT_DICTIONARY_BASE + "maxObjectID>";
+    public static final String DICTIONARY_MAXGRAPHID	    = HDT_DICTIONARY_BASE + "maxGraphID>";
     public static final String DICTIONARY_SIZE_STRINGS	    = HDT_DICTIONARY_BASE + "sizeStrings>";
     public static final String DICTIONARY_BLOCK_SIZE	    = HDT_DICTIONARY_BASE + "blockSize>";
 
@@ -104,6 +108,10 @@ public class HDTVocabulary {
     public static final String TRIPLES_TYPE_PLAIN	    = HDT_TRIPLES_BASE + "Plain>";
     public static final String TRIPLES_TYPE_COMPACT	    = HDT_TRIPLES_BASE + "Compact>";
     public static final String TRIPLES_TYPE_BITMAP	    = HDT_TRIPLES_BASE + "Bitmap>";
+    public static final String QUADS_TYPE_TRIPLESLIST	    = HDT_QUADS_BASE + "List>";
+    public static final String QUADS_TYPE_PLAIN		    = HDT_QUADS_BASE + "Plain>";
+    public static final String QUADS_TYPE_COMPACT	    = HDT_QUADS_BASE + "Compact>";
+    public static final String QUADS_TYPE_BITMAP	    = HDT_QUADS_BASE + "Bitmap>";
 
     // Index type
     public static final String INDEX_TYPE_FOQ		    = HDT_BASE + "indexFoQ>";

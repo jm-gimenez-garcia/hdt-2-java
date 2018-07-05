@@ -31,8 +31,7 @@ package org.rdfhdt.hdt.dictionary.impl;
 import org.rdfhdt.hdt.dictionary.BaseDictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
-import org.rdfhdt.hdt.dictionary.GraphDictionaryPrivate;
-import org.rdfhdt.hdt.dictionary.GraphsDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsDictionaryPrivate;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.options.HDTOptions;
@@ -46,7 +45,7 @@ import org.rdfhdt.hdt.util.string.CompactString;
  * @author José M. Giménez-García, mario.arias, Eugen
  *
  */
-public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictionary> implements GraphDictionaryPrivate {
+public abstract class BaseGraphsDictionary extends BaseDictionary implements GraphsDictionaryPrivate {
     // public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictionary> implements GraphsDictionary {
 
     protected HDTOptions	       spec;
@@ -134,7 +133,7 @@ public abstract class BaseGraphsDictionary extends BaseDictionary<GraphsDictiona
     @Override
     public long getNumberOfElements() {
 	return this.subjects.getNumberOfElements() + this.graphs.getNumberOfElements()
-		+ this.objects.getNumberOfElements() + this.shared.getNumberOfElements();
+	+ this.objects.getNumberOfElements() + this.shared.getNumberOfElements();
     }
 
     @Override

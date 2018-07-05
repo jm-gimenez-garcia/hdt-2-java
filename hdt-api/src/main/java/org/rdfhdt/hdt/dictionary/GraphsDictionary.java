@@ -51,11 +51,6 @@ public interface GraphsDictionary extends Dictionary {
      */
     long getNshared();
 
-    DictionarySection getSubjects();
-
     DictionarySection getGraphs();
 
-    DictionarySection getObjects();
-
-    DictionarySection getShared();
 }

@@ -14,7 +14,7 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
  * @author mario.arias, Eugen, José M. Giménez-García
  *
  */
-public interface DictionaryPrivate<T extends Dictionary> extends Dictionary {
+public interface DictionaryPrivate extends Dictionary {
     /**
      * Loads a dictionary from a InputStream
      *
@@ -29,7 +29,7 @@ public interface DictionaryPrivate<T extends Dictionary> extends Dictionary {
     /**
      * Loads all information from another dictionary into this dictionary.
      */
-    void load(T other, ProgressListener listener);
+    void load(Dictionary dictionary, ProgressListener listener);
 
     /**
      * Saves the dictionary to a OutputStream
@@ -47,4 +47,5 @@ public interface DictionaryPrivate<T extends Dictionary> extends Dictionary {
      * @return
      */
     String getType();
+
 }

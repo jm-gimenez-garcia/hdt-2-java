@@ -34,7 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.rdfhdt.hdt.dictionary.CompositeDictionary;
-import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.CompositeDictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.Dictionary;
+import org.rdfhdt.hdt.dictionary.GraphsDictionary;
+import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
 import org.rdfhdt.hdt.header.Header;
@@ -46,7 +49,7 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
  * @author José M. Giménez-García
  *
  */
-public class ReificationDictionary extends BaseReificationDictionary<BaseTriplesDictionary, BaseGraphsDictionary> implements DictionaryPrivate<CompositeDictionary> {
+public class ReificationDictionary extends BaseReificationDictionary<BaseTriplesDictionary, BaseGraphsDictionary> implements CompositeDictionaryPrivate {
 
     public ReificationDictionary(final BaseTriplesDictionary td, final BaseGraphsDictionary gd) {
 	super(td, gd);
@@ -96,9 +99,18 @@ public class ReificationDictionary extends BaseReificationDictionary<BaseTriples
      * @see org.rdfhdt.hdt.dictionary.DictionaryPrivate#load(org.rdfhdt.hdt.dictionary.TempDictionary, org.rdfhdt.hdt.listener.ProgressListener)
      */
     @Override
-    public void load(final CompositeDictionary other, final ProgressListener listener) {
-	this.triplesDictionary.load(other.getTriplesDictionary(), listener);
-	this.graphDictionary.load(other.getGraphsDictionary(), listener);
+    public void load(final Dictionary other, final ProgressListener listener) {
+	if (other instanceof CompositeDictionary) {
+	    this.triplesDictionary.load(((CompositeDictionary) other).getTriplesDictionary(), listener);
+	    this.graphDictionary.load(((CompositeDictionary) other).getGraphsDictionary(), listener);
+	} else {
+	    if (other instanceof TriplesDictionary) {
+		this.triplesDictionary.load(other, listener);
+	    }
+	    if (other instanceof GraphsDictionary) {
+		this.graphDictionary.load(other, listener);
+	    }
+	}
     }
 
     /*

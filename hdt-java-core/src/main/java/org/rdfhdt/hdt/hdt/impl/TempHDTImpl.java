@@ -30,7 +30,7 @@ package org.rdfhdt.hdt.hdt.impl;
 import java.io.IOException;
 
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
-import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
+import org.rdfhdt.hdt.dictionary.TempDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.hdt.TempHDT;
 import org.rdfhdt.hdt.header.Header;
@@ -47,7 +47,7 @@ import org.rdfhdt.hdt.triples.TriplesFactory;
 public class TempHDTImpl implements TempHDT {
 
     protected Header		    header;
-    protected TriplesTempDictionary dictionary;
+    protected TempDictionary dictionary;
     protected TempTriples	    triples;
 
     protected String		    baseUri;
@@ -81,7 +81,7 @@ public class TempHDTImpl implements TempHDT {
     }
 
     @Override
-    public TriplesTempDictionary getDictionary() {
+    public TempDictionary getDictionary() {
 	return this.dictionary;
     }
 

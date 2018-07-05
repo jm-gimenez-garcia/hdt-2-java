@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.impl.section.DictionarySectionFactory;
@@ -76,12 +77,16 @@ public class GraphsFourSectionDictionary extends BaseGraphsDictionary {
      * @see hdt.dictionary.Dictionary#load(hdt.dictionary.Dictionary)
      */
     @Override
-    public void load(final GraphsDictionary other, final ProgressListener listener) {
+    public void load(final Dictionary other, final ProgressListener listener) {
 	final IntermediateListener iListener = new IntermediateListener(listener);
 	this.subjects.load(other.getSubjects(), iListener);
 	this.objects.load(other.getObjects(), iListener);
 	this.shared.load(other.getShared(), iListener);
-	this.graphs.load(other.getGraphs(), iListener);
+	if (other instanceof GraphsDictionary) {
+	    this.graphs.load(((GraphsDictionary) other).getGraphs(), iListener);
+	} else {
+	    System.out.println("WARNING: Trying to load a non-graphs dictionary into a graphs dictionary");
+	}
     }
 
     /*

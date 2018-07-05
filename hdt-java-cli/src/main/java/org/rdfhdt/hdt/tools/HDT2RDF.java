@@ -29,8 +29,8 @@ package org.rdfhdt.hdt.tools;
 import java.io.PrintStream;
 import java.util.List;
 
-import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
+import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.hdt.HDTVersion;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
@@ -46,76 +46,76 @@ import com.beust.jcommander.internal.Lists;
  *
  */
 public class HDT2RDF implements ProgressListener {
-	@Parameter(description = "<input HDT> <output NT>")
-	public List<String> parameters = Lists.newArrayList();
-	
-	@Parameter(names = "-version", description = "Prints the HDT version number")
-	public static boolean showVersion;
-	
-	public String hdtInput;
-	public String rdfOutput;
+    @Parameter(description = "<input HDT> <output NT>")
+    public List<String> parameters = Lists.newArrayList();
 
-	public void execute() throws Exception {
-		
-		PrintStream out = null;
-		if (rdfOutput.equals("stdout")){
-			out = System.out;
-		} else {
-			out = new PrintStream(rdfOutput, "UTF-8");
-		}
+    @Parameter(names = "-version", description = "Prints the HDT version number")
+    public static boolean showVersion;
 
-		HDT hdt=HDTManager.mapHDT(hdtInput, this);
-		try {
-			IteratorTripleString it = hdt.search("","","");
-			StringBuilder build = new StringBuilder(1024);
-			while(it.hasNext()) {
-				TripleString triple = it.next();
-				build.delete(0, build.length());
-				triple.dumpNtriple(build);
-				out.print(build);
-			}
-			if(!rdfOutput.equals("stdout")) {
-				out.close();
-			}
-		} finally {
-			if(hdt!=null) hdt.close();
-		}
+    public String hdtInput;
+    public String rdfOutput;
+
+    public void execute() throws Exception {
+
+	PrintStream out = null;
+	if (this.rdfOutput.equals("stdout")){
+	    out = System.out;
+	} else {
+	    out = new PrintStream(this.rdfOutput, "UTF-8");
 	}
 
-	/* (non-Javadoc)
-	 * @see hdt.ProgressListener#notifyProgress(float, java.lang.String)
-	 */
-	@Override
-	public void notifyProgress(float level, String message) {
-		//System.out.println(message + "\t"+ Float.toString(level));
+	final HDTPrivate hdt = HDTManager.mapHDT(this.hdtInput, this);
+	try {
+	    final IteratorTripleString it = hdt.search("","","");
+	    final StringBuilder build = new StringBuilder(1024);
+	    while(it.hasNext()) {
+		final TripleString triple = it.next();
+		build.delete(0, build.length());
+		triple.dumpNtriple(build);
+		out.print(build);
+	    }
+	    if(!this.rdfOutput.equals("stdout")) {
+		out.close();
+	    }
+	} finally {
+	    if(hdt!=null) hdt.close();
+	}
+    }
+
+    /* (non-Javadoc)
+     * @see hdt.ProgressListener#notifyProgress(float, java.lang.String)
+     */
+    @Override
+    public void notifyProgress(final float level, final String message) {
+	//System.out.println(message + "\t"+ Float.toString(level));
+    }
+
+    public static void main(final String[] args) throws Throwable {
+	final HDT2RDF hdt2rdf = new HDT2RDF();
+	final JCommander com = new JCommander(hdt2rdf, args);
+	com.setProgramName("hdt2rdf");
+
+	if (showVersion) {
+	    System.out.println(HDTVersion.get_version_string("."));
+	    System.exit(0);
 	}
 
-	public static void main(String[] args) throws Throwable {
-		HDT2RDF hdt2rdf = new HDT2RDF();
-		JCommander com = new JCommander(hdt2rdf, args);
-		com.setProgramName("hdt2rdf");
-
-		if (showVersion) {
-			System.out.println(HDTVersion.get_version_string("."));
-			System.exit(0);
-		}
-		
-		try {
-			hdt2rdf.hdtInput = hdt2rdf.parameters.get(0);
-		} catch (Exception e){
-			com.usage();
-			System.exit(1);
-		}
-
-		try {
-			hdt2rdf.rdfOutput = hdt2rdf.parameters.get(1);
-		} catch (Exception e){
-			hdt2rdf.rdfOutput = "stdout";
-		}
-		System.err.println("Converting "+hdt2rdf.hdtInput+" to RDF on "+hdt2rdf.rdfOutput);
-		
-		hdt2rdf.execute();
+	try {
+	    hdt2rdf.hdtInput = hdt2rdf.parameters.get(0);
+	} catch (final Exception e){
+	    com.usage();
+	    System.exit(1);
 	}
+
+	try {
+	    hdt2rdf.rdfOutput = hdt2rdf.parameters.get(1);
+	} catch (final Exception e){
+	    hdt2rdf.rdfOutput = "stdout";
+	}
+	System.err.println("Converting "+hdt2rdf.hdtInput+" to RDF on "+hdt2rdf.rdfOutput);
+
+	hdt2rdf.execute();
+    }
 
 
 }

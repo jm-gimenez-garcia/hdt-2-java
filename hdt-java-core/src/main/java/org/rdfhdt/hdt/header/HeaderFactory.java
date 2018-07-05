@@ -35,11 +35,15 @@ import org.rdfhdt.hdt.options.HDTOptions;
  *
  */
 public class HeaderFactory {
-	public static HeaderPrivate createHeader(HDTOptions spec) {
-		return new PlainHeader(spec);
-	}
-	
-	public static HeaderPrivate createHeader(ControlInfo ci) {
-		return new PlainHeader();
-	}
+    public static HeaderPrivate createHeader(final HDTOptions spec, final boolean reif) {
+	return new PlainHeader(spec);
+    }
+
+    public static HeaderPrivate createHeader(final HDTOptions spec) {
+	return createHeader(spec, false);
+    }
+
+    public static HeaderPrivate createHeader(final ControlInfo ci) {
+	return new PlainHeader();
+    }
 }

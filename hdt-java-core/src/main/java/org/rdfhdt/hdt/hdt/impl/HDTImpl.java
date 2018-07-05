@@ -38,14 +38,15 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
+import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
-import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
-import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
 import org.rdfhdt.hdt.exceptions.NotFoundException;
+import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.hdt.HDTVersion;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
@@ -59,7 +60,6 @@ import org.rdfhdt.hdt.options.ControlInfo;
 import org.rdfhdt.hdt.options.ControlInformation;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
-import org.rdfhdt.hdt.triples.TempTriples;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.triples.TripleString;
 import org.rdfhdt.hdt.triples.Triples;
@@ -82,14 +82,15 @@ public class HDTImpl implements HDTPrivate {
     protected TriplesDictionaryPrivate dictionary;
     protected TriplesPrivate	       triples;
 
+    protected boolean		       reif;
     private String		       hdtFileName;
     private String		       baseUri;
     private boolean		       isMapped;
 
     private void createComponents() {
-	this.header = HeaderFactory.createHeader(this.spec);
-	this.dictionary = DictionaryFactory.createDictionary(this.spec);
-	this.triples = TriplesFactory.createTriples(this.spec);
+	this.header = HeaderFactory.createHeader(this.spec, this.reif);
+	this.dictionary = DictionaryFactory.createDictionary(this.spec, this.reif);
+	this.triples = TriplesFactory.createTriples(this.spec, this.reif);
     }
 
     @Override
@@ -124,13 +125,14 @@ public class HDTImpl implements HDTPrivate {
 	this.header.insert(publicationInfoNode, HDTVocabulary.DUBLIN_CORE_ISSUED, StringUtil.formatDate(new Date()));
     }
 
-    /**
-     * @param spec2
-     */
-    public HDTImpl(final HDTOptions spec) {
+    public HDTImpl(final HDTOptions spec, final boolean reif) {
 	this.spec = spec;
-
+	this.reif = reif;
 	this.createComponents();
+    }
+
+    public HDTImpl(final HDTOptions spec) {
+	this(spec, false);
     }
 
     @Override
@@ -367,7 +369,7 @@ public class HDTImpl implements HDTPrivate {
      * @see hdt.HDT#getDictionary()
      */
     @Override
-    public TriplesDictionary getDictionary() {
+    public DictionaryPrivate getDictionary() {
 	return this.dictionary;
     }
 
@@ -389,34 +391,28 @@ public class HDTImpl implements HDTPrivate {
 	return this.dictionary.size() + this.triples.size();
     }
 
-    public void loadFromModifiableHDT(final TempHDT modHdt, final ProgressListener listener) {
+    public void loadFromHDT(final HDT hdt, final ProgressListener listener) {
 
-	modHdt.reorganizeDictionary(listener);
-	modHdt.reorganizeTriples(listener);
+	if (hdt instanceof TempHDT) {
+	    ((TempHDT) hdt).reorganizeDictionary(listener);
+	    ((TempHDT) hdt).reorganizeTriples(listener);
+	}
 
 	// Get parts
-	final TempTriples modifiableTriples = modHdt.getTriples();
-	final TriplesTempDictionary modifiableDictionary = modHdt.getDictionary();
+	final Triples triples = hdt.getTriples();
+	final Dictionary dictionary = hdt.getDictionary();
 
 	// Convert triples to final format
-	if (this.triples.getClass().equals(modifiableTriples.getClass())) {
-	    this.triples = modifiableTriples;
-	} else {
-	    // StopWatch tripleConvTime = new StopWatch();
-	    this.triples.load(modifiableTriples, listener);
-	    // System.out.println("Triples conversion time: "+tripleConvTime.stopAndShow());
-	}
+	// StopWatch tripleConvTime = new StopWatch();
+	this.triples.load(triples, listener);
+	// System.out.println("Triples conversion time: "+tripleConvTime.stopAndShow());
 
 	// Convert dictionary to final format
-	if (this.dictionary.getClass().equals(modifiableDictionary.getClass())) {
-	    this.dictionary = (TriplesDictionaryPrivate) modifiableDictionary;
-	} else {
-	    // StopWatch dictConvTime = new StopWatch();
-	    this.dictionary.load(modifiableDictionary, listener);
-	    // System.out.println("Dictionary conversion time: "+dictConvTime.stopAndShow());
-	}
+	// StopWatch dictConvTime = new StopWatch();
+	this.dictionary.load(dictionary, listener);
+	// System.out.println("Dictionary conversion time: "+dictConvTime.stopAndShow());
 
-	this.baseUri = modHdt.getBaseURI();
+	this.baseUri = hdt.getBaseURI();
     }
 
     /*

@@ -70,4 +70,10 @@ public interface Dictionary extends Closeable {
      */
     long size();
 
+    DictionarySection getSubjects();
+
+    DictionarySection getObjects();
+
+    DictionarySection getShared();
+
 }
