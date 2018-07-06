@@ -30,41 +30,43 @@ package org.rdfhdt.hdt.dictionary;
 import java.io.Closeable;
 import java.util.Iterator;
 
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
+
 /**
  * Interface that specifies the basic methods for a dictionary section
- * 
+ *
  * @author mario.arias, Eugen
  *
  */
 public interface DictionarySection extends Closeable {
-	
-	/**
-	 * Find a String and return its ID.
-	 * @param s
-	 * @return
-	 */
-	int locate(CharSequence s);
-	
-	/**
-	 * Find the String associated to a given ID
-	 * @param pos
-	 * @return
-	 */
-	CharSequence extract(int pos);
-	
-	/**
-	 * Size in bytes of the strings held in the dictionary section.
-	 */
-	long size();
-	
-	/**
-	 * Number of entries in the dictionary section.
-	 */
-	int getNumberOfElements();
-	
-	/**
-	 * Iterator over all entries in the dictionary, sorted lexicographically.
-	 */
-	Iterator<? extends CharSequence> getSortedEntries();
-	
+
+    /**
+     * Find a String and return its ID.
+     * @param s
+     * @return
+     */
+    int locate(CharSequence s);
+
+    /**
+     * Find the String associated to a given ID
+     * @param pos
+     * @return
+     */
+    CharSequence extract(int pos);
+
+    /**
+     * Size in bytes of the strings held in the dictionary section.
+     */
+    long size();
+
+    /**
+     * Number of entries in the dictionary section.
+     */
+    int getNumberOfElements();
+
+    /**
+     * Iterator over all entries in the dictionary, sorted lexicographically.
+     */
+    Iterator<ComparableCharSequence> getSortedEntries();
+
 }

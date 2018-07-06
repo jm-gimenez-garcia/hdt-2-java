@@ -86,9 +86,9 @@ public class RDFParserRIOT implements RDFParserCallback, StreamRDF {
 		    throw new NotImplementedException("Parser not found for format " + notation);
 	    }
 	} catch (final FileNotFoundException e) {
-	    throw new ParserException();
+	    throw new ParserException("File not found");
 	} catch (final Exception e) {
-	    throw new ParserException();
+	    throw new ParserException("Unknown parser exception");
 	}
     }
 
