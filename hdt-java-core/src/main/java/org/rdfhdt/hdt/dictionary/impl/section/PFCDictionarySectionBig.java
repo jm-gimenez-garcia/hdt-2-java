@@ -54,6 +54,7 @@ import org.rdfhdt.hdt.util.crc.CRCOutputStream;
 import org.rdfhdt.hdt.util.io.IOUtil;
 import org.rdfhdt.hdt.util.string.ByteStringUtil;
 import org.rdfhdt.hdt.util.string.CompactString;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 import org.rdfhdt.hdt.util.string.ReplazableString;
 
 /**
@@ -62,7 +63,7 @@ import org.rdfhdt.hdt.util.string.ReplazableString;
  *
  * It allows loading much bigger files, but waste some memory in pointers to the blocks and
  * some CPU to locate the array at search time.
- * 
+ *
  * @author mario.arias, Lyudmila Balakireva
  *
  */
@@ -324,7 +325,7 @@ public class PFCDictionarySectionBig implements DictionarySectionPrivate {
      * @see hdt.dictionary.DictionarySection#extract(int)
      */
     @Override
-    public CharSequence extract(final int id) {
+    public ComparableCharSequence extract(final int id) {
 
 	if (id < 1 || id > this.numstrings) { return null; }
 
@@ -375,8 +376,8 @@ public class PFCDictionarySectionBig implements DictionarySectionPrivate {
      * @see hdt.dictionary.DictionarySection#getEntries()
      */
     @Override
-    public Iterator<CharSequence> getSortedEntries() {
-	return new Iterator<CharSequence>() {
+    public Iterator<ComparableCharSequence> getSortedEntries() {
+	return new Iterator<ComparableCharSequence>() {
 	    int pos;
 
 	    @Override
@@ -385,7 +386,7 @@ public class PFCDictionarySectionBig implements DictionarySectionPrivate {
 	    }
 
 	    @Override
-	    public CharSequence next() {
+	    public ComparableCharSequence next() {
 		// FIXME: It is more efficient to go through each block, each entry.
 		this.pos++;
 		return PFCDictionarySectionBig.this.extract(this.pos);

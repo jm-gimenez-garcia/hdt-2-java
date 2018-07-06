@@ -29,14 +29,14 @@ package org.rdfhdt.hdt.dictionary.impl;
 
 import java.util.Iterator;
 
-import org.rdfhdt.hdt.dictionary.GraphsDictionary;
-import org.rdfhdt.hdt.dictionary.TempDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsTempDictionary;
 import org.rdfhdt.hdt.dictionary.TempDictionarySection;
 import org.rdfhdt.hdt.enums.DictionarySectionRole;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.TempTriples;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 
 /**
  * This abstract class implements all methods that have implementation
@@ -45,7 +45,7 @@ import org.rdfhdt.hdt.triples.TempTriples;
  * @author José M. Giménez-García, Eugen
  *
  */
-public abstract class BaseTempGraphsDictionary implements TempDictionary, GraphsDictionary {
+public abstract class BaseTempGraphsDictionary implements GraphsTempDictionary {
 
     HDTOptions			    spec;
     protected boolean		    isOrganized;
@@ -89,9 +89,9 @@ public abstract class BaseTempGraphsDictionary implements TempDictionary, Graphs
     public void reorganize() {
 
 	// Generate shared
-	final Iterator<? extends CharSequence> itSubj = this.subjects.getEntries();
+	final Iterator<? extends ComparableCharSequence> itSubj = this.subjects.getEntries();
 	while (itSubj.hasNext()) {
-	    final CharSequence str = itSubj.next();
+	    final ComparableCharSequence str = itSubj.next();
 
 	    // FIXME: These checks really needed?
 	    if (str.length() > 0 && str.charAt(0) != '"' && this.objects.locate(str) != 0) {
@@ -106,6 +106,11 @@ public abstract class BaseTempGraphsDictionary implements TempDictionary, Graphs
 	    this.subjects.remove(sharedStr);
 	    this.objects.remove(sharedStr);
 	}
+
+	// Remove subjects and objects from unused
+	this.shared.getEntries().forEachRemaining(V -> this.graphs.remove(V));
+	this.subjects.getEntries().forEachRemaining(V -> this.graphs.remove(V));
+	this.objects.getEntries().forEachRemaining(V -> this.graphs.remove(V));
 
 	// Sort sections individually
 	this.shared.sort();

@@ -37,6 +37,7 @@ import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.TempTriples;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.util.StopWatch;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 
 /**
  * @author mario.arias, Eugen
@@ -67,9 +68,9 @@ public class HashTriplesDictionary extends BaseTempTriplesDictionary {
 	final StopWatch st = new StopWatch();
 
 	// Generate old subject mapping
-	final Iterator<? extends CharSequence> itSubj = this.subjects.getEntries();
+	final Iterator<? extends ComparableCharSequence> itSubj = this.subjects.getEntries();
 	while (itSubj.hasNext()) {
-	    final CharSequence str = itSubj.next();
+	    final ComparableCharSequence str = itSubj.next();
 	    mapSubj.add(str);
 
 	    // GENERATE SHARED at the same time
