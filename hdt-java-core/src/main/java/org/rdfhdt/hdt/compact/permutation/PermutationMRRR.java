@@ -167,7 +167,7 @@ public class PermutationMRRR implements Permutation {
 	@Override
 	public long pi(long position) {
 		if (position<0 || position>=sequence.getNumberOfElements()){
-			throw new IndexOutOfBoundsException("The Permutation ranges from 1 to "+sequence.getNumberOfElements()+", but the given position is "+position);
+			throw new IndexOutOfBoundsException("The given position is bigger than the size of the permutation");
 		}
 		return sequence.get(position); // use -1 if we disregard the 0
 	}
@@ -175,7 +175,7 @@ public class PermutationMRRR implements Permutation {
 	@Override
 	public long revpi(long i) {
 		if (i<0 || i>=sequence.getNumberOfElements()){
-			throw new IndexOutOfBoundsException("The Permutation ranges from 1 to "+sequence.getNumberOfElements()+", but the given value is "+i);
+			throw new IndexOutOfBoundsException("The given value is bigger than the maximum permutation ID");
 		}
 		if (step==1){
 			return backwardPointers.get(i); // use -1 if we disregard the 0
@@ -219,7 +219,7 @@ public class PermutationMRRR implements Permutation {
 		CRCOutputStream out = new CRCOutputStream(output, new CRC8());
 		
 		out.write(PermutationFactory.TYPE_PERMUTATION_MRRR);
-		//VByte.encode(out, sequence.getNumberOfElements());
+		out.write((int)step);
 		out.writeCRC();
 		
 		sequence.save(output, listener);
@@ -243,6 +243,7 @@ public class PermutationMRRR implements Permutation {
 		if(type!=PermutationFactory.TYPE_PERMUTATION_MRRR){
 			throw new IllegalFormatException("Trying to read a PERMUTATION_MRRR but the data is not PERMUTATION_MRRR");
 		}
+		this.step = in.read();
 		// Validate CRC
 		if(!in.readCRCAndCheck()) {
 			throw new CRCException("CRC Error while reading PERMUTATION_MRRR header.");
