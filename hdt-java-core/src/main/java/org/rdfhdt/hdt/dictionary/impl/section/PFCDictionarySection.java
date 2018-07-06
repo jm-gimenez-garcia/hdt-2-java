@@ -50,6 +50,7 @@ import org.rdfhdt.hdt.util.crc.CRCOutputStream;
 import org.rdfhdt.hdt.util.io.IOUtil;
 import org.rdfhdt.hdt.util.string.ByteStringUtil;
 import org.rdfhdt.hdt.util.string.CompactString;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 import org.rdfhdt.hdt.util.string.ReplazableString;
 
 /**
@@ -331,8 +332,8 @@ public class PFCDictionarySection implements DictionarySectionPrivate {
      * @see hdt.dictionary.DictionarySection#getEntries()
      */
     @Override
-    public Iterator<CharSequence> getSortedEntries() {
-	return new Iterator<CharSequence>() {
+    public Iterator<ComparableCharSequence> getSortedEntries() {
+	return new Iterator<ComparableCharSequence>() {
 	    int		     id;
 	    int		     pos;
 	    Mutable<Long>    delta	= new Mutable<>(0L);
@@ -344,7 +345,7 @@ public class PFCDictionarySection implements DictionarySectionPrivate {
 	    }
 
 	    @Override
-	    public CharSequence next() {
+	    public ComparableCharSequence next() {
 		int len;
 		if ((this.id % PFCDictionarySection.this.blocksize) == 0) {
 		    len = ByteStringUtil.strlen(PFCDictionarySection.this.text, this.pos);

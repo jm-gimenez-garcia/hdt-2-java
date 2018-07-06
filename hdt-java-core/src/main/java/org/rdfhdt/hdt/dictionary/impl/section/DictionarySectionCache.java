@@ -37,6 +37,7 @@ import java.util.Map;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.listener.ProgressListener;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 
 /**
  * DictionarySection that caches results returned by a child DictionarySection to increase performance.
@@ -51,21 +52,21 @@ public class DictionarySectionCache implements DictionarySectionPrivate {
 
     @SuppressWarnings("serial")
     Map<CharSequence, Integer>		   cacheString	 = new LinkedHashMap<CharSequence, Integer>(this.CACHE_ENTRIES + 1, .75F, true) {
-							     // This method is called just after a new entry has been added
-							     @Override
-							     public boolean removeEldestEntry(final Map.Entry<CharSequence, Integer> eldest) {
-								 return this.size() > DictionarySectionCache.this.CACHE_ENTRIES;
-							     }
-							 };
+	// This method is called just after a new entry has been added
+	@Override
+	public boolean removeEldestEntry(final Map.Entry<CharSequence, Integer> eldest) {
+	    return this.size() > DictionarySectionCache.this.CACHE_ENTRIES;
+	}
+    };
 
     @SuppressWarnings("serial")
     Map<Integer, CharSequence>		   cacheID	 = new LinkedHashMap<Integer, CharSequence>(this.CACHE_ENTRIES + 1, .75F, true) {
-							     // This method is called just after a new entry has been added
-							     @Override
-							     public boolean removeEldestEntry(final Map.Entry<Integer, CharSequence> eldest) {
-								 return this.size() > DictionarySectionCache.this.CACHE_ENTRIES;
-							     }
-							 };
+	// This method is called just after a new entry has been added
+	@Override
+	public boolean removeEldestEntry(final Map.Entry<Integer, CharSequence> eldest) {
+	    return this.size() > DictionarySectionCache.this.CACHE_ENTRIES;
+	}
+    };
 
     public DictionarySectionCache(final DictionarySectionPrivate child) {
 	this.child = child;
@@ -123,7 +124,7 @@ public class DictionarySectionCache implements DictionarySectionPrivate {
      * @see hdt.dictionary.DictionarySection#getEntries()
      */
     @Override
-    public Iterator<? extends CharSequence> getSortedEntries() {
+    public Iterator<ComparableCharSequence> getSortedEntries() {
 	return this.child.getSortedEntries();
     }
 

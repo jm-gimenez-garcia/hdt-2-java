@@ -29,45 +29,47 @@ package org.rdfhdt.hdt.dictionary;
 
 import java.util.Iterator;
 
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
+
 /**
  * Interface that specifies the methods for a dictionary section
- * that can be modified. 
- * 
+ * that can be modified.
+ *
  * @author Eugen
  *
  */
 public interface TempDictionarySection extends DictionarySection {
-	
-	/**
-	 * Adds an entry to the dictionary section.
-	 */
-	int add(CharSequence str);
-	
-	/**
-	 * Removes an entry from the dictionary section.
-	 */
-	void remove(CharSequence str);
-	
-	/**
-	 * Sorts the entries in the dictionary section and updates their ID's according to the
-	 * sorting order.
-	 */
-	void sort();
-	
-	/**
-	 * Empties the dictionary section of all entries,
-	 */
-	void clear();
-	
-	/**
-	 * Indicates if the sort method has been called and the section is sorted, ID's updated
-	 * and the section ready to be used for generation of a QueryableDictionarySection.
-	 */
-	boolean isSorted();
-	
-	/**
-	 * Iterator over all entries in the dictionary, not neccessarily sorted.
-	 */
-	Iterator<? extends CharSequence> getEntries();
+
+    /**
+     * Adds an entry to the dictionary section.
+     */
+    int add(CharSequence str);
+
+    /**
+     * Removes an entry from the dictionary section.
+     */
+    void remove(CharSequence str);
+
+    /**
+     * Sorts the entries in the dictionary section and updates their ID's according to the
+     * sorting order.
+     */
+    void sort();
+
+    /**
+     * Empties the dictionary section of all entries,
+     */
+    void clear();
+
+    /**
+     * Indicates if the sort method has been called and the section is sorted, ID's updated
+     * and the section ready to be used for generation of a QueryableDictionarySection.
+     */
+    boolean isSorted();
+
+    /**
+     * Iterator over all entries in the dictionary, not neccessarily sorted.
+     */
+    Iterator<? extends ComparableCharSequence> getEntries();
 
 }

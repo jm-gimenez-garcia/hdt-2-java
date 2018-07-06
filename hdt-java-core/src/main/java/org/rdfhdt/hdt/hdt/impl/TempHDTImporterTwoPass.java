@@ -64,6 +64,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 	@Override
 	public void processTriple(final TripleString triple, final long pos) {
+	    System.out.println("processing triple to append to dictionary");
 	    this.dict.insert(triple.getSubject(), TripleComponentRole.SUBJECT);
 	    this.dict.insert(triple.getPredicate(), TripleComponentRole.PREDICATE);
 	    this.dict.insert(triple.getObject(), TripleComponentRole.OBJECT);
@@ -73,6 +74,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 	@Override
 	public void processQuad(final QuadString quad, final long pos) {
+	    System.out.println("processing quad to append to dictionary");
 	    this.processTriple(quad, pos);
 	    this.dict.insert(quad.getGraph(), TripleComponentRole.GRAPH);
 	}
@@ -103,6 +105,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 	@Override
 	public void processTriple(final TripleString triple, final long pos) {
+	    System.out.println("processing triple to append to triples");
 	    this.triples.insert(
 		    this.dict.stringToId(triple.getSubject(), TripleComponentRole.SUBJECT),
 		    this.dict.stringToId(triple.getPredicate(), TripleComponentRole.PREDICATE),
@@ -113,6 +116,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 	@Override
 	public void processQuad(final QuadString quad, final long pos) {
+	    System.out.println("processing quad to append to dictionary");
 	    ((TempQuads) this.triples).insert(
 		    this.dict.stringToId(quad.getSubject(), TripleComponentRole.SUBJECT),
 		    this.dict.stringToId(quad.getPredicate(), TripleComponentRole.PREDICATE),

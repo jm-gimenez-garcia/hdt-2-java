@@ -37,6 +37,7 @@ import java.util.Map;
 import org.rdfhdt.hdt.dictionary.DictionarySection;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.listener.ProgressListener;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 
 /**
  * DictionarySection that caches results returned by a child DictionarySection to increase performance.
@@ -128,7 +129,7 @@ public class DictionarySectionCacheAll implements DictionarySectionPrivate {
      * @see hdt.dictionary.DictionarySection#getEntries()
      */
     @Override
-    public Iterator<? extends CharSequence> getSortedEntries() {
+    public Iterator<ComparableCharSequence> getSortedEntries() {
 	return this.child.getSortedEntries();
     }
 

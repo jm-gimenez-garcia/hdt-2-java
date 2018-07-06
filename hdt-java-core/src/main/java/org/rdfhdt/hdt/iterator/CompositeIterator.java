@@ -1,42 +1,38 @@
 package org.rdfhdt.hdt.iterator;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 
 public class CompositeIterator<E> implements Iterator<E> {
 
-	List<Iterator<E>> iterators;
+    List<Iterator<E>> iterators;
 
-	public CompositeIterator(List<Iterator<E>> iterators) {
-		this.iterators = iterators;
-	}
-	
-	public CompositeIterator(Iterator<E>... iterators) {
-		this(Arrays.asList(iterators));
-	}
-	
-	@Override
-	public boolean hasNext() {
-		boolean hasNext = false;
-		for (Iterator<E> iterator : iterators) {
-			if ((hasNext = iterator.hasNext()) == true) break;
-		}
-		return hasNext;
-	}
+    public CompositeIterator(final List<Iterator<E>> iterators) {
+	this.iterators = iterators;
+    }
 
-	@Override
-	public E next() {
-		E next;
-		if (iterators.get(0).hasNext()) {
-			next = iterators.get(0).next();
-		} else {
-			iterators.remove(0);
-			next = next();
-		}
-		return next;
+    public CompositeIterator(final Iterator<E>... iterators) {
+	this(new LinkedList<>(Arrays.asList(iterators)));
+    }
+
+    @Override
+    public boolean hasNext() {
+	boolean hasNext = false;
+	for (final Iterator<E> iterator : this.iterators) {
+	    if ((hasNext = iterator.hasNext()) == true) break;
 	}
+	return hasNext;
+    }
+
+    @Override
+    public E next() {
+	final E next = this.iterators.get(0).next();
+	if (!this.iterators.get(0).hasNext()) {
+	    this.iterators.remove(0);
+	}
+	return next;
+    }
 
 }

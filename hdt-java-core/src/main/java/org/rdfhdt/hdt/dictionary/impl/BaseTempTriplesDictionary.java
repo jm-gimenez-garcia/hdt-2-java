@@ -36,6 +36,7 @@ import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.TempTriples;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 
 /**
  * This abstract class implements all methods that have implementation
@@ -88,9 +89,9 @@ public abstract class BaseTempTriplesDictionary implements TriplesTempDictionary
     public void reorganize() {
 
 	// Generate shared
-	final Iterator<? extends CharSequence> itSubj = this.subjects.getEntries();
+	final Iterator<? extends ComparableCharSequence> itSubj = this.subjects.getEntries();
 	while (itSubj.hasNext()) {
-	    final CharSequence str = itSubj.next();
+	    final ComparableCharSequence str = itSubj.next();
 
 	    // FIXME: These checks really needed?
 	    if (str.length() > 0 && str.charAt(0) != '"' && this.objects.locate(str) != 0) {

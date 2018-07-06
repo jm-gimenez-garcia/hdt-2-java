@@ -56,6 +56,7 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
 import org.rdfhdt.hdt.util.io.IOUtil;
 import org.rdfhdt.hdt.util.string.ByteStringUtil;
 import org.rdfhdt.hdt.util.string.CompactString;
+import org.rdfhdt.hdt.util.string.ComparableCharSequence;
 import org.rdfhdt.hdt.util.string.ReplazableString;
 
 /**
@@ -291,8 +292,8 @@ public class PFCDictionarySectionMap implements DictionarySectionPrivate, Closea
      * @see hdt.dictionary.DictionarySection#getEntries()
      */
     @Override
-    public Iterator<CharSequence> getSortedEntries() {
-	return new Iterator<CharSequence>() {
+    public Iterator<ComparableCharSequence> getSortedEntries() {
+	return new Iterator<ComparableCharSequence>() {
 	    int		     id;
 
 	    ReplazableString tempString	= new ReplazableString();
@@ -305,7 +306,7 @@ public class PFCDictionarySectionMap implements DictionarySectionPrivate, Closea
 	    }
 
 	    @Override
-	    public CharSequence next() {
+	    public ComparableCharSequence next() {
 		if (!this.buffer.hasRemaining()) {
 		    this.buffer = PFCDictionarySectionMap.this.buffers[++this.bytebufferIndex].duplicate();
 		    this.buffer.rewind();

@@ -37,251 +37,254 @@ import org.rdfhdt.hdt.exceptions.NotImplementedException;
 /**
  * CharSequence implementation suitable for appending or replacing the suffix of the string.
  * It grows as necessary but it never returns that size back.
- * 
+ *
  * @author mario.arias
  *
  */
-public final class ReplazableString implements CharSequence, Comparable<ReplazableString> {
-	
-	byte [] buffer;
-	int used;
-	/**
-	 * 
-	 */
-	public ReplazableString() {
-		buffer = new byte[16*1024];
-		used=0;
-	}
-	
-	private ReplazableString(byte [] buffer) {
-		this.buffer = buffer;
-		this.used = buffer.length;
-	}
-	
-	public byte [] getBuffer() {
-		return buffer;
-	}
-	
-	private void ensureSize(int size) {
-		if(size>buffer.length) {
-			buffer = Arrays.copyOf(buffer, size);
-		}
-	}
-	
-	public void append(byte [] data, int offset, int len) {
-		this.replace(used, data, offset, len);
-	}
-	
-	public void append(CharSequence other) {
-		ensureSize(this.used+other.length());
-		for(int i=0;i<other.length();i++) {
-			buffer[this.used+i] = (byte) other.charAt(i);
-		}
-		used+=other.length();
-	}
-	
-	
-	public void replace(int pos, byte [] data, int offset, int len) {
-		ensureSize(pos+len);
-		System.arraycopy(data, offset, buffer, pos, len);
-		used = pos+len;
-	}
-	
-	public void replace(InputStream in, int pos, int len) throws IOException {
-		ensureSize(pos+len);
-		in.read(buffer, pos, len);
-		used = pos+len;
-	}
-	
-	public void replace(ByteBuffer in, int pos, int len) throws IOException {
-		ensureSize(pos+len);
-		in.get(buffer, pos, len);
-		used = pos+len;
-	}
-	
-	public void replace2(InputStream in, int pos) throws IOException {
-		used = pos;
-		
-		while(true) {
-			int value = in.read();
-			if(value==-1) {
-				throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");
-			}
-			if(value==0) {
-				break;
-			}
-			if(used>=buffer.length) {
-				buffer = Arrays.copyOf(buffer, buffer.length*2);
-			}
-			buffer[used++] = (byte)(value&0xFF);
-		}
-	}
-	
-	private static final int READ_AHEAD = 1024;
-	
-	public void replace(InputStream in, int pos) throws IOException {
-		
-		if(!in.markSupported()) {
-			replace2(in,pos);
-			return;
-		}
-		used = pos;
+public final class ReplazableString implements ComparableCharSequence {
 
-		
-		while(true) {
-			if(used+READ_AHEAD>buffer.length) {
-				buffer = Arrays.copyOf(buffer, Math.max(buffer.length*2, used+READ_AHEAD));
-			}
-			in.mark(READ_AHEAD);
-			int numread = in.read(buffer, used, READ_AHEAD);
-			if(numread==-1){
-				throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");
-			}
-			
-			int i=0;
-			while(i<numread) {
-//				System.out.println("Char: "+buffer[used+i]+"/"+(char)buffer[used+i]);
-				if(buffer[used+i]==0) {
-					in.reset();
-					in.skip(i+1);
-					used+=i;
-					return;
-				}
-				i++;
-			}
-			used+=numread;
-		}
-	}
-	
-	public void replace(ByteBuffer in, int pos) throws IOException {
-		used = pos;
-		
-		int n = in.capacity()-in.position();
-		while(n-- != 0) {
-			byte value = in.get();
-			if(value==0) {
-				return;
-			}
-			if(used>=buffer.length) {
-				buffer = Arrays.copyOf(buffer, buffer.length*2);
-			}
-			buffer[used++] = value;
-		}
-		throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");				
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.CharSequence#charAt(int)
-	 */
-	@Override
-	public char charAt(int index) {
-		return (char)(buffer[index] & 0xFF);
-	}
+    byte [] buffer;
+    int used;
+    /**
+     *
+     */
+    public ReplazableString() {
+	this.buffer = new byte[16*1024];
+	this.used=0;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.CharSequence#length()
-	 */
-	@Override
-	public int length() {
-		return used;
+    private ReplazableString(final byte [] buffer) {
+	this.buffer = buffer;
+	this.used = buffer.length;
+    }
+
+    public byte [] getBuffer() {
+	return this.buffer;
+    }
+
+    private void ensureSize(final int size) {
+	if(size>this.buffer.length) {
+	    this.buffer = Arrays.copyOf(this.buffer, size);
 	}
+    }
 
-	@Override
-	public int hashCode() {
-		// FNV Hash function: http://isthe.com/chongo/tech/comp/fnv/
-		int hash = (int) 2166136261L; 				
-		int i = used;
+    public void append(final byte [] data, final int offset, final int len) {
+	this.replace(this.used, data, offset, len);
+    }
 
-		while(i-- != 0) {
-			hash = 	(hash * 16777619) ^ buffer[i];
-		}
-
-		return hash;
+    public void append(final CharSequence other) {
+	this.ensureSize(this.used+other.length());
+	for(int i=0;i<other.length();i++) {
+	    this.buffer[this.used+i] = (byte) other.charAt(i);
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		if(o==null) {
-			return false;
-		}
-		if(this==o) {
-			return true;
-		}
-		if(o instanceof CompactString) {
-			CompactString cmp = (CompactString) o;
-			if(buffer.length!=cmp.data.length) {
-				return false;
-			}
-			
-			// Byte by byte comparison
-			int i = buffer.length;
-			while(i-- != 0) {
-				if(buffer[i]!=cmp.data[i]) {
-					return false;
-				}
-			}
-			return true;
-		} else if(o instanceof ReplazableString) {
-			ReplazableString cmp = (ReplazableString) o;
-			if(this.used!=cmp.used) {
-				return false;
-			}
-			
-			// Byte by byte comparison
-			int i = this.used;
-			while(i-- != 0) {
-				if(buffer[i]!=cmp.buffer[i]) {
-					return false;
-				}
-			}
-			return true;
-		} else if (o instanceof CharSequence) {
-			CharSequence other = (CharSequence) o;
-			return length()==other.length() && CharSequenceComparator.getInstance().compare(this, other)==0;
-		}
-		throw new NotImplementedException();
-	}
+	this.used+=other.length();
+    }
 
 
-	/* (non-Javadoc)
-	 * @see java.lang.CharSequence#subSequence(int, int)
-	 */
-	@Override
-	public CharSequence subSequence(int start, int end) {
-		if (start < 0 || end > (this.length()) || (end-start)<0) {
-			throw new IllegalArgumentException("Illegal range " +
-					start + "-" + end + " for sequence of length " + length());
+    public void replace(final int pos, final byte [] data, final int offset, final int len) {
+	this.ensureSize(pos+len);
+	System.arraycopy(data, offset, this.buffer, pos, len);
+	this.used = pos+len;
+    }
+
+    public void replace(final InputStream in, final int pos, final int len) throws IOException {
+	this.ensureSize(pos+len);
+	in.read(this.buffer, pos, len);
+	this.used = pos+len;
+    }
+
+    public void replace(final ByteBuffer in, final int pos, final int len) throws IOException {
+	this.ensureSize(pos+len);
+	in.get(this.buffer, pos, len);
+	this.used = pos+len;
+    }
+
+    public void replace2(final InputStream in, final int pos) throws IOException {
+	this.used = pos;
+
+	while(true) {
+	    final int value = in.read();
+	    if(value==-1) {
+		throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");
+	    }
+	    if(value==0) {
+		break;
+	    }
+	    if(this.used>=this.buffer.length) {
+		this.buffer = Arrays.copyOf(this.buffer, this.buffer.length*2);
+	    }
+	    this.buffer[this.used++] = (byte)(value&0xFF);
+	}
+    }
+
+    private static final int READ_AHEAD = 1024;
+
+    public void replace(final InputStream in, final int pos) throws IOException {
+
+	if(!in.markSupported()) {
+	    this.replace2(in,pos);
+	    return;
+	}
+	this.used = pos;
+
+
+	while(true) {
+	    if(this.used+READ_AHEAD>this.buffer.length) {
+		this.buffer = Arrays.copyOf(this.buffer, Math.max(this.buffer.length*2, this.used+READ_AHEAD));
+	    }
+	    in.mark(READ_AHEAD);
+	    final int numread = in.read(this.buffer, this.used, READ_AHEAD);
+	    if(numread==-1){
+		throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");
+	    }
+
+	    int i=0;
+	    while(i<numread) {
+		//				System.out.println("Char: "+buffer[used+i]+"/"+(char)buffer[used+i]);
+		if(this.buffer[this.used+i]==0) {
+		    in.reset();
+		    in.skip(i+1);
+		    this.used+=i;
+		    return;
 		}
-		byte [] newdata = new byte[end-start];
-		System.arraycopy(buffer, start, newdata, 0, end-start);
-		return new ReplazableString(newdata);
+		i++;
+	    }
+	    this.used+=numread;
+	}
+    }
+
+    public void replace(final ByteBuffer in, final int pos) throws IOException {
+	this.used = pos;
+
+	int n = in.capacity()-in.position();
+	while(n-- != 0) {
+	    final byte value = in.get();
+	    if(value==0) {
+		return;
+	    }
+	    if(this.used>=this.buffer.length) {
+		this.buffer = Arrays.copyOf(this.buffer, this.buffer.length*2);
+	    }
+	    this.buffer[this.used++] = value;
+	}
+	throw new IllegalArgumentException("Was reading a string but stream ended before finding the null terminator");
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#charAt(int)
+     */
+    @Override
+    public char charAt(final int index) {
+	return (char)(this.buffer[index] & 0xFF);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#length()
+     */
+    @Override
+    public int length() {
+	return this.used;
+    }
+
+    @Override
+    public int hashCode() {
+	// FNV Hash function: http://isthe.com/chongo/tech/comp/fnv/
+	int hash = (int) 2166136261L;
+	int i = this.used;
+
+	while(i-- != 0) {
+	    hash = 	(hash * 16777619) ^ this.buffer[i];
 	}
 
-	@Override
-	public String toString() {
-		return new String(buffer, 0, used, ByteStringUtil.STRING_ENCODING);
-	}
+	return hash;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(ReplazableString other) {
-        int n = Math.min(used, other.used);
+    @Override
+    public boolean equals(final Object o) {
+	if(o==null) {
+	    return false;
+	}
+	if(this==o) {
+	    return true;
+	}
+	if(o instanceof CompactString) {
+	    final CompactString cmp = (CompactString) o;
+	    if(this.buffer.length!=cmp.data.length) {
+		return false;
+	    }
 
-        int k = 0;
-        while (k < n) {
-            int c1 = this.buffer[k] & 0xFF;
-            int c2 = other.buffer[k] & 0xFF;
-            if (c1 != c2) {
-                return c1 - c2;
-            }
-            k++;
-        }
-        return used - other.used;
+	    // Byte by byte comparison
+	    int i = this.buffer.length;
+	    while(i-- != 0) {
+		if(this.buffer[i]!=cmp.data[i]) {
+		    return false;
+		}
+	    }
+	    return true;
+	} else if(o instanceof ReplazableString) {
+	    final ReplazableString cmp = (ReplazableString) o;
+	    if(this.used!=cmp.used) {
+		return false;
+	    }
+
+	    // Byte by byte comparison
+	    int i = this.used;
+	    while(i-- != 0) {
+		if(this.buffer[i]!=cmp.buffer[i]) {
+		    return false;
+		}
+	    }
+	    return true;
+	} else if (o instanceof CharSequence) {
+	    final CharSequence other = (CharSequence) o;
+	    return this.length()==other.length() && CharSequenceComparator.getInstance().compare(this, other)==0;
 	}
-	
-	public CharSequence getDelayed() {
-		return new DelayedString(this);
+	throw new NotImplementedException();
+    }
+
+
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#subSequence(int, int)
+     */
+    @Override
+    public CharSequence subSequence(final int start, final int end) {
+	if (start < 0 || end > (this.length()) || (end-start)<0) {
+	    throw new IllegalArgumentException("Illegal range " +
+		    start + "-" + end + " for sequence of length " + this.length());
 	}
+	final byte [] newdata = new byte[end-start];
+	System.arraycopy(this.buffer, start, newdata, 0, end-start);
+	return new ReplazableString(newdata);
+    }
+
+    @Override
+    public String toString() {
+	return new String(this.buffer, 0, this.used, ByteStringUtil.STRING_ENCODING);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(final ComparableCharSequence other) {
+
+	final ReplazableString otherReplazableString = other instanceof ReplazableString ? (ReplazableString) other : new ReplazableString(other.toString().getBytes());
+
+	final int n = Math.min(this.used, otherReplazableString.used);
+
+	int k = 0;
+	while (k < n) {
+	    final int c1 = this.buffer[k] & 0xFF;
+	    final int c2 = otherReplazableString.buffer[k] & 0xFF;
+	    if (c1 != c2) {
+		return c1 - c2;
+	    }
+	    k++;
+	}
+	return this.used - otherReplazableString.used;
+    }
+
+    public CharSequence getDelayed() {
+	return new DelayedString(this);
+    }
 }

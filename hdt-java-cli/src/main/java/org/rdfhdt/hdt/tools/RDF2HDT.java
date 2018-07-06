@@ -33,12 +33,14 @@ import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
 import org.rdfhdt.hdt.enums.RDFNotation;
+import org.rdfhdt.hdt.exceptions.NotFoundException;
 import org.rdfhdt.hdt.exceptions.ParserException;
 import org.rdfhdt.hdt.hdt.HDTManager;
 import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.hdt.HDTVersion;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.options.HDTSpecification;
+import org.rdfhdt.hdt.triples.IteratorTripleString;
 import org.rdfhdt.hdt.util.StopWatch;
 
 import com.beust.jcommander.JCommander;
@@ -161,12 +163,23 @@ public class RDF2HDT implements ProgressListener {
 		hdt = HDTManager.indexedHDT(hdt, this);
 		System.out.println("Index generated and saved in: " + sw.stopAndShow());
 	    }
+
+	    // Debug all inserted triples
+	    try {
+		final IteratorTripleString iterator = hdt.search("", "", "");
+		while (iterator.hasNext()) {
+		    System.out.print(iterator.next().asNtriple());
+		}
+	    } catch (final NotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+
 	} finally {
 	    if (hdt != null) hdt.close();
 	}
 
-	// Debug all inserted triples
-	// HdtSearch.iterate(hdt, "","","");
+
     }
 
     /*

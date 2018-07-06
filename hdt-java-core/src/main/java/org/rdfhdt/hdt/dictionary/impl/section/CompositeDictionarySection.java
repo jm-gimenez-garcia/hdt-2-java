@@ -66,7 +66,7 @@ public class CompositeDictionarySection implements DictionarySection {
 	@SuppressWarnings("unchecked")
 	final Iterator<ComparableCharSequence>[] iterators = new Iterator[this.sections.length];
 	for (int i = 0; i < this.sections.length; i++) {
-	    iterators[i] = (Iterator<ComparableCharSequence>) this.sections[i].getSortedEntries();
+	    iterators[i] = this.sections[i].getSortedEntries();
 	}
 	return new CompositeSortedIterator<>(iterators);
     }

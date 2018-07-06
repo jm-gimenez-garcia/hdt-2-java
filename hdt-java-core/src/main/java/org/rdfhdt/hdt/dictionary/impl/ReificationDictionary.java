@@ -37,8 +37,9 @@ import org.rdfhdt.hdt.dictionary.CompositeDictionary;
 import org.rdfhdt.hdt.dictionary.CompositeDictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
+import org.rdfhdt.hdt.dictionary.GraphsDictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
-import org.rdfhdt.hdt.exceptions.NotImplementedException;
+import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
 import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.listener.ProgressListener;
@@ -55,14 +56,23 @@ public class ReificationDictionary extends BaseReificationDictionary<BaseTriples
 	super(td, gd);
     }
 
+    @Override
+    public TriplesDictionaryPrivate getTriplesDictionary() {
+	return this.triplesDictionary;
+    }
+
+    @Override
+    public GraphsDictionaryPrivate getGraphsDictionary() {
+	return this.graphDictionary;
+    }
+
     /*
      * (non-Javadoc)
      * @see org.rdfhdt.hdt.dictionary.Dictionary#populateHeader(org.rdfhdt.hdt.header.Header, java.lang.String)
      */
     @Override
     public void populateHeader(final Header header, final String rootNode) {
-	// TODO implement
-	throw new NotImplementedException();
+	// this.getTriplesDictionary()
     }
 
     /*

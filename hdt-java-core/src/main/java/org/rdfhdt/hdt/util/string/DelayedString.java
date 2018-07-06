@@ -1,44 +1,53 @@
 package org.rdfhdt.hdt.util.string;
 
-public final class DelayedString implements CharSequence {
-	CharSequence str;
+public final class DelayedString implements ComparableCharSequence {
+    CharSequence str;
 
-	public DelayedString(CharSequence str) {
-		this.str = str;
-	}
-	
-	private void ensure() {
-		if(!(str instanceof String)) {
-			str = str.toString();
-		}
-	}
-	
-	@Override
-	public int length() {
-		ensure();
-		return str.length();
-	}
+    public DelayedString(final CharSequence str) {
+	this.str = str;
+    }
 
-	@Override
-	public char charAt(int index) {
-		ensure();
-		return str.charAt(index);
+    private void ensure() {
+	if(!(this.str instanceof String)) {
+	    this.str = this.str.toString();
 	}
+    }
 
-	@Override
-	public CharSequence subSequence(int start, int end) {
-		ensure();
-		return subSequence(start, end);
-	}
-	
-	@Override
-	public String toString() {
-		ensure();
-		return str.toString();
-	}
-	
-	public CharSequence getInternal() {
-		return str;
-	}
+    @Override
+    public int length() {
+	this.ensure();
+	return this.str.length();
+    }
+
+    @Override
+    public char charAt(final int index) {
+	this.ensure();
+	return this.str.charAt(index);
+    }
+
+    @Override
+    public CharSequence subSequence(final int start, final int end) {
+	this.ensure();
+	return this.subSequence(start, end);
+    }
+
+    @Override
+    public String toString() {
+	this.ensure();
+	return this.str.toString();
+    }
+
+    public CharSequence getInternal() {
+	return this.str;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(final ComparableCharSequence other) {
+	return this.toString().compareTo(other.toString());
+    }
 
 }

@@ -34,11 +34,11 @@ import org.rdfhdt.hdt.exceptions.NotImplementedException;
 /**
  * Implementation of CharSequence that uses only one byte per character to save memory.
  * The String length is defined by the buffer size.
- * 
+ *
  * @author mario.arias
  *
  */
-public class CompactString implements CharSequence, Serializable, Comparable<CompactString> {
+public class CompactString implements ComparableCharSequence, Serializable {
 
     private static final long	      serialVersionUID = 6789858615261959413L;
 
@@ -144,20 +144,23 @@ public class CompactString implements CharSequence, Serializable, Comparable<Com
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(final CompactString other) {
-	final int n = Math.min(this.data.length, other.data.length);
+    public int compareTo(final ComparableCharSequence other) {
+
+	final CompactString otherCompactString = other instanceof CompactString ? (CompactString) other : new CompactString(other);
+
+	final int n = Math.min(this.data.length, otherCompactString.data.length);
 
 	int k = 0;
 	while (k < n) {
 	    final int c1 = this.data[k] & 0xFF;
-	    final int c2 = other.data[k] & 0xFF;
+	    final int c2 = otherCompactString.data[k] & 0xFF;
 	    if (c1 != c2) { return c1 - c2; }
 	    k++;
 	}
-	return this.data.length - other.data.length;
+	return this.data.length - otherCompactString.data.length;
     }
 
-    public CharSequence getDelayed() {
+    public ComparableCharSequence getDelayed() {
 	return new DelayedString(this);
     }
 }
