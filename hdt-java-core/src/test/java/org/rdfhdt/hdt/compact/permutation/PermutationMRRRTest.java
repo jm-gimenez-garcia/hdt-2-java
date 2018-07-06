@@ -50,6 +50,22 @@ public class PermutationMRRRTest {
 		input.add(9L);
 		return input;
 	}
+	private List<Long> getTestLongCycleInput(boolean IDsStartsAtOne){
+		List<Long> input = new ArrayList<Long>(); 
+		if (!IDsStartsAtOne){
+			input.add(0L);
+		}
+		input.add(2L);
+		input.add(3L);
+		input.add(4L);
+		input.add(5L);
+		input.add(7L);
+		input.add(9L);
+		input.add(6L);
+		input.add(1L);
+		input.add(8L);
+		return input;
+	}
 	@Test 
 	public void testLength_step1_IDStart0() throws IOException {
 		List<Long> input = getTestInput(false);
@@ -168,6 +184,40 @@ public class PermutationMRRRTest {
 		assertEquals(4L,perm.revpi(5));
 		assertEquals(8L,perm.revpi(6));
 		assertEquals(7L,perm.revpi(7));
+		assertEquals(9L,perm.revpi(8));
+		assertEquals(6L,perm.revpi(9));
+	}
+	@Test 
+	public void testRevPi_all_step1_IDStart1_step1_LongCycle() throws IOException {
+		List<Long> input = getTestLongCycleInput(true);
+		PermutationMRRR perm = new PermutationMRRR(input, 1,true);
+		
+		// test rev perm
+		
+		assertEquals(8L,perm.revpi(1));
+		assertEquals(1L,perm.revpi(2));
+		assertEquals(2L,perm.revpi(3));
+		assertEquals(3L,perm.revpi(4));
+		assertEquals(4L,perm.revpi(5));
+		assertEquals(7L,perm.revpi(6));
+		assertEquals(5L,perm.revpi(7));
+		assertEquals(9L,perm.revpi(8));
+		assertEquals(6L,perm.revpi(9));
+	}
+	@Test 
+	public void testRevPi_all_step1_IDStart1_step4_LongCycle() throws IOException {
+		List<Long> input = getTestLongCycleInput(true);
+		PermutationMRRR perm = new PermutationMRRR(input, 4,true);
+		
+		// test rev perm
+		
+		assertEquals(8L,perm.revpi(1));
+		assertEquals(1L,perm.revpi(2));
+		assertEquals(2L,perm.revpi(3));
+		assertEquals(3L,perm.revpi(4));
+		assertEquals(4L,perm.revpi(5));
+		assertEquals(7L,perm.revpi(6));
+		assertEquals(5L,perm.revpi(7));
 		assertEquals(9L,perm.revpi(8));
 		assertEquals(6L,perm.revpi(9));
 	}
