@@ -97,6 +97,7 @@ public class PermutationMRRR implements Permutation {
 					long j=i; // j is the index of the iteration of the cycle. 
 					while(nextElement!=elements.get((int) j)){
 						j=elements.get((int) j); // get next element in the cycle
+						aux_markVisited.set(j, true); // mark as visited
 						aux++;
 						// mark the future backward pointer if it's in accordance with the step
 						if (aux>=step){
@@ -123,6 +124,7 @@ public class PermutationMRRR implements Permutation {
 					long cyclesize=0; // number of total elements in the cycle
 					while(nextElement!=elements.get((int) j)){
 						j=elements.get((int) j); // get next element in the cycle
+						aux_markVisited.set(j, true); // mark as visited
 						aux++;
 						if (aux>=step){
 							aux_backwardPointers.put((Long)j,pointer); // insert the reverse in the backward pointers
@@ -138,21 +140,16 @@ public class PermutationMRRR implements Permutation {
 					}
 				}
 			}
-			// create the sequence of backwardPointers
-		/*	if (!IDsStartsAtOne){
-				backwardPointers =  new SequenceLog64(BitUtil.log2(aux_backwardPointers.size()), aux_backwardPointers.size());	
-			}
-			else{ //insert a fakeID=0
-			*/
-				backwardPointers =  new SequenceLog64(BitUtil.log2(aux_backwardPointers.size()+1), aux_backwardPointers.size()+1);
-				backwardPointers.append(0); //fake 0 ID
-			//}
+			
+			
+			backwardPointers =  new SequenceLog64(BitUtil.log2(elements.size()-1), aux_backwardPointers.size()); //-1 because one of them is 0	
 					
 			// we iterate in order of keys in order to add the aux pointers to the final pointers (it could be done with the add function of the sequence, but it has a bug 
 			// backwardPointers.add(aux_backwardPointers.values().iterator()); // this has a bug
 			Iterator<Long> it= aux_backwardPointers.values().iterator();
 			while (it.hasNext()){
-				backwardPointers.append(it.next());
+				Long pointer = it.next();
+				backwardPointers.append(pointer);
 			}
 						
 			bitmap.trimToSize();
@@ -175,7 +172,7 @@ public class PermutationMRRR implements Permutation {
 	@Override
 	public long revpi(long i) {
 		if (i<0 || i>=sequence.getNumberOfElements()){
-			throw new IndexOutOfBoundsException("The given value is bigger than the maximum permutation ID");
+			throw new IndexOutOfBoundsException("The gives value is bigger than the maximum permutation ID");
 		}
 		if (step==1){
 			return backwardPointers.get(i); // use -1 if we disregard the 0
