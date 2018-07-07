@@ -29,6 +29,7 @@ package org.rdfhdt.hdt.tools;
 import java.io.IOException;
 import java.util.List;
 
+import org.rdfhdt.hdt.dictionary.CompositeDictionary;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
@@ -110,47 +111,52 @@ public class RDF2HDT implements ProgressListener {
 	    try {
 		notation = RDFNotation.guess(this.rdfInput);
 	    } catch (final IllegalArgumentException e) {
-		System.out.println("Could not guess notation for " + this.rdfInput + " Trying NTriples");
-		notation = RDFNotation.NTRIPLES;
+		notation = this.reif ? RDFNotation.NQUADS : RDFNotation.NTRIPLES;
+		System.out.println("Could not guess notation for " + this.rdfInput + " Trying " + notation);
 	    }
 	}
 
 	HDTPrivate hdt = HDTManager.generateHDT(this.rdfInput, this.baseURI, notation, spec, this.reif, this);
 
-	try {
-	    // Show Basic stats
-	    if (!this.quiet) {
-		System.out.println("Total Triples: " + hdt.getTriples().getNumberOfElements());
-		if (hdt.getDictionary() instanceof ReificationDictionary) {
-		    final ReificationDictionary rd = (ReificationDictionary) hdt.getDictionary();
-		    final TriplesDictionary td = rd.getTriplesDictionary();
-		    final GraphsDictionary gd = rd.getGraphsDictionary();
-		    System.out.println("Different subjects: " + rd.getNsubjects());
-		    System.out.println("Different predicates: " + rd.getNpredicates());
-		    System.out.println("Different objects: " + rd.getNobjects());
-		    System.out.println("Different graphs:" + rd.getNgraphs());
-		    System.out.println("Different subjects in triples dictionary: " + td.getNsubjects());
-		    System.out.println("Different predicates in triples dictionary: " + td.getNpredicates());
-		    System.out.println("Different objects in triples dictionary: " + td.getNobjects());
-		    System.out.println("Common Subject/Object in triples dictionary:" + td.getNshared());
-		    System.out.println("Different subjects in graphs dictionary: " + gd.getNsubjects());
-		    System.out.println("Different objects in graphs dictionary: " + gd.getNobjects());
-		    System.out.println("Common Subject/Object in graphs dictionary:" + gd.getNshared());
-		    System.out.println("Unused Graphs in graphs dictionary:" + gd.getNgraphs());
-		} else if (hdt.getDictionary() instanceof TriplesDictionary) {
-		    final TriplesDictionary td = (TriplesDictionary) hdt.getDictionary();
-		    System.out.println("Different subjects: " + td.getNsubjects());
-		    System.out.println("Different predicates: " + td.getNpredicates());
-		    System.out.println("Different objects: " + td.getNobjects());
-		    System.out.println("Common Subject/Object:" + td.getNshared());
-		} else if (hdt.getDictionary() instanceof GraphsDictionary) {
-		    final GraphsDictionary gd = (GraphsDictionary) hdt.getDictionary();
-		    System.out.println("Different subjects: " + gd.getNsubjects());
-		    System.out.println("Different objects: " + gd.getNobjects());
-		    System.out.println("Common Subject/Object:" + gd.getNshared());
-		    System.out.println("Unused Graphs:" + gd.getNgraphs());
-		}
+	// Show Basic stats
+	if (!this.quiet) {
+	    System.out.println("Final HDT created.");
+	    System.out.println("The HDT is a " + hdt.getClass().getName());
+	    System.out.println("The dictionary is a " + hdt.getDictionary().getClass().getName());
+	    System.out.println("The triples is a " + hdt.getTriples().getClass().getName());
+	    System.out.println("Total Triples: " + hdt.getTriples().getNumberOfElements());
+	    if (hdt.getDictionary() instanceof CompositeDictionary) {
+		final ReificationDictionary rd = (ReificationDictionary) hdt.getDictionary();
+		final TriplesDictionary td = rd.getTriplesDictionary();
+		final GraphsDictionary gd = rd.getGraphsDictionary();
+		System.out.println("Different subjects: " + rd.getNsubjects());
+		System.out.println("Different predicates: " + rd.getNpredicates());
+		System.out.println("Different objects: " + rd.getNobjects());
+		System.out.println("Different graphs:" + rd.getNgraphs());
+		System.out.println("Different subjects in triples dictionary: " + td.getNsubjects());
+		System.out.println("Different predicates in triples dictionary: " + td.getNpredicates());
+		System.out.println("Different objects in triples dictionary: " + td.getNobjects());
+		System.out.println("Common Subject/Object in triples dictionary:" + td.getNshared());
+		System.out.println("Different subjects in graphs dictionary: " + gd.getNsubjects());
+		System.out.println("Different objects in graphs dictionary: " + gd.getNobjects());
+		System.out.println("Common Subject/Object in graphs dictionary:" + gd.getNshared());
+		System.out.println("Unused Graphs in graphs dictionary:" + gd.getNgraphs());
+	    } else if (hdt.getDictionary() instanceof TriplesDictionary) {
+		final TriplesDictionary td = (TriplesDictionary) hdt.getDictionary();
+		System.out.println("Different subjects: " + td.getNsubjects());
+		System.out.println("Different predicates: " + td.getNpredicates());
+		System.out.println("Different objects: " + td.getNobjects());
+		System.out.println("Common Subject/Object:" + td.getNshared());
+	    } else if (hdt.getDictionary() instanceof GraphsDictionary) {
+		final GraphsDictionary gd = (GraphsDictionary) hdt.getDictionary();
+		System.out.println("Different subjects: " + gd.getNsubjects());
+		System.out.println("Different objects: " + gd.getNobjects());
+		System.out.println("Common Subject/Object:" + gd.getNshared());
+		System.out.println("Unused Graphs:" + gd.getNgraphs());
 	    }
+	}
+
+	try {
 
 	    // Dump to HDT file
 	    final StopWatch sw = new StopWatch();
@@ -166,7 +172,7 @@ public class RDF2HDT implements ProgressListener {
 
 	    // Debug all inserted triples
 	    try {
-		final IteratorTripleString iterator = hdt.search("", "", "");
+		final IteratorTripleString iterator = this.reif ? hdt.search("", "", "", "") : hdt.search("", "", "");
 		while (iterator.hasNext()) {
 		    System.out.print(iterator.next().asNtriple());
 		}
