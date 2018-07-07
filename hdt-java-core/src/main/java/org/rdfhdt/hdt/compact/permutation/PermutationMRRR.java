@@ -137,6 +137,7 @@ public class PermutationMRRR implements Permutation {
 					
 					if (cyclesize>=step){
 						aux_backwardPointers.put((Long)nextElement,pointer); // insert the reverse in the backward pointers
+						bitmap.set(nextElement,true);
 					}
 				}
 			}
