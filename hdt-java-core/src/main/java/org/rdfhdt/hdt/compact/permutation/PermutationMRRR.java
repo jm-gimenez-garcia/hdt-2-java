@@ -7,7 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.rdfhdt.hdt.compact.bitmap.Bitmap;
 import org.rdfhdt.hdt.compact.bitmap.Bitmap375;
+import org.rdfhdt.hdt.compact.bitmap.BitmapFactory;
 import org.rdfhdt.hdt.compact.sequence.SequenceLog64;
 import org.rdfhdt.hdt.exceptions.CRCException;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -29,7 +31,7 @@ public class PermutationMRRR implements Permutation {
 
 	
 	SequenceLog64 sequence; // elements of the permutation
-	Bitmap375 bitmap; // bitmap to mark the backward pointers
+	Bitmap bitmap; // bitmap to mark the backward pointers
 	SequenceLog64 backwardPointers; // backward pointers
 	long step; // the sampling step for backward pointers
 	boolean IDsStartsAtOne=false; 
@@ -101,7 +103,7 @@ public class PermutationMRRR implements Permutation {
 						aux++;
 						// mark the future backward pointer if it's in accordance with the step
 						if (aux>=step){
-							bitmap.set(j,true);
+							((Bitmap375)bitmap).set(j,true);
 							aux=0; // restart he count, it is like in theory doing the sample every given "steps"
 						}
 					}
@@ -137,7 +139,7 @@ public class PermutationMRRR implements Permutation {
 					
 					if (cyclesize>=step){
 						aux_backwardPointers.put((Long)nextElement,pointer); // insert the reverse in the backward pointers
-						bitmap.set(nextElement,true);
+						((Bitmap375)bitmap).set(nextElement,true);
 					}
 				}
 			}
@@ -153,7 +155,7 @@ public class PermutationMRRR implements Permutation {
 				backwardPointers.append(pointer);
 			}
 						
-			bitmap.trimToSize();
+			((Bitmap375)bitmap).trimToSize();
 		}
 		
 		sequence.trimToSize();
@@ -246,7 +248,9 @@ public class PermutationMRRR implements Permutation {
 		if(!in.readCRCAndCheck()) {
 			throw new CRCException("CRC Error while reading PERMUTATION_MRRR header.");
 		}
+		
 		sequence.load(input, listener);
+		bitmap = BitmapFactory.createBitmap(input);
 		bitmap.load(input, listener);
 		backwardPointers.load(input, listener);
 		

@@ -3,14 +3,26 @@ package org.rdfhdt.hdt.compact.permutation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.junit.Test;
 import org.rdfhdt.hdt.compact.permutation.PermutationMRRR;
+import org.rdfhdt.hdt.exceptions.NotFoundException;
+import org.rdfhdt.hdt.hdt.HDT;
+import org.rdfhdt.hdt.hdt.HDTManager;
+import org.rdfhdt.hdt.triples.IteratorTripleString;
+import org.rdfhdt.hdt.util.io.CountInputStream;
 
 /**
  * @author javi
@@ -318,6 +330,33 @@ public class PermutationMRRRTest {
 		}
 
 	}
+/*	@Test
+	public void testLoadSavefromC() {
+		List<Long> input = getTestLongCycleInput(true);
+		PermutationMRRR perm = new PermutationMRRR(input, 4, true);
+		try {
+			
+			OutputStream out = new BufferedOutputStream(new FileOutputStream("/home/javi/git/hdt-c-provenance/test_fromJava.perm"));
+
+			perm.save(out, null);
+			out.close();
+			
+			// read from C
+			InputStream in;
+		   in = new CountInputStream(new BufferedInputStream(new FileInputStream("/home/javi/git/hdt-c-provenance/test.perm")));
+			
+			PermutationMRRR loaded = new PermutationMRRR();
+			loaded.load(in, null);
+			in.close();
+			for (int i = 0; i < perm.getLength(); i++) {
+				assertEquals(perm.pi(i), loaded.pi(i));
+				assertEquals(perm.revpi(i), loaded.revpi(i));
+			}
+		} catch (IOException e) {
+			fail("Exception thrown: " + e);
+		}
+
+	}*/
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testZeroPi() throws IOException {
