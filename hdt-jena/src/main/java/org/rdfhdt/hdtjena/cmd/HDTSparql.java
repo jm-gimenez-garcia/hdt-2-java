@@ -27,6 +27,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
+import org.rdfhdt.hdtjena.transform.Qexec;
 
 /**
  * 
@@ -120,13 +121,16 @@ public class HDTSparql {
 		JCommander com = new JCommander(hdtSparql, args);
 		com.setProgramName("hdtsparql");
 
-		if (hdtSparql.parameters.size() != 2) {
+		if (hdtSparql.parameters.size() != 3) {
 			com.usage();
 			System.exit(1);
 		}
 
+		Qexec q=new Qexec();
+		q.setQuery(hdtSparql.parameters.get(1));
+
 		hdtSparql.fileHDT = hdtSparql.parameters.get(0);
-		hdtSparql.sparqlQuery = hdtSparql.parameters.get(1);
+		hdtSparql.sparqlQuery = q.conversion(hdtSparql.parameters.get(2),hdtSparql.parameters.get(3));
 
 		hdtSparql.execute();
 	}
