@@ -36,10 +36,16 @@ import org.rdfhdt.hdtjena.transform.Qexec;
  */
 
 public class HDTSparql {
-	@Parameter(description = "<HDT file> <SPARQL query>")
+
+    @Parameter(description = "<HDT file> <SPARQL query>")
 	public List<String> parameters = Lists.newArrayList();
 
-	@Parameter(names="--stream", description="Output CONSTRUCT/DESCRIBE query results directly as they are generated")
+	@Parameter(names="-meta", description="takes as input the mapping of your query.")
+	public String meta="";
+    @Parameter(names="-type", description="Can be: reification | singleton | ngraph | nary | ndfluents")
+    public String type;
+
+    @Parameter(names="--stream", description="Output CONSTRUCT/DESCRIBE query results directly as they are generated")
 	public boolean streamMode = false;
 
 	public String fileHDT;
@@ -57,9 +63,14 @@ public class HDTSparql {
 			Model model = ModelFactory.createModelForGraph(graph);
 
 			// Use Jena ARQ to execute the query.
+			if(type != null)
+			{
+				Qexec q=new Qexec();
+				q.setQuery(sparqlQuery);
+				sparqlQuery=q.conversion(type,meta);
+			}
 			Query query = QueryFactory.create(sparqlQuery);
 			QueryExecution qe = QueryExecutionFactory.create(query, model);
-
 			try {
 				// Perform the query and output the results, depending on query type
 				if (query.isSelectType()) {
@@ -112,26 +123,37 @@ public class HDTSparql {
 		writer.finish();
 	}
 
-	/**
-	 * HDTSparql, receives a SPARQL query and executes it against an HDT file.
-	 * @param args
-	 */
+
 	public static void main(String[] args) throws Throwable {
 		HDTSparql hdtSparql = new HDTSparql();
 		JCommander com = new JCommander(hdtSparql, args);
 		com.setProgramName("hdtsparql");
+        if((hdtSparql).parameters.size()==2)
+		{
+			hdtSparql.fileHDT = hdtSparql.parameters.get(0);
+			hdtSparql.sparqlQuery = hdtSparql.parameters.get(1);
+		}
+		else if(hdtSparql.parameters.size()==3)
+		{
 
-		if (hdtSparql.parameters.size() != 3) {
+			hdtSparql.type=hdtSparql.parameters.get(0);
+			hdtSparql.fileHDT = hdtSparql.parameters.get(1);
+			hdtSparql.sparqlQuery = hdtSparql.parameters.get(2);
+
+			}
+		else if(hdtSparql.parameters.size()==4)
+		{
+			hdtSparql.type=hdtSparql.parameters.get(0);
+			hdtSparql.meta=hdtSparql.parameters.get(1);
+			hdtSparql.fileHDT = hdtSparql.parameters.get(2);
+			hdtSparql.sparqlQuery = hdtSparql.parameters.get(3);
+		}
+		else
+		{
 			com.usage();
 			System.exit(1);
 		}
-
-		Qexec q=new Qexec();
-		q.setQuery(hdtSparql.parameters.get(1));
-
-		hdtSparql.fileHDT = hdtSparql.parameters.get(0);
-		hdtSparql.sparqlQuery = q.conversion(hdtSparql.parameters.get(2),hdtSparql.parameters.get(3));
-
+		//System.out.println(hdtSparql.type);
 		hdtSparql.execute();
 	}
 }
