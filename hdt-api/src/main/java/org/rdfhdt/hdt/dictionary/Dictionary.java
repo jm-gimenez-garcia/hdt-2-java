@@ -38,42 +38,42 @@ import org.rdfhdt.hdt.enums.TripleComponentRole;
  */
 public interface Dictionary extends Closeable {
 
-    /**
-     * Returns the string for a given id
-     *
-     * @param id
-     *            The id to convert to string
-     * @param position
-     *            TriplePosition of the id in the dictionary
-     * @return String
-     */
-    CharSequence idToString(int id, TripleComponentRole position);
+	/**
+	 * Returns the string for a given id
+	 *
+	 * @param id
+	 *            The id to convert to string
+	 * @param position
+	 *            TriplePosition of the id in the dictionary
+	 * @return String
+	 */
+	CharSequence idToString(int id, TripleComponentRole position);
 
-    /**
-     * Returns the id for a given string
-     *
-     * @param str
-     *            The string to convert to id
-     * @param position
-     *            TriplePosition of the string in the dictionary
-     * @return int
-     */
-    int stringToId(CharSequence str, TripleComponentRole position);
+	/**
+	 * Returns the id for a given string
+	 *
+	 * @param str
+	 *            The string to convert to id
+	 * @param position
+	 *            TriplePosition of the string in the dictionary
+	 * @return int
+	 */
+	int stringToId(CharSequence str, TripleComponentRole position);
 
-    /**
-     * Returns the number of elements in the dictionary
-     */
-    long getNumberOfElements();
+	/**
+	 * Returns the number of elements in the dictionary
+	 */
+	long getNumberOfElements();
 
-    /**
-     * Return the combined size of the sections of the dictionary (in bytes)
-     */
-    long size();
+	/**
+	 * Return the combined size of the sections of the dictionary (in bytes)
+	 */
+	long size();
 
-    DictionarySection getSubjects();
+	DictionarySection getSubjects();
 
-    DictionarySection getObjects();
+	DictionarySection getObjects();
 
-    DictionarySection getShared();
+	DictionarySection getShared();
 
 }

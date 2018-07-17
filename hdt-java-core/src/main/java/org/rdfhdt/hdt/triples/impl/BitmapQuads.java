@@ -31,16 +31,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
 import org.rdfhdt.hdt.compact.bitmap.Bitmap;
 import org.rdfhdt.hdt.compact.bitmap.Bitmap375;
 import org.rdfhdt.hdt.compact.bitmap.ModifiableBitmap;
+import org.rdfhdt.hdt.compact.permutation.Permutation;
+import org.rdfhdt.hdt.compact.permutation.PermutationFactory;
 import org.rdfhdt.hdt.compact.sequence.Sequence;
 import org.rdfhdt.hdt.compact.sequence.SequenceLog64Big;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
+import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
-import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
 import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.listener.ProgressListener;
@@ -49,9 +53,7 @@ import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.options.HDTSpecification;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.QuadID;
-import org.rdfhdt.hdt.triples.TempQuads;
 import org.rdfhdt.hdt.triples.TripleID;
-import org.rdfhdt.hdt.triples.Triples;
 import org.rdfhdt.hdt.util.BitUtil;
 import org.rdfhdt.hdt.util.io.CountInputStream;
 import org.rdfhdt.hdt.util.listener.ListenerUtil;
@@ -62,178 +64,196 @@ import org.rdfhdt.hdt.util.listener.ListenerUtil;
  */
 public class BitmapQuads extends BitmapTriples {
 
-    public BitmapQuads() {
-	this(new HDTSpecification());
-    }
+	protected Permutation permutation;
+	protected Bitmap bitmapG;
 
-    public BitmapQuads(final HDTOptions spec) {
-	super(spec);
-	// TODO: Create permutation
-    }
+	public BitmapQuads() {
+		this(new HDTSpecification());
+	}
 
-    public BitmapQuads(final Sequence seqY, final Sequence seqZ, final Bitmap bitY, final Bitmap bitZ, final TripleComponentOrder order) {
-	super(seqY, seqZ, bitY, bitZ, order);
-	// TODO: Create permutation
-    }
+	public BitmapQuads(final HDTOptions spec) {
+		super(spec);
+	}
 
-    @Override
-    public void load(final IteratorTripleID it, final ProgressListener listener) {
+	public BitmapQuads(final Sequence seqY, final Sequence seqZ, final Bitmap bitY, final Bitmap bitZ, final TripleComponentOrder order) {
+		super(seqY, seqZ, bitY, bitZ, order);
+	}
 
-	final long number = it.estimatedNumResults();
+	@Override
+	public void load(final IteratorTripleID it, final ProgressListener listener) {
 
-	final SequenceLog64Big vectorY = new SequenceLog64Big(BitUtil.log2(number), number);
-	final SequenceLog64Big vectorZ = new SequenceLog64Big(BitUtil.log2(number), number);
-	final ModifiableBitmap bitY = new Bitmap375(number);
-	final ModifiableBitmap bitZ = new Bitmap375(number);
+		final long number = it.estimatedNumResults();
 
-	int lastX = 0, lastY = 0, lastZ = 0;
-	int x, y, z;
-	int numTriples = 0;
+		final SequenceLog64Big vectorY = new SequenceLog64Big(BitUtil.log2(number), number);
+		final SequenceLog64Big vectorZ = new SequenceLog64Big(BitUtil.log2(number), number);
+		final ModifiableBitmap bitY = new Bitmap375(number);
+		final ModifiableBitmap bitZ = new Bitmap375(number);
 
-	while (it.hasNext()) {
-	    final TripleID triple = it.next();
-	    TripleOrderConvert.swapComponentOrder(triple, TripleComponentOrder.SPO, this.order);
+		final List<Long> vectorG = new LinkedList<>();
+		final ModifiableBitmap bitG = new Bitmap375(number);
 
-	    x = triple.getSubject();
-	    y = triple.getPredicate();
-	    z = triple.getObject();
-	    if (x == 0 || y == 0 || z == 0) { throw new IllegalFormatException("None of the components of a triple can be null"); }
+		int lastX = 0;
+		int lastY = 0;
+		int lastZ = 0;
+		int x, y, z;
+		long g;
+		int numTriples = 0;
 
-	    if (numTriples == 0) {
-		// First triple
-		vectorY.append(y);
-		vectorZ.append(z);
-	    } else if (x != lastX) {
-		if (x != lastX + 1) { throw new IllegalFormatException("Upper level must be increasing and correlative."); }
-		// X changed
+		while (it.hasNext()) {
+			final TripleID triple = it.next();
+			TripleOrderConvert.swapComponentOrder(triple, TripleComponentOrder.SPO, this.order);
+
+			x = toRoleID(triple.getSubject(), TripleComponentRole.SUBJECT);
+			y = toRoleID(triple.getPredicate(), TripleComponentRole.PREDICATE);
+			z = toRoleID(triple.getObject(), TripleComponentRole.OBJECT);
+			g = triple instanceof QuadID ? toRoleID(((QuadID) triple).getGraph(), TripleComponentRole.GRAPH) : 0;
+			if (x == 0 || y == 0 || z == 0) { throw new IllegalFormatException("None of the components of a triple can be null"); }
+
+			if (numTriples == 0) {
+				// First triple
+				vectorY.append(y);
+				vectorZ.append(z);
+			} else if (x != lastX) {
+				if (x != lastX + 1) { throw new IllegalFormatException("Upper level must be increasing and correlative."); }
+				// X changed
+				bitY.append(true);
+				vectorY.append(y);
+
+				bitZ.append(true);
+				vectorZ.append(z);
+			} else if (y != lastY) {
+				if (y < lastY) { throw new IllegalFormatException("Middle level must be increasing for each parent."); }
+
+				// Y changed
+				bitY.append(false);
+				vectorY.append(y);
+
+				bitZ.append(true);
+				vectorZ.append(z);
+			} else {
+				if (z < lastZ) { throw new IllegalFormatException("Lower level must be increasing for each parent."); }
+
+				// Z changed
+				bitZ.append(false);
+				vectorZ.append(z);
+			}
+
+			if (g == 0) {
+				bitG.append(false);
+			} else
+			{
+				bitG.append(true);
+				vectorG.add(g);
+			}
+
+			lastX = x;
+			lastY = y;
+			lastZ = z;
+
+			ListenerUtil.notifyCond(listener, "Converting to BitmapTriples", numTriples, numTriples, number);
+			numTriples++;
+		}
+
 		bitY.append(true);
-		vectorY.append(y);
-
 		bitZ.append(true);
-		vectorZ.append(z);
-	    } else if (y != lastY) {
-		if (y < lastY) { throw new IllegalFormatException("Middle level must be increasing for each parent."); }
 
-		// Y changed
-		bitY.append(false);
-		vectorY.append(y);
+		vectorY.aggresiveTrimToSize();
+		vectorZ.trimToSize();
 
-		bitZ.append(true);
-		vectorZ.append(z);
-	    } else {
-		if (z < lastZ) { throw new IllegalFormatException("Lower level must be increasing for each parent."); }
+		// Assign local variables to BitmapTriples Object
+		this.seqY = vectorY;
+		this.seqZ = vectorZ;
+		this.bitmapY = bitY;
+		this.bitmapZ = bitZ;
+		this.bitmapG = bitG;
 
-		// Z changed
-		bitZ.append(false);
-		vectorZ.append(z);
-	    }
+		this.adjY = new AdjacencyList(this.seqY, this.bitmapY);
+		this.adjZ = new AdjacencyList(this.seqZ, this.bitmapZ);
+		this.permutation = PermutationFactory.createPermutation(vectorG, PermutationFactory.PERMUTATION_MRRR_DEFAULT_STEP);
 
-	    lastX = x;
-	    lastY = y;
-	    lastZ = z;
-
-	    ListenerUtil.notifyCond(listener, "Converting to BitmapTriples", numTriples, numTriples, number);
-	    numTriples++;
+		// DEBUG
+		// adjY.dump();
+		// adjZ.dump();
 	}
 
-	bitY.append(true);
-	bitZ.append(true);
-
-	vectorY.aggresiveTrimToSize();
-	vectorZ.trimToSize();
-
-	// Assign local variables to BitmapTriples Object
-	this.seqY = vectorY;
-	this.seqZ = vectorZ;
-	this.bitmapY = bitY;
-	this.bitmapZ = bitZ;
-
-	this.adjY = new AdjacencyList(this.seqY, this.bitmapY);
-	this.adjZ = new AdjacencyList(this.seqZ, this.bitmapZ);
-
-	// DEBUG
-	// adjY.dump();
-	// adjZ.dump();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see hdt.triples.Triples#load(hdt.triples.TempTriples, hdt.ProgressListener)
-     */
-    @Override
-    public void load(final Triples triples, final ProgressListener listener) {
-	if (triples instanceof TempQuads) {
-	    // TODO: Load quads
-	} else {
-	    super.load(triples, listener);
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.triples.Triples#search(hdt.triples.TripleID)
+	 */
+	@Override
+	public IteratorTripleID search(final TripleID pattern) {
+		IteratorTripleID iterator;
+		final TripleID patternLocal = toRoleIDs(pattern);
+		if (patternLocal instanceof QuadID) {
+			if (((QuadID) patternLocal).getGraph() == 0) {
+				// if the quad is not given, use a normal tripleID iterator and wrap it to get the Quad ID
+				iterator = new BitmapQuadIteratorWrapper(this, super.search(patternLocal), this.toGlobalID);
+			} else {
+				// if the quad id is given, we need to return an iterator with a single element
+				iterator = new BitmapQuadIteratorSingle(this, (QuadID) patternLocal, this.toGlobalID);
+			}
+		} else {
+			iterator = super.search(patternLocal);
+		}
+		return new TripleTranslatorIteratorWrapper(this, iterator);
 	}
-    }
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.triples.Triples#search(hdt.triples.TripleID)
-     */
-    @Override
-    public IteratorTripleID search(final TripleID pattern) {
-	if (pattern instanceof QuadID) {
-	    // TODO: Compare using quads
-	    throw new NotImplementedException();
-	} else {
-	    return super.search(pattern);
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.triples.Triples#size()
+	 */
+	@Override
+	public long size() {
+		return super.size() + this.permutation.getSize();
 	}
-    }
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.triples.Triples#size()
-     */
-    @Override
-    public long size() {
-	// TODO: Add the size of the permutation
-	return super.size() + 0;
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.triples.Triples#save(java.io.OutputStream, hdt.ControlInfo, hdt.ProgressListener)
+	 */
+	@Override
+	public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
+		super.save(output, ci, listener);
+		ci.clear();
+		ci.setFormat(getType());
+		ci.setType(ControlInfo.Type.TRIPLES);
+		ci.save(output);
+		this.permutation.save(output, listener);
+	}
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.triples.Triples#save(java.io.OutputStream, hdt.ControlInfo, hdt.ProgressListener)
-     */
-    @Override
-    public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
-	super.save(output, ci, listener);
-	// TODO: Save permutation
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.triples.Triples#load(java.io.InputStream, hdt.ControlInfo, hdt.ProgressListener)
+	 */
+	@Override
+	public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
+		super.load(input, ci, listener);
+		this.permutation = PermutationFactory.createPermutation();
+		this.permutation.load(input, listener);
+	}
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.triples.Triples#load(java.io.InputStream, hdt.ControlInfo, hdt.ProgressListener)
-     */
-    @Override
-    public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
-	super.load(input, ci, listener);
-	// TODO: Load permutation
-    }
+	@Override
+	public void mapFromFile(final CountInputStream input, final File f, final ProgressListener listener) throws IOException {
+		super.mapFromFile(input, f, listener);
+		this.permutation = PermutationFactory.createPermutation();
+		this.permutation.load(input, listener);
+	}
 
-    @Override
-    public void mapFromFile(final CountInputStream input, final File f, final ProgressListener listener) throws IOException {
-	super.mapFromFile(input, f, listener);
-	// TODO: Load permutation
-    }
+	@Override
+	public void populateHeader(final Header header, final String rootNode) {
+		super.populateHeader(header, rootNode);
+		// TODO: Insert data about quads
+	}
 
-    @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	super.populateHeader(header, rootNode);
-	// TODO: Insert data about quads
-    }
+	@Override
+	public String getType() {
+		return HDTVocabulary.QUADS_TYPE_BITMAP;
+	}
 
-    @Override
-    public String getType() {
-	return HDTVocabulary.QUADS_TYPE_BITMAP;
-    }
-
-    @Override
-    public void close() throws IOException {
-	super.close();
-	// TODO: close permutation
-    }
+	@Override
+	public void close() throws IOException {
+		super.close();
+		this.permutation = null;
+	}
 
 }

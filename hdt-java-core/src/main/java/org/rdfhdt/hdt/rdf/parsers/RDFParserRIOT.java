@@ -29,6 +29,7 @@ package org.rdfhdt.hdt.rdf.parsers;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
@@ -87,8 +88,9 @@ public class RDFParserRIOT implements RDFParserCallback, StreamRDF {
 	    }
 	} catch (final FileNotFoundException e) {
 	    throw new ParserException("File not found");
-	} catch (final Exception e) {
-	    throw new ParserException("Unknown parser exception");
+	} catch (final IOException e) {
+	    e.printStackTrace();
+	    throw new ParserException("Unknown IO exception");
 	}
     }
 

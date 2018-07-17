@@ -31,7 +31,6 @@ import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
 import org.rdfhdt.hdt.exceptions.NotFoundException;
-import org.rdfhdt.hdt.exceptions.NotImplementedException;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.TripleID;
 
@@ -41,88 +40,88 @@ import org.rdfhdt.hdt.triples.TripleID;
  */
 public class BitmapTriplesIterator implements IteratorTripleID {
 
-	private BitmapTriples triples;
-	private TripleID pattern, returnTriple;
-	private int patX, patY, patZ;
-	
-	private AdjacencyList adjY, adjZ;
-	long posY, posZ, minY, minZ, maxY, maxZ;
-	private long nextY, nextZ;
-	private int x, y, z;
-	
-	BitmapTriplesIterator(BitmapTriples triples, TripleID pattern) {
+	protected final BitmapTriples	triples;
+	protected final TripleID		pattern, returnTriple;
+	protected int					patX, patY, patZ;
+
+	protected AdjacencyList			adjY, adjZ;
+	protected long					posY, posZ, minY, minZ, maxY, maxZ;
+	protected long					nextY, nextZ;
+	protected int					x, y, z;
+
+	BitmapTriplesIterator(final BitmapTriples triples, final TripleID pattern) {
 		this.triples = triples;
 		this.returnTriple = new TripleID();
 		this.pattern = new TripleID();
-		newSearch(pattern);
+		this.newSearch(pattern);
 	}
-	
-	public void newSearch(TripleID pattern) {
+
+	public void newSearch(final TripleID pattern) {
 		this.pattern.assign(pattern);
-		
-		TripleOrderConvert.swapComponentOrder(this.pattern, TripleComponentOrder.SPO, triples.order);
-		patX = this.pattern.getSubject();
-		patY = this.pattern.getPredicate();
-		patZ = this.pattern.getObject();
-		
-		adjY = triples.adjY;
-		adjZ = triples.adjZ;
-		
-//		((BitSequence375)triples.bitmapZ).dump();
-				
-		findRange();
-		goToStart();
+
+		TripleOrderConvert.swapComponentOrder(this.pattern, TripleComponentOrder.SPO, this.triples.order);
+		this.patX = this.pattern.getSubject();
+		this.patY = this.pattern.getPredicate();
+		this.patZ = this.pattern.getObject();
+
+		this.adjY = this.triples.adjY;
+		this.adjZ = this.triples.adjZ;
+
+		//		((BitSequence375)triples.bitmapZ).dump();
+
+		this.findRange();
+		this.goToStart();
 	}
-	
+
 	private void updateOutput() {
-		returnTriple.setAll(x, y, z);
-		TripleOrderConvert.swapComponentOrder(returnTriple, triples.order, TripleComponentOrder.SPO);
+		this.returnTriple.setAll(this.x, this.y, this.z);
+		TripleOrderConvert.swapComponentOrder(this.returnTriple, this.triples.order, TripleComponentOrder.SPO);
 	}
-	
-	private void findRange() {
-		if(patX!=0) {
+
+	protected void findRange() {
+		if(this.patX!=0) {
 			// S X X
-			if(patY!=0) {
+			if(this.patY!=0) {
 				// S P X
 				try {
-					minY = adjY.find(patX-1, patY);
-					maxY = minY+1;
-					if(patZ!=0) {
+					this.minY = this.adjY.find(this.patX-1, this.patY);
+					this.maxY = this.minY+1;
+					if(this.patZ!=0) {
 						// S P O
-						minZ = adjZ.find(minY,patZ);
-						maxZ = minZ+1;
+						this.minZ = this.adjZ.find(this.minY,this.patZ);
+						this.maxZ = this.minZ+1;
 					} else {
 						// S P ?
-						minZ = adjZ.find(minY);
-						maxZ = adjZ.last(minY)+1;
+						this.minZ = this.adjZ.find(this.minY);
+						this.maxZ = this.adjZ.last(this.minY)+1;
 					}
-				} catch (NotFoundException e) {
+				} catch (final NotFoundException e) {
 					// Item not found in list, no results.
-					minY = minZ = maxY = maxZ = 0;
+					this.minY = this.minZ = this.maxY = this.maxZ = 0;
 				}
 			} else {
 				// S ? X
-				minY = adjY.find(patX-1);
-				minZ = adjZ.find(minY);
-				maxY = adjY.last(patX-1)+1;
-				maxZ = adjZ.find(maxY);
+				this.minY = this.adjY.find(this.patX-1);
+				this.minZ = this.adjZ.find(this.minY);
+				this.maxY = this.adjY.last(this.patX-1)+1;
+				this.maxZ = this.adjZ.find(this.maxY);
 			}
-			x = patX;
+			this.x = this.patX;
 		} else {
 			// ? X X
-			minY=0;
-			minZ=0;
-			maxY = adjY.getNumberOfElements();
-			maxZ = adjZ.getNumberOfElements();
+			this.minY=0;
+			this.minZ=0;
+			this.maxY = this.adjY.getNumberOfElements();
+			this.maxZ = this.adjZ.getNumberOfElements();
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see hdt.iterator.IteratorTripleID#hasNext()
 	 */
 	@Override
 	public boolean hasNext() {
-		return posZ<maxZ;
+		return this.posZ<this.maxZ;
 	}
 
 	/* (non-Javadoc)
@@ -130,25 +129,25 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public TripleID next() {
-		z = (int) adjZ.get(posZ);
-		if(posZ==nextZ) {
-			posY++;
-			y = (int) adjY.get(posY);
-//			nextZ = adjZ.find(posY+1);
-			nextZ = adjZ.findNext(nextZ)+1;
-			
-			if(posY==nextY) {
-				x++;
-//				nextY = adjY.find(x);
-				nextY = adjY.findNext(nextY)+1;
+		this.z = (int) this.adjZ.get(this.posZ);
+		if(this.posZ==this.nextZ) {
+			this.posY++;
+			this.y = (int) this.adjY.get(this.posY);
+			//			nextZ = adjZ.find(posY+1);
+			this.nextZ = this.adjZ.findNext(this.nextZ)+1;
+
+			if(this.posY==this.nextY) {
+				this.x++;
+				//				nextY = adjY.find(x);
+				this.nextY = this.adjY.findNext(this.nextY)+1;
 			}
 		}
-		
-		posZ++;
-		
-		updateOutput();
-		
-		return returnTriple;
+
+		this.posZ++;
+
+		this.updateOutput();
+
+		return this.returnTriple;
 	}
 
 	/* (non-Javadoc)
@@ -156,7 +155,7 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public boolean hasPrevious() {
-		return posZ>minZ;
+		return this.posZ>this.minZ;
 	}
 
 	/* (non-Javadoc)
@@ -164,20 +163,20 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public TripleID previous() {
-		 posZ--;
+		this.posZ--;
 
-		 posY = adjZ.findListIndex(posZ);
+		this.posY = this.adjZ.findListIndex(this.posZ);
 
-		 z = (int) adjZ.get(posZ);
-		 y = (int) adjY.get(posY);
-		 x = (int) adjY.findListIndex(posY)+1;
+		this.z = (int) this.adjZ.get(this.posZ);
+		this.y = (int) this.adjY.get(this.posY);
+		this.x = (int) this.adjY.findListIndex(this.posY)+1;
 
-		 nextY = adjY.last(x-1)+1;
-		 nextZ = adjZ.last(posY)+1;
+		this.nextY = this.adjY.last(this.x-1)+1;
+		this.nextZ = this.adjZ.last(this.posY)+1;
 
-		 updateOutput();
+		this.updateOutput();
 
-		 return returnTriple;
+		return this.returnTriple;
 	}
 
 	/* (non-Javadoc)
@@ -185,15 +184,15 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public void goToStart() {
-		posZ = minZ;
-        posY = adjZ.findListIndex(posZ);
+		this.posZ = this.minZ;
+		this.posY = this.adjZ.findListIndex(this.posZ);
 
-        z = (int) adjZ.get(posZ);
-        y = (int) adjY.get(posY);
-        x = (int) adjY.findListIndex(posY)+1;
+		this.z = (int) this.adjZ.get(this.posZ);
+		this.y = (int) this.adjY.get(this.posY);
+		this.x = (int) this.adjY.findListIndex(this.posY)+1;
 
-        nextY = adjY.last(x-1)+1;
-        nextZ = adjZ.last(posY)+1;
+		this.nextY = this.adjY.last(this.x-1)+1;
+		this.nextZ = this.adjZ.last(this.posY)+1;
 	}
 
 	/* (non-Javadoc)
@@ -201,7 +200,7 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public long estimatedNumResults() {
-		return maxZ-minZ;
+		return this.maxZ-this.minZ;
 	}
 
 	/* (non-Javadoc)
@@ -209,10 +208,10 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public ResultEstimationType numResultEstimation() {
-		if(patX!=0 && patY==0 && patZ!=0) {
-	        return ResultEstimationType.UP_TO;
-	    }
-	    return ResultEstimationType.EXACT;
+		if(this.patX!=0 && this.patY==0 && this.patZ!=0) {
+			return ResultEstimationType.UP_TO;
+		}
+		return ResultEstimationType.EXACT;
 	}
 
 	/* (non-Javadoc)
@@ -220,41 +219,41 @@ public class BitmapTriplesIterator implements IteratorTripleID {
 	 */
 	@Override
 	public boolean canGoTo() {
-		return pattern.isEmpty();
+		return this.pattern.isEmpty();
 	}
 
 	/* (non-Javadoc)
 	 * @see hdt.iterator.IteratorTripleID#goTo(int)
 	 */
 	@Override
-	public void goTo(long pos) {
-		if(!canGoTo()) {
+	public void goTo(final long pos) {
+		if(!this.canGoTo()) {
 			throw new IllegalAccessError("Cannot goto on this bitmaptriples pattern");
 		}
 
-		if(pos>=adjZ.getNumberOfElements()) { 
+		if(pos>=this.adjZ.getNumberOfElements()) {
 			throw new ArrayIndexOutOfBoundsException("Cannot goTo beyond last triple");
 		}
 
-		posZ = pos;
-		posY = adjZ.findListIndex(posZ);
+		this.posZ = pos;
+		this.posY = this.adjZ.findListIndex(this.posZ);
 
-		z = (int) adjZ.get(posZ);
-		y = (int) adjY.get(posY);
-		x = (int) adjY.findListIndex(posY)+1;
+		this.z = (int) this.adjZ.get(this.posZ);
+		this.y = (int) this.adjY.get(this.posY);
+		this.x = (int) this.adjY.findListIndex(this.posY)+1;
 
-		nextY = adjY.last(x-1)+1;
-		nextZ = adjZ.last(posY)+1;
+		this.nextY = this.adjY.last(this.x-1)+1;
+		this.nextZ = this.adjZ.last(this.posY)+1;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see hdt.iterator.IteratorTripleID#getOrder()
 	 */
 	@Override
 	public TripleComponentOrder getOrder() {
-		return triples.order;
+		return this.triples.order;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.util.Iterator#remove()
 	 */

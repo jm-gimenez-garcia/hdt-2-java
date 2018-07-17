@@ -35,105 +35,109 @@ package org.rdfhdt.hdt.triples;
  */
 public final class QuadID extends TripleID {
 
-    protected int graph;
+	protected int graph;
 
-    public QuadID() {
-	super();
-    }
-
-    public QuadID(final int subject, final int predicate, final int object, final int graph) {
-	super(subject, predicate, object);
-	this.graph = graph;
-    }
-
-
-    public QuadID(final TripleID other) {
-	super(other);
-	this.graph = other instanceof QuadID ? ((QuadID) other).getGraph() : 0;
-    }
-
-    public int getGraph() {
-	return this.graph;
-    }
-
-    public void setGraph(final int graph) {
-	this.graph = graph;
-    }
-
-    public void setAll(final int subject, final int predicate, final int object, final int graph) {
-	super.setAll(subject, predicate, object);
-	this.graph = graph;
-    }
-
-    @Override
-    public void assign(final TripleID replacement) {
-	super.assign(replacement);
-	this.graph = replacement instanceof QuadID ? ((QuadID) replacement).getGraph() : 0;
-    }
-
-    /**
-     * Set all components to zero.
-     */
-    @Override
-    public void clear() {
-	super.clear();
-	this.graph = 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-	return super.toString() + this.graph;
-    }
-
-    @Override
-    public boolean equals(final TripleID other) {
-	return (super.equals(other) && other instanceof QuadID ? (this.graph == ((QuadID) other).getGraph()) : true);
-    }
-
-    @Override
-    public int compareTo(final TripleID other) {
-	int result = super.compareTo(other);
-	if (result == 0 && other instanceof QuadID) {
-	    result = this.graph - ((QuadID) other).getGraph();
-	}
-	return result;
-    }
-
-    @Override
-    public boolean match(final TripleID pattern) {
-	boolean result = true;
-
-	if (pattern instanceof QuadID) {
-	    final int graphPattern = ((QuadID) pattern).getGraph();
-	    result = (graphPattern == 0 || this.getGraph() == graphPattern);
+	public QuadID() {
+		super();
 	}
 
-	return result && super.match(pattern);
-    }
+	public QuadID(final int subject, final int predicate, final int object, final int graph) {
+		super(subject, predicate, object);
+		this.graph = graph;
+	}
 
-    @Override
-    public boolean isEmpty() {
-	return super.isEmpty() && this.graph == 0;
-    }
+	public QuadID(final TripleID other, final int graph) {
+		super(other);
+		this.graph = graph;
+	}
 
-    @Override
-    public boolean isValid() {
-	return super.isValid() && this.graph > 0;
-    }
+	public QuadID(final TripleID other) {
+		super(other);
+		this.graph = other instanceof QuadID ? ((QuadID) other).getGraph() : 0;
+	}
 
-    @Override
-    public String getPatternString() {
-	return super.getPatternString() + (this.graph == 0 ? '?' : 'G');
-    }
+	public int getGraph() {
+		return this.graph;
+	}
 
-    /** size of one TripleID in memory */
-    public static int size(){
-	return 24;
-    }
+	public void setGraph(final int graph) {
+		this.graph = graph;
+	}
+
+	public void setAll(final int subject, final int predicate, final int object, final int graph) {
+		super.setAll(subject, predicate, object);
+		this.graph = graph;
+	}
+
+	@Override
+	public void assign(final TripleID replacement) {
+		super.assign(replacement);
+		this.graph = replacement instanceof QuadID ? ((QuadID) replacement).getGraph() : 0;
+	}
+
+	/**
+	 * Set all components to zero.
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		this.graph = 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString() + " " + this.graph;
+	}
+
+	@Override
+	public boolean equals(final TripleID other) {
+		return (super.equals(other) && other instanceof QuadID ? (this.graph == ((QuadID) other).getGraph()) : true);
+	}
+
+	@Override
+	public int compareTo(final TripleID other) {
+		int result = super.compareTo(other);
+		if (result == 0 && other instanceof QuadID) {
+			result = this.graph - ((QuadID) other).getGraph();
+		}
+		return result;
+	}
+
+	@Override
+	public boolean match(final TripleID pattern) {
+		boolean result = true;
+
+		if (pattern instanceof QuadID) {
+			final int graphPattern = ((QuadID) pattern).getGraph();
+			result = (graphPattern == 0 || getGraph() == graphPattern);
+		}
+
+		return result && super.match(pattern);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return super.isEmpty() && this.graph == 0;
+	}
+
+	@Override
+	public boolean isValid() {
+		return super.isValid() && this.graph > 0;
+	}
+
+	@Override
+	public String getPatternString() {
+		return super.getPatternString() + (this.graph == 0 ? '?' : 'G');
+	}
+
+	/** size of one TripleID in memory */
+	public static int size(){
+		return 24;
+	}
 
 }

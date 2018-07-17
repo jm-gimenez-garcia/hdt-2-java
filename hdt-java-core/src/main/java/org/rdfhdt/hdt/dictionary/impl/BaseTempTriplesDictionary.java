@@ -47,163 +47,165 @@ import org.rdfhdt.hdt.util.string.ComparableCharSequence;
  */
 public abstract class BaseTempTriplesDictionary implements TriplesTempDictionary {
 
-    HDTOptions			    spec;
-    protected boolean		    isOrganized;
+	HDTOptions			    spec;
+	protected boolean		    isOrganized;
 
-    protected TempDictionarySection subjects;
-    protected TempDictionarySection predicates;
-    protected TempDictionarySection objects;
-    protected TempDictionarySection shared;
+	protected TempDictionarySection subjects;
+	protected TempDictionarySection predicates;
+	protected TempDictionarySection objects;
+	protected TempDictionarySection shared;
 
-    public BaseTempTriplesDictionary(final HDTOptions spec) {
-	this.spec = spec;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see hdt.dictionary.Dictionary#insert(java.lang.String, datatypes.TripleComponentRole)
-     */
-    @Override
-    public int insert(final CharSequence str, final TripleComponentRole position) {
-	int returnValue = 0;
-	switch (position) {
-	    case SUBJECT:
-		returnValue = this.subjects.add(str);
-		this.isOrganized &= this.subjects.isSorted();
-		break;
-	    case PREDICATE:
-		returnValue = this.predicates.add(str);
-		this.isOrganized &= this.predicates.isSorted();
-		break;
-	    case OBJECT:
-		returnValue = this.objects.add(str);
-		this.isOrganized &= this.objects.isSorted();
-		break;
-	    default:
-		throw new IllegalArgumentException();
-	}
-	return returnValue;
-    }
-
-    @Override
-    public void reorganize() {
-
-	// Generate shared
-	final Iterator<? extends ComparableCharSequence> itSubj = this.subjects.getEntries();
-	while (itSubj.hasNext()) {
-	    final ComparableCharSequence str = itSubj.next();
-
-	    // FIXME: These checks really needed?
-	    if (str.length() > 0 && str.charAt(0) != '"' && this.objects.locate(str) != 0) {
-		this.shared.add(str);
-	    }
+	public BaseTempTriplesDictionary(final HDTOptions spec) {
+		this.spec = spec;
 	}
 
-	// Remove shared from subjects and objects
-	final Iterator<? extends CharSequence> itShared = this.shared.getEntries();
-	while (itShared.hasNext()) {
-	    final CharSequence sharedStr = itShared.next();
-	    this.subjects.remove(sharedStr);
-	    this.objects.remove(sharedStr);
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.dictionary.Dictionary#insert(java.lang.String, datatypes.TripleComponentRole)
+	 */
+	@Override
+	public int insert(final CharSequence str, final TripleComponentRole position) {
+		int returnValue = 0;
+		switch (position) {
+			case SUBJECT:
+				returnValue = this.subjects.add(str);
+				this.isOrganized &= this.subjects.isSorted();
+				break;
+			case PREDICATE:
+				returnValue = this.predicates.add(str);
+				this.isOrganized &= this.predicates.isSorted();
+				break;
+			case OBJECT:
+				returnValue = this.objects.add(str);
+				this.isOrganized &= this.objects.isSorted();
+				break;
+			default:
+				throw new IllegalArgumentException();
+		}
+		return returnValue;
 	}
 
-	// Sort sections individually
-	this.shared.sort();
-	this.subjects.sort();
-	this.objects.sort();
-	this.predicates.sort();
+	@Override
+	public void reorganize() {
 
-	this.isOrganized = true;
+		// Generate shared
+		final Iterator<? extends ComparableCharSequence> itSubj = this.subjects.getEntries();
+		while (itSubj.hasNext()) {
+			final ComparableCharSequence str = itSubj.next();
 
-    }
+			// FIXME: These checks really needed?
+			if (str.length() > 0 && str.charAt(0) != '"' && this.objects.locate(str) != 0) {
+				this.shared.add(str);
+			}
+		}
 
-    /**
-     * This method is used in the one-pass way of working in which case it
-     * should not be used with a disk-backed dictionary because remapping
-     * requires practically a copy of the dictionary which is very bad...
-     * (it is ok for in-memory and they should override and write implementation)
-     */
-    @Override
-    public void reorganize(final TempTriples triples) {
-	throw new NotImplementedException();
-    }
+		// Remove shared from subjects and objects
+		final Iterator<? extends CharSequence> itShared = this.shared.getEntries();
+		while (itShared.hasNext()) {
+			final CharSequence sharedStr = itShared.next();
+			this.subjects.remove(sharedStr);
+			this.objects.remove(sharedStr);
+		}
 
-    @Override
-    public boolean isOrganized() {
-	return this.isOrganized;
-    }
+		// Sort sections individually
+		this.shared.sort();
+		this.subjects.sort();
+		this.objects.sort();
+		this.predicates.sort();
 
-    @Override
-    public void clear() {
-	this.subjects.clear();
-	this.predicates.clear();
-	this.shared.clear();
-	this.objects.clear();
-    }
+		this.isOrganized = true;
 
-    @Override
-    public TempDictionarySection getSubjects() {
-	return this.subjects;
-    }
-
-    @Override
-    public TempDictionarySection getPredicates() {
-	return this.predicates;
-    }
-
-    @Override
-    public TempDictionarySection getObjects() {
-	return this.objects;
-    }
-
-    @Override
-    public TempDictionarySection getShared() {
-	return this.shared;
-    }
-
-    protected int getGlobalId(final int id, final DictionarySectionRole position) {
-	switch (position) {
-	    case SUBJECT:
-	    case OBJECT:
-		return this.shared.getNumberOfElements() + id;
-
-	    case PREDICATE:
-	    case SHARED:
-		return id;
-	    default:
-		throw new IllegalArgumentException();
 	}
-    }
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.dictionary.Dictionary#stringToId(java.lang.CharSequence, datatypes.TripleComponentRole)
-     */
-    @Override
-    public int stringToId(final CharSequence str, final TripleComponentRole position) {
-
-	if (str == null || str.length() == 0) { return 0; }
-
-	int ret = 0;
-	switch (position) {
-	    case SUBJECT:
-		ret = this.shared.locate(str);
-		if (ret != 0) { return this.getGlobalId(ret, DictionarySectionRole.SHARED); }
-		ret = this.subjects.locate(str);
-		if (ret != 0) { return this.getGlobalId(ret, DictionarySectionRole.SUBJECT); }
-		return -1;
-	    case PREDICATE:
-		ret = this.predicates.locate(str);
-		if (ret != 0) { return this.getGlobalId(ret, DictionarySectionRole.PREDICATE); }
-		return -1;
-	    case OBJECT:
-		ret = this.shared.locate(str);
-		if (ret != 0) { return this.getGlobalId(ret, DictionarySectionRole.SHARED); }
-		ret = this.objects.locate(str);
-		if (ret != 0) { return this.getGlobalId(ret, DictionarySectionRole.OBJECT); }
-		return -1;
-	    default:
-		throw new IllegalArgumentException();
+	/**
+	 * This method is used in the one-pass way of working in which case it
+	 * should not be used with a disk-backed dictionary because remapping
+	 * requires practically a copy of the dictionary which is very bad...
+	 * (it is ok for in-memory and they should override and write implementation)
+	 */
+	@Override
+	public void reorganize(final TempTriples triples) {
+		throw new NotImplementedException();
 	}
-    }
+
+	@Override
+	public boolean isOrganized() {
+		return this.isOrganized;
+	}
+
+	@Override
+	public void clear() {
+		this.subjects.clear();
+		this.predicates.clear();
+		this.shared.clear();
+		this.objects.clear();
+	}
+
+	@Override
+	public TempDictionarySection getSubjects() {
+		return this.subjects;
+	}
+
+	@Override
+	public TempDictionarySection getPredicates() {
+		return this.predicates;
+	}
+
+	@Override
+	public TempDictionarySection getObjects() {
+		return this.objects;
+	}
+
+	@Override
+	public TempDictionarySection getShared() {
+		return this.shared;
+	}
+
+	protected int getGlobalId(final int id, final DictionarySectionRole position) {
+		switch (position) {
+			case SUBJECT:
+			case OBJECT:
+				return this.shared.getNumberOfElements() + id;
+
+			case PREDICATE:
+			case SHARED:
+				return id;
+			default:
+				throw new IllegalArgumentException();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.dictionary.Dictionary#stringToId(java.lang.CharSequence, datatypes.TripleComponentRole)
+	 */
+	@Override
+	public int stringToId(final CharSequence str, final TripleComponentRole position) {
+
+		if (str == null || str.length() == 0) { return 0; }
+
+		int ret = 0;
+		switch (position) {
+			case SUBJECT:
+				ret = this.shared.locate(str);
+				if (ret != 0) { return getGlobalId(ret, DictionarySectionRole.SHARED); }
+				ret = this.subjects.locate(str);
+				if (ret != 0) { return getGlobalId(ret, DictionarySectionRole.SUBJECT); }
+				return -1;
+			case PREDICATE:
+				ret = this.predicates.locate(str);
+				if (ret != 0) { return getGlobalId(ret, DictionarySectionRole.PREDICATE); }
+				return -1;
+			case OBJECT:
+				ret = this.shared.locate(str);
+				if (ret != 0) { return getGlobalId(ret, DictionarySectionRole.SHARED); }
+				ret = this.objects.locate(str);
+				if (ret != 0) { return getGlobalId(ret, DictionarySectionRole.OBJECT); }
+				return -1;
+			case GRAPH:
+				return -1;
+			default:
+				throw new IllegalArgumentException();
+		}
+	}
 }

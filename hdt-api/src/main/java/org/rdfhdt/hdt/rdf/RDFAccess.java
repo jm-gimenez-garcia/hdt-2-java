@@ -35,21 +35,31 @@ import org.rdfhdt.hdt.triples.IteratorTripleString;
  *
  */
 public interface RDFAccess {
-	
-	/**
-	 * Iterate over the triples of an RDF Set that match the specified pattern.
-	 * null and empty strings act as a wildcard. 
-	 * (e.g. search(null, null, null) iterates over all elements)
-	 * 
-	 * @param subject
-	 *            The subject to search
-	 * @param predicate
-	 *            The predicate to search
-	 * @param object
-	 *            The object to search
-	 * 
-	 * @return Iterator of TripleStrings
-	 * @throws NotFoundException 
-	 */
-	IteratorTripleString search(CharSequence subject, CharSequence predicate, CharSequence object) throws NotFoundException;
+
+    /**
+     * Iterate over the triples of an RDF Set that match the specified pattern.
+     * null and empty strings act as a wildcard.
+     * (e.g. search(null, null, null) iterates over all elements)
+     *
+     * @param subject
+     *            The subject to search
+     * @param predicate
+     *            The predicate to search
+     * @param object
+     *            The object to search
+     *
+     * @return Iterator of TripleStrings
+     * @throws NotFoundException
+     */
+    IteratorTripleString search(CharSequence subject, CharSequence predicate, CharSequence object) throws NotFoundException;
+
+    /**
+     * @param subject
+     * @param predicate
+     * @param object
+     * @param graph
+     * @return
+     * @throws NotFoundException
+     */
+    IteratorTripleString search(CharSequence subject, CharSequence predicate, CharSequence object, CharSequence graph) throws NotFoundException;
 }

@@ -48,61 +48,66 @@ import org.rdfhdt.hdt.options.HDTSpecification;
  */
 public class DictionaryFactory {
 
-    public static final String MOD_DICT_IMPL_HASH		= "hash";
-    public static final String DICTIONARY_TYPE_FOUR_SECTION_BIG	= "dictionaryFourBig";
+	public static final String MOD_DICT_IMPL_HASH		= "hash";
+	public static final String DICTIONARY_TYPE_FOUR_SECTION_BIG	= "dictionaryFourBig";
 
-    private DictionaryFactory() {
-    }
-
-    /**
-     * Creates a default dictionary (HashDictionary)
-     *
-     * @return Dictionary
-     */
-    public static TriplesDictionary createDefaultDictionary()
-	    throws IllegalArgumentException {
-	return new TriplesFourSectionDictionary(new HDTSpecification());
-    }
-
-    /**
-     * Creates a default dictionary (HashDictionary)
-     *
-     * @return Dictionary
-     */
-    public static TriplesTempDictionary createTempDictionary(final HDTOptions spec, final boolean reif) {
-	final String dictImpl = spec.get("tempDictionary.impl");
-
-	// Implementations available in the Core
-	if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) {
-	    if (reif) {
-		return new ReificationTempDictionary(new HashTriplesDictionary(spec), new HashGraphsDictionary(spec));
-	    }
-	    else {
-		return new HashTriplesDictionary(spec);
-	    }
+	private DictionaryFactory() {
 	}
 
-	// Implementations available in the HDT-Disk module.
-	return HDTFactory.getTempFactory().getDictionary(spec);
-    }
-
-    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec, final boolean reif) {
-	final String name = spec.get("dictionary.type");
-	if (name == null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
-	    return reif ? new ReificationDictionary(new TriplesFourSectionDictionary(spec), new GraphsFourSectionDictionary(spec)) : new TriplesFourSectionDictionary(spec);
-	} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) {
-	    return reif ? new ReificationDictionary(new TriplesFourSectionDictionaryBig(spec), new GraphsFourSectionDictionaryBig(spec)) : new TriplesFourSectionDictionaryBig(spec);
+	/**
+	 * Creates a default dictionary (HashDictionary)
+	 *
+	 * @return Dictionary
+	 */
+	public static TriplesDictionary createDefaultDictionary()
+			throws IllegalArgumentException {
+		return new TriplesFourSectionDictionary(new HDTSpecification());
 	}
-	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
-    }
 
-    public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec) {
-	return createDictionary(spec, false);
-    }
+	/**
+	 * Creates a default dictionary (HashDictionary)
+	 *
+	 * @return Dictionary
+	 */
+	public static TriplesTempDictionary createTempDictionary(final HDTOptions spec, final boolean reif) {
+		final String dictImpl = spec.get("tempDictionary.impl");
 
-    public static TriplesDictionaryPrivate createDictionary(final ControlInfo ci) {
-	final String name = ci.getFormat();
-	if (HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) { return new TriplesFourSectionDictionary(new HDTSpecification()); }
-	throw new IllegalFormatException("Implementation of ditionary not found for " + name);
-    }
+		// Implementations available in the Core
+		if (dictImpl == null || "".equals(dictImpl) || MOD_DICT_IMPL_HASH.equals(dictImpl)) {
+			if (reif) {
+				return new ReificationTempDictionary(new HashTriplesDictionary(spec), new HashGraphsDictionary(spec));
+			}
+			else {
+				return new HashTriplesDictionary(spec);
+			}
+		}
+
+		// Implementations available in the HDT-Disk module.
+		return HDTFactory.getTempFactory().getDictionary(spec);
+	}
+
+	public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec, final boolean reif) {
+		final String name = spec.get("dictionary.type");
+		if (name == null || HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
+			return reif ? new ReificationDictionary(new TriplesFourSectionDictionary(spec), new GraphsFourSectionDictionary(spec)) : new TriplesFourSectionDictionary(spec);
+		} else if (DICTIONARY_TYPE_FOUR_SECTION_BIG.equals(name)) {
+			return reif ? new ReificationDictionary(new TriplesFourSectionDictionaryBig(spec), new GraphsFourSectionDictionaryBig(spec)) : new TriplesFourSectionDictionaryBig(spec);
+		}
+		throw new IllegalFormatException("Implementation of ditionary not found for " + name);
+	}
+
+	public static TriplesDictionaryPrivate createDictionary(final HDTOptions spec) {
+		return createDictionary(spec, false);
+	}
+
+	public static TriplesDictionaryPrivate createDictionary(final ControlInfo ci) {
+		final String name = ci.getFormat();
+		if (HDTVocabulary.DICTIONARY_TYPE_REIFICATION.equals(name)) {
+			return new ReificationDictionary(new TriplesFourSectionDictionary(new HDTSpecification()), new GraphsFourSectionDictionary(new HDTSpecification()));
+		}
+		if (HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION.equals(name)) {
+			return new TriplesFourSectionDictionary(new HDTSpecification());
+		}
+		throw new IllegalFormatException("Implementation of ditionary not found for " + name);
+	}
 }

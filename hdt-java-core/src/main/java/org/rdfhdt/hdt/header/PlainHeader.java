@@ -155,6 +155,12 @@ public class PlainHeader implements HeaderPrivate, RDFCallback {
     }
 
     @Override
+    public IteratorTripleString search(final CharSequence subject, final CharSequence predicate, final CharSequence object, final CharSequence graph) {
+	final QuadString pattern = new QuadString(subject.toString(), predicate.toString(), object.toString(), graph.toString());
+	return new PlainHeaderIterator(this, pattern);
+    }
+
+    @Override
     public void processTriple(final TripleString triple, final long pos) {
 	this.triples.add(new TripleString(triple));
     }

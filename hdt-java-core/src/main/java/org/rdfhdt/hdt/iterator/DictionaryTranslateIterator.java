@@ -33,6 +33,8 @@ import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
+import org.rdfhdt.hdt.triples.QuadID;
+import org.rdfhdt.hdt.triples.QuadString;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.triples.TripleString;
 
@@ -47,10 +49,10 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
     /** The dictionary */
     TriplesDictionary dictionary;
 
-    CharSequence s, p, o;
+    CharSequence      s, p, o, g;
 
-    int lastSid, lastPid, lastOid;
-    CharSequence lastSstr, lastPstr, lastOstr;
+    int		      lastSid, lastPid, lastOid, lastGid;
+    CharSequence      lastSstr, lastPstr, lastOstr, lastGstr;
 
     /**
      * Basic constructor
@@ -79,6 +81,16 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
 	this.s = s==null ? "" : s;
 	this.p = p==null ? "" : p;
 	this.o = o==null ? "" : o;
+    }
+
+    public DictionaryTranslateIterator(final IteratorTripleID iteratorTripleID, final TriplesDictionary dictionary, final CharSequence s, final CharSequence p, final CharSequence o,
+	    final CharSequence g) {
+	this.iterator = iteratorTripleID;
+	this.dictionary = dictionary;
+	this.s = s == null ? "" : s;
+	this.p = p == null ? "" : p;
+	this.o = o == null ? "" : o;
+	this.g = g == null ? "" : g;
     }
 
     /*
@@ -120,6 +132,17 @@ public class DictionaryTranslateIterator implements IteratorTripleString {
 	} else if(triple.getObject()!=this.lastOid) {
 	    this.lastOstr = this.dictionary.idToString(triple.getObject(), TripleComponentRole.OBJECT);
 	    this.lastOid = triple.getObject();
+	}
+
+	if (triple instanceof QuadID) {
+	    if (this.g.length() != 0) {
+		this.lastGstr = this.g;
+	    } else if (((QuadID) triple).getGraph() != this.lastGid) {
+		this.lastGstr = this.dictionary.idToString(((QuadID) triple).getGraph(), TripleComponentRole.GRAPH);
+		this.lastGid = ((QuadID) triple).getGraph();
+	    }
+
+	    return new QuadString(this.lastSstr, this.lastPstr, this.lastOstr, this.lastGstr);
 	}
 
 	return new TripleString(this.lastSstr, this.lastPstr, this.lastOstr);

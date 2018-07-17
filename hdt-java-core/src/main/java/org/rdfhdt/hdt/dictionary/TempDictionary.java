@@ -37,45 +37,45 @@ import org.rdfhdt.hdt.triples.TempTriples;
  */
 public interface TempDictionary extends Dictionary {
 
-    /**
-     * To be executed at the start of the processing
-     *
-     */
-    void startProcessing();
+	/**
+	 * To be executed at the start of the processing
+	 *
+	 */
+	void startProcessing();
 
-    /**
-     * To be executed at the end of the processing
-     *
-     */
-    void endProcessing();
+	/**
+	 * To be executed at the end of the processing
+	 *
+	 */
+	void endProcessing();
 
-    /**
-     * Inserts a string in the dictionary in a position
-     *
-     * @param str
-     *            The string to be inserted
-     * @param position
-     *            TriplePosition to be inserted in
-     */
-    int insert(CharSequence str, TripleComponentRole position);
+	/**
+	 * Inserts a string in the dictionary in a position
+	 *
+	 * @param str
+	 *            The string to be inserted
+	 * @param position
+	 *            TriplePosition to be inserted in
+	 */
+	int insert(CharSequence str, TripleComponentRole position);
 
-    /**
-     * Reorganizes the dictionary (Extract shared SO, sort sections).
-     * (used for two-pass way of work).
-     *
-     */
-    void reorganize();
+	/**
+	 * Reorganizes the dictionary (Extract shared SO, sort sections).
+	 * (used for two-pass way of work).
+	 *
+	 */
+	void reorganize();
 
-    /**
-     * Reorganizes the dictionary (Extract shared SO, sort sections)
-     * and updates the IDs of the triples (used for one-pass way of work).
-     */
-    void reorganize(TempTriples triples);
+	/**
+	 * Reorganizes the dictionary (Extract shared SO, sort sections)
+	 * and updates the IDs of the triples (used for one-pass way of work).
+	 */
+	void reorganize(TempTriples triples);
 
-    boolean isOrganized();
+	boolean isOrganized();
 
-    /**
-     * Empty all the strings of the dictionary.
-     */
-    void clear();
+	/**
+	 * Empty all the strings of the dictionary.
+	 */
+	void clear();
 }

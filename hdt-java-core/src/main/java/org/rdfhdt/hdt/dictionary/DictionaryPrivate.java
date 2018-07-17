@@ -8,44 +8,45 @@ import java.io.OutputStream;
 import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.options.ControlInfo;
+import org.rdfhdt.hdt.triples.TripleTranslator;
 import org.rdfhdt.hdt.util.io.CountInputStream;
 
 /**
  * @author mario.arias, Eugen, José M. Giménez-García
  *
  */
-public interface DictionaryPrivate extends Dictionary {
-    /**
-     * Loads a dictionary from a InputStream
-     *
-     * @param input
-     *            InputStream to load the dictionary from
-     * @throws IOException
-     */
-    void load(InputStream input, ControlInfo ci, ProgressListener listener) throws IOException;
+public interface DictionaryPrivate extends Dictionary, TripleTranslator {
+	/**
+	 * Loads a dictionary from a InputStream
+	 *
+	 * @param input
+	 *            InputStream to load the dictionary from
+	 * @throws IOException
+	 */
+	void load(InputStream input, ControlInfo ci, ProgressListener listener) throws IOException;
 
-    void mapFromFile(CountInputStream in, File f, ProgressListener listener) throws IOException;
+	void mapFromFile(CountInputStream in, File f, ProgressListener listener) throws IOException;
 
-    /**
-     * Loads all information from another dictionary into this dictionary.
-     */
-    void load(Dictionary dictionary, ProgressListener listener);
+	/**
+	 * Loads all information from another dictionary into this dictionary.
+	 */
+	void load(Dictionary dictionary, ProgressListener listener);
 
-    /**
-     * Saves the dictionary to a OutputStream
-     */
-    void save(OutputStream output, ControlInfo ci, ProgressListener listener) throws IOException;
+	/**
+	 * Saves the dictionary to a OutputStream
+	 */
+	void save(OutputStream output, ControlInfo ci, ProgressListener listener) throws IOException;
 
-    /**
-     * Fills the header with information from the dictionary
-     */
-    void populateHeader(Header header, String rootNode);
+	/**
+	 * Fills the header with information from the dictionary
+	 */
+	void populateHeader(Header header, String rootNode);
 
-    /**
-     * Returns the type of the dictionary (the way it is written onto file/held in memory)
-     *
-     * @return
-     */
-    String getType();
+	/**
+	 * Returns the type of the dictionary (the way it is written onto file/held in memory)
+	 *
+	 * @return
+	 */
+	String getType();
 
 }

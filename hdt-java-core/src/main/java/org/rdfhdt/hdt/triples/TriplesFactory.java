@@ -43,64 +43,68 @@ import org.rdfhdt.hdt.triples.impl.TriplesList;
  */
 public class TriplesFactory {
 
-    public static final String TEMP_TRIPLES_IMPL_LIST = "list";
+	public static final String TEMP_TRIPLES_IMPL_LIST = "list";
 
-    private TriplesFactory() {
-    }
-
-    /**
-     * Creates a new TempTriples (writable triples structure)
-     *
-     * @return TempTriples
-     */
-    static public TempTriples createTempTriples(final HDTOptions spec, final boolean reif) {
-	final String triplesImpl = spec.get("tempTriples.impl");
-
-	// Implementations available in the Core
-	if (triplesImpl == null || triplesImpl.equals("") || TEMP_TRIPLES_IMPL_LIST.equals(triplesImpl)) { return new TriplesList(spec); }
-
-	// Implementations available in the HDT-Disk module.
-	return HDTFactory.getTempFactory().getTriples(spec);
-    }
-
-    /**
-     * Creates a new Triples based on an HDTOptions
-     *
-     * @param specification
-     *            The HDTOptions to read
-     * @return Triples
-     */
-    static public TriplesPrivate createTriples(final HDTOptions spec, final boolean reif) {
-	final String type = spec.get("triples.format");
-
-	if (type == null) {
-	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
-	} else if (HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST.equals(type)) {
-	    return reif ? new QuadsList(spec) : new TriplesList(spec);
-	} else if (HDTVocabulary.TRIPLES_TYPE_BITMAP.equals(type)) {
-	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
-	} else {
-	    return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
+	private TriplesFactory() {
 	}
-    }
 
-    /**
-     * Creates a new Triples based on a ControlInformation
-     *
-     * @param specification
-     *            The HDTOptions to read
-     * @return Triples
-     */
-    public static TriplesPrivate createTriples(final ControlInfo ci) {
-	final String format = ci.getFormat();
+	/**
+	 * Creates a new TempTriples (writable triples structure)
+	 *
+	 * @return TempTriples
+	 */
+	static public TempTriples createTempTriples(final HDTOptions spec, final boolean reif) {
+		final String triplesImpl = spec.get("tempTriples.impl");
 
-	if (HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST.equals(format)) {
-	    return new TriplesList(new HDTSpecification());
-	} else if (HDTVocabulary.TRIPLES_TYPE_BITMAP.equals(format)) {
-	    return new BitmapTriples();
-	} else {
-	    throw new IllegalArgumentException("No implementation for Triples type: " + format);
+		// Implementations available in the Core
+		if (triplesImpl == null || triplesImpl.equals("") || TEMP_TRIPLES_IMPL_LIST.equals(triplesImpl)) {
+			return reif ? new QuadsList(spec) : new TriplesList(spec);
+		}
+
+		// Implementations available in the HDT-Disk module.
+		return HDTFactory.getTempFactory().getTriples(spec);
 	}
-    }
+
+	/**
+	 * Creates a new Triples based on an HDTOptions
+	 *
+	 * @param specification
+	 *            The HDTOptions to read
+	 * @return Triples
+	 */
+	static public TriplesPrivate createTriples(final HDTOptions spec, final boolean reif) {
+		final String type = spec.get("triples.format");
+
+		if (type == null) {
+			return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
+		} else if (HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST.equals(type)) {
+			return reif ? new QuadsList(spec) : new TriplesList(spec);
+		} else if (HDTVocabulary.TRIPLES_TYPE_BITMAP.equals(type)) {
+			return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
+		} else {
+			return reif ? new BitmapQuads(spec) : new BitmapTriples(spec);
+		}
+	}
+
+	/**
+	 * Creates a new Triples based on a ControlInformation
+	 *
+	 * @param specification
+	 *            The HDTOptions to read
+	 * @return Triples
+	 */
+	public static TriplesPrivate createTriples(final ControlInfo ci) {
+		final String format = ci.getFormat();
+
+		if (HDTVocabulary.TRIPLES_TYPE_TRIPLESLIST.equals(format)) {
+			return new TriplesList(new HDTSpecification());
+		} else if (HDTVocabulary.TRIPLES_TYPE_BITMAP.equals(format)) {
+			return new BitmapTriples();
+		} else if (HDTVocabulary.QUADS_TYPE_BITMAP.equals(format)) {
+			return new BitmapQuads();
+		} else {
+			throw new IllegalArgumentException("No implementation for Triples type: " + format);
+		}
+	}
 
 }
