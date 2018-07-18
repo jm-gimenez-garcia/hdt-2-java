@@ -3,13 +3,10 @@
  */
 package org.rdfhdt.hdt.triples.impl;
 
-import java.util.function.BiFunction;
-
 import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
 import org.rdfhdt.hdt.compact.permutation.Permutation;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
-import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.QuadID;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -27,13 +24,6 @@ public class BitmapQuadIteratorSingle implements IteratorTripleID {
 	protected boolean		hasNext	= false, hasPrevious = false;
 
 	public BitmapQuadIteratorSingle(final BitmapQuads bitmapQuads, final QuadID pattern) {
-		this.quads = bitmapQuads;
-		this.permutation = bitmapQuads.permutation;
-		this.pattern = pattern;
-		goToStart();
-	}
-
-	public BitmapQuadIteratorSingle(final BitmapQuads bitmapQuads, final QuadID pattern, final BiFunction<Integer, TripleComponentRole, Integer> toRoleID) {
 		this.quads = bitmapQuads;
 		this.permutation = bitmapQuads.permutation;
 		this.pattern = pattern;

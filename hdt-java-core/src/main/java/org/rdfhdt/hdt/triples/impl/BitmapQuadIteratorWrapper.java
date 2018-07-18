@@ -3,13 +3,11 @@
  */
 package org.rdfhdt.hdt.triples.impl;
 
-import java.util.function.BiFunction;
-
 import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
+import org.rdfhdt.hdt.compact.bitmap.Bitmap;
 import org.rdfhdt.hdt.compact.permutation.Permutation;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
-import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.NotFoundException;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.QuadID;
@@ -22,18 +20,16 @@ import org.rdfhdt.hdt.triples.TripleID;
 public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 
 	protected IteratorTripleID	iteratorTripleID;
-	protected Permutation	permutation;
 	protected AdjacencyList		adjY, adjZ;
+	protected Permutation	permutation;
+	protected Bitmap			bitmapPermutation;
 
 	public BitmapQuadIteratorWrapper(final BitmapQuads bitmapQuads, final IteratorTripleID iteratorTripleID) {
 		this.iteratorTripleID = iteratorTripleID;
-		this.permutation = bitmapQuads.permutation;
 		this.adjY = bitmapQuads.adjY;
 		this.adjZ = bitmapQuads.adjZ;
-	}
-
-	public BitmapQuadIteratorWrapper(final BitmapQuads bitmapQuads, final IteratorTripleID iteratorTripleID, final BiFunction<Integer, TripleComponentRole, Integer> toGlobalID) {
-		this(bitmapQuads, iteratorTripleID);
+		this.permutation = bitmapQuads.permutation;
+		this.bitmapPermutation = bitmapQuads.bitmapG;
 	}
 
 	/*
@@ -131,6 +127,7 @@ public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 
 	protected long getGraphID(final TripleID triple) {
 		long positionPredicate, positionObject;
+		int graphID = 0;
 		try {
 			final int s = triple.getSubject();
 			final int p = triple.getPredicate();
@@ -142,6 +139,13 @@ public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 			// No graph for triple
 			positionObject = 0;
 		}
-		return (int) this.permutation.pi(positionObject + 1);
+
+		if (this.bitmapPermutation.access(positionObject + 1)) {
+			graphID = (int) this.permutation.pi(positionObject + 1);
+		} else {
+			graphID = 0;
+		}
+
+		return graphID;
 	}
 }
