@@ -50,109 +50,114 @@ import org.rdfhdt.hdt.triples.TripleString;
  *
  */
 public class RDFParserRIOT implements RDFParserCallback, StreamRDF {
-    private RDFCallback	       callback;
-    // private final TripleString triple;
+	private RDFCallback	       callback;
+	// private final TripleString triple;
 
-    /*
-     * (non-Javadoc)
-     * @see hdt.rdf.RDFParserCallback#doParse(java.lang.String, java.lang.String, hdt.enums.RDFNotation, hdt.rdf.RDFParserCallback.Callback)
-     */
-    @Override
-    public void doParse(final String fileName, final String baseUri, final RDFNotation notation, final RDFCallback callback) throws ParserException {
-	this.callback = callback;
-	try {
-	    InputStream input;
-	    if (fileName.equals("-")) {
-		input = new BufferedInputStream(System.in);
-	    } else if (fileName.endsWith(".gz")) {
-		input = new BufferedInputStream(new GZIPInputStream(new FileInputStream(fileName)));
-	    } else {
-		input = new BufferedInputStream(new FileInputStream(fileName));
-	    }
-	    switch (notation) {
-		case NTRIPLES:
-		    RDFDataMgr.parse(this, input, Lang.NTRIPLES);
-		    break;
-		case NQUADS:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.NQUADS);
-		    break;
-		case RDFXML:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.RDFXML);
-		    break;
-		case N3:
-		case TURTLE:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.TURTLE);
-		    break;
-		default:
-		    throw new NotImplementedException("Parser not found for format " + notation);
-	    }
-	} catch (final FileNotFoundException e) {
-	    throw new ParserException("File not found");
-	} catch (final IOException e) {
-	    e.printStackTrace();
-	    throw new ParserException("Unknown IO exception");
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.rdf.RDFParserCallback#doParse(java.lang.String, java.lang.String, hdt.enums.RDFNotation, hdt.rdf.RDFParserCallback.Callback)
+	 */
+	@Override
+	public void doParse(final String fileName, final String baseUri, final RDFNotation notation, final RDFCallback callback) throws ParserException {
+		this.callback = callback;
+		try {
+			InputStream input;
+			if (fileName.equals("-")) {
+				input = new BufferedInputStream(System.in);
+			} else if (fileName.endsWith(".gz")) {
+				input = new BufferedInputStream(new GZIPInputStream(new FileInputStream(fileName)));
+			} else {
+				input = new BufferedInputStream(new FileInputStream(fileName));
+			}
+			switch (notation) {
+				case NTRIPLES:
+					RDFDataMgr.parse(this, input, Lang.NTRIPLES);
+					break;
+				case NQUADS:
+					RDFDataMgr.parse(this, input, baseUri, Lang.NQUADS);
+					break;
+				case RDFXML:
+					RDFDataMgr.parse(this, input, baseUri, Lang.RDFXML);
+					break;
+				case N3:
+				case TURTLE:
+					RDFDataMgr.parse(this, input, baseUri, Lang.TURTLE);
+					break;
+				default:
+					throw new NotImplementedException("Parser not found for format " + notation);
+			}
+		} catch (final FileNotFoundException e) {
+			throw new ParserException("File not found");
+		} catch (final IOException e) {
+			e.printStackTrace();
+			throw new ParserException("Unknown IO exception");
+		}
 	}
-    }
 
-    @Override
-    public void doParse(final InputStream input, final String baseUri, final RDFNotation notation, final RDFCallback callback) throws ParserException {
-	this.callback = callback;
-	try {
-	    switch (notation) {
-		case NTRIPLES:
-		    RDFDataMgr.parse(this, input, Lang.NTRIPLES);
-		    break;
-		case NQUADS:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.NQUADS);
-		    break;
-		case RDFXML:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.RDFXML);
-		    break;
-		case N3:
-		case TURTLE:
-		    RDFDataMgr.parse(this, input, baseUri, Lang.TURTLE);
-		    break;
-		default:
-		    throw new NotImplementedException("Parser not found for format " + notation);
-	    }
-	} catch (final Exception e) {
-	    e.printStackTrace();
-	    throw new ParserException();
+	@Override
+	public void doParse(final InputStream input, final String baseUri, final RDFNotation notation, final RDFCallback callback) throws ParserException {
+		this.callback = callback;
+		try {
+			switch (notation) {
+				case NTRIPLES:
+					RDFDataMgr.parse(this, input, Lang.NTRIPLES);
+					break;
+				case NQUADS:
+					RDFDataMgr.parse(this, input, baseUri, Lang.NQUADS);
+					break;
+				case RDFXML:
+					RDFDataMgr.parse(this, input, baseUri, Lang.RDFXML);
+					break;
+				case N3:
+				case TURTLE:
+					RDFDataMgr.parse(this, input, baseUri, Lang.TURTLE);
+					break;
+				default:
+					throw new NotImplementedException("Parser not found for format " + notation);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+			throw new ParserException();
+		}
 	}
-    }
 
-    @Override
-    public void start() {
-	// TODO Auto-generated method stub
+	@Override
+	public void start() {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    public void triple(final Triple parsedTriple) {
-	final TripleString triple = new TripleString(parsedTriple.getSubject().toString(), parsedTriple.getPredicate().toString(), parsedTriple.getObject().toString());
-	this.callback.processTriple(triple, 0);
-    }
+	@Override
+	public void triple(final Triple parsedTriple) {
+		final TripleString triple = new TripleString(parsedTriple.getSubject().toString(), parsedTriple.getPredicate().toString(), parsedTriple.getObject().toString());
+		this.callback.processTriple(triple, 0);
+	}
 
-    @Override
-    public void quad(final Quad parsedQuad) {
-	final QuadString quad = new QuadString(parsedQuad.getSubject().toString(), parsedQuad.getPredicate().toString(), parsedQuad.getObject().toString(), parsedQuad.getGraph().toString());
-	this.callback.processQuad(quad, 0);
-    }
+	@Override
+	public void quad(final Quad parsedQuad) {
+		if (Quad.isDefaultGraph(parsedQuad.getGraph())) {
+			final TripleString triple = new TripleString(parsedQuad.getSubject().toString(), parsedQuad.getPredicate().toString(), parsedQuad.getObject().toString());
+			this.callback.processTriple(triple, 0);
+		} else {
+			final QuadString quad = new QuadString(parsedQuad.getSubject().toString(), parsedQuad.getPredicate().toString(), parsedQuad.getObject().toString(), parsedQuad.getGraph().toString());
+			this.callback.processQuad(quad, 0);
+		}
+	}
 
-    @Override
-    public void base(final String base) {
-	// System.out.println("Base: "+base);
-    }
+	@Override
+	public void base(final String base) {
+		// System.out.println("Base: "+base);
+	}
 
-    @Override
-    public void prefix(final String prefix, final String iri) {
-	// System.out.println("Prefix: "+prefix+" iri "+iri);
-    }
+	@Override
+	public void prefix(final String prefix, final String iri) {
+		// System.out.println("Prefix: "+prefix+" iri "+iri);
+	}
 
-    @Override
-    public void finish() {
-	// TODO Auto-generated method stub
+	@Override
+	public void finish() {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
 }

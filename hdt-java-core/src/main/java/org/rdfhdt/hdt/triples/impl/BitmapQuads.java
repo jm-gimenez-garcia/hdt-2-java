@@ -187,15 +187,24 @@ public class BitmapQuads extends BitmapTriples {
 		if (patternLocal instanceof QuadID) {
 			if (((QuadID) patternLocal).getGraph() == 0) {
 				// if the quad is not given, use a normal tripleID iterator and wrap it to get the Quad ID
-				iterator = new BitmapQuadIteratorWrapper(this, super.search(patternLocal), this.toGlobalID);
+				iterator = new BitmapQuadIteratorWrapper(this, super.search(patternLocal));
 			} else {
 				// if the quad id is given, we need to return an iterator with a single element
-				iterator = new BitmapQuadIteratorSingle(this, (QuadID) patternLocal, this.toGlobalID);
+				iterator = new BitmapQuadIteratorSingle(this, (QuadID) patternLocal);
 			}
 		} else {
 			iterator = super.search(patternLocal);
 		}
 		return new TripleTranslatorIteratorWrapper(this, iterator);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see hdt.triples.Triples#searchAll()
+	 */
+	@Override
+	public IteratorTripleID searchAll() {
+		return search(new QuadID());
 	}
 
 	/*
