@@ -41,7 +41,9 @@ import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.hdt.HDTVersion;
 import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.options.HDTSpecification;
+import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
+import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.triples.TripleString;
 import org.rdfhdt.hdt.util.StopWatch;
 
@@ -172,12 +174,21 @@ public class RDF2HDT implements ProgressListener {
 			}
 
 			// Debug all inserted triples
+			// first the ids
+			final IteratorTripleID iteratorID = hdt.getTriples().searchAll();
+			// final IteratorTripleString iterator = hdt.search("", "", "");
+			System.out.println("Next = " + iteratorID.hasNext());
+			while (iteratorID.hasNext()) {
+				final TripleID triple = iteratorID.next();
+				System.out.println(triple);
+			}
+			// then strings
 			try {
-				final IteratorTripleString iterator = this.reif ? hdt.search("", "", "", "") : hdt.search("", "", "");
+				final IteratorTripleString iteratorString = this.reif ? hdt.search("", "", "", "") : hdt.search("", "", "");
 				// final IteratorTripleString iterator = hdt.search("", "", "");
-				System.out.println("Next = " + iterator.hasNext());
-				while (iterator.hasNext()) {
-					final TripleString triple = iterator.next();
+				System.out.println("Next = " + iteratorString.hasNext());
+				while (iteratorString.hasNext()) {
+					final TripleString triple = iteratorString.next();
 					final CharSequence ntriple = triple.asNtriple();
 					System.out.print(ntriple);
 				}
