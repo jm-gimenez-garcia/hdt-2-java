@@ -166,7 +166,7 @@ public class PermutationMRRR implements Permutation {
 	@Override
 	public long pi(final long position) {
 		if (position<0 || position>=this.sequence.getNumberOfElements()){
-			throw new IndexOutOfBoundsException("The given position is bigger than the size of the permutation");
+			throw new IndexOutOfBoundsException("The given position (" + position + ") is bigger than the size of the permutation");
 		}
 		return this.sequence.get(position); // use -1 if we disregard the 0
 	}
@@ -240,6 +240,7 @@ public class PermutationMRRR implements Permutation {
 
 		final int type = in.read();
 		if(type!=PermutationFactory.TYPE_PERMUTATION_MRRR){
+			System.out.println("Permutation Type = " + type);
 			throw new IllegalFormatException("Trying to read a PERMUTATION_MRRR but the data is not PERMUTATION_MRRR");
 		}
 		this.step = in.read();

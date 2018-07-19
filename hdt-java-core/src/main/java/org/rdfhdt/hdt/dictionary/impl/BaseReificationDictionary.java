@@ -235,6 +235,9 @@ public abstract class BaseReificationDictionary<T extends TriplesDictionary, G e
 				default:
 					throw new IllegalArgumentException();
 			}
+			if (ret == 0) {
+				ret = -1;
+			}
 		}
 		return ret;
 	}

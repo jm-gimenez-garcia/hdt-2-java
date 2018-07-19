@@ -141,7 +141,7 @@ public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 		}
 
 		if (this.bitmapPermutation.access(positionObject)) {
-			graphID = (int) this.permutation.pi(positionObject + 1);
+			graphID = (int) this.permutation.pi(this.bitmapPermutation.rank1(positionObject));
 		} else {
 			graphID = 0;
 		}

@@ -37,6 +37,7 @@ import java.util.List;
 import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
 import org.rdfhdt.hdt.compact.bitmap.Bitmap;
 import org.rdfhdt.hdt.compact.bitmap.Bitmap375;
+import org.rdfhdt.hdt.compact.bitmap.BitmapFactory;
 import org.rdfhdt.hdt.compact.bitmap.ModifiableBitmap;
 import org.rdfhdt.hdt.compact.permutation.Permutation;
 import org.rdfhdt.hdt.compact.permutation.PermutationFactory;
@@ -56,6 +57,7 @@ import org.rdfhdt.hdt.triples.QuadID;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.util.BitUtil;
 import org.rdfhdt.hdt.util.io.CountInputStream;
+import org.rdfhdt.hdt.util.listener.IntermediateListener;
 import org.rdfhdt.hdt.util.listener.ListenerUtil;
 
 /**
@@ -223,11 +225,9 @@ public class BitmapQuads extends BitmapTriples {
 	@Override
 	public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
 		super.save(output, ci, listener);
-		ci.clear();
-		ci.setFormat(getType());
-		ci.setType(ControlInfo.Type.TRIPLES);
-		ci.save(output);
-		this.permutation.save(output, listener);
+		final IntermediateListener iListener = new IntermediateListener(listener);
+		this.bitmapG.save(output, iListener);
+		this.permutation.save(output, iListener);
 	}
 
 	/*
@@ -237,8 +237,11 @@ public class BitmapQuads extends BitmapTriples {
 	@Override
 	public void load(final InputStream input, final ControlInfo ci, final ProgressListener listener) throws IOException {
 		super.load(input, ci, listener);
+		final IntermediateListener iListener = new IntermediateListener(listener);
+		this.bitmapG = BitmapFactory.createBitmap(input);
+		this.bitmapG.load(input, iListener);
 		this.permutation = PermutationFactory.createPermutation();
-		this.permutation.load(input, listener);
+		this.permutation.load(input, iListener);
 	}
 
 	@Override

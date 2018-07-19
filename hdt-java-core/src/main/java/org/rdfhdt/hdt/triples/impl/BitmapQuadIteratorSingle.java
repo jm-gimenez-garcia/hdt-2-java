@@ -4,6 +4,7 @@
 package org.rdfhdt.hdt.triples.impl;
 
 import org.rdfhdt.hdt.compact.bitmap.AdjacencyList;
+import org.rdfhdt.hdt.compact.bitmap.Bitmap;
 import org.rdfhdt.hdt.compact.permutation.Permutation;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentOrder;
@@ -19,6 +20,7 @@ public class BitmapQuadIteratorSingle implements IteratorTripleID {
 
 	protected BitmapQuads		quads;
 	protected Permutation		permutation;
+	protected Bitmap		bitmapPermutation;
 	protected final QuadID	pattern;
 	protected int			x, y, z;
 	protected boolean		hasNext	= false, hasPrevious = false;
@@ -26,6 +28,7 @@ public class BitmapQuadIteratorSingle implements IteratorTripleID {
 	public BitmapQuadIteratorSingle(final BitmapQuads bitmapQuads, final QuadID pattern) {
 		this.quads = bitmapQuads;
 		this.permutation = bitmapQuads.permutation;
+		this.bitmapPermutation = bitmapQuads.bitmapG;
 		this.pattern = pattern;
 		goToStart();
 	}
@@ -83,7 +86,8 @@ public class BitmapQuadIteratorSingle implements IteratorTripleID {
 		final AdjacencyList adjY = this.quads.adjY;
 		final AdjacencyList adjZ = this.quads.adjZ;
 
-		final long posZ = this.permutation.revpi(patG) - 1; // The position of the object is the position of the triple
+		final long numReifiedTriple = this.permutation.revpi(patG);
+		final long posZ = this.bitmapPermutation.select1(numReifiedTriple); // The position of the object is the position of the triple
 		this.z = (int) adjZ.get(posZ);
 
 		if (patZ != 0 && patZ != this.z) {
