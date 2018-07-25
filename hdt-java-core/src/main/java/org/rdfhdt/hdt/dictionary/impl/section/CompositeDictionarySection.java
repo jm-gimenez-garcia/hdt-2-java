@@ -13,69 +13,76 @@ import org.rdfhdt.hdt.util.string.ComparableCharSequence;
  */
 public class CompositeDictionarySection implements DictionarySection {
 
-    protected DictionarySection[] sections;
+	protected DictionarySection[] sections;
 
-    public CompositeDictionarySection(final DictionarySection... sections) {
-	this.sections = sections;
-    }
-
-    @Override
-    public int locate(final CharSequence s) {
-	int ret = 0;
-	for (final DictionarySection section : this.sections) {
-	    ret = section.locate(s);
-	    if (ret != 0) break;
+	public CompositeDictionarySection(final DictionarySection... sections) {
+		this.sections = sections;
 	}
-	return ret;
-    }
 
-    @Override
-    public CharSequence extract(final int pos) {
-	CharSequence ret = null;
-	int maxPos = 0;
-	for (final DictionarySection section : this.sections) {
-	    maxPos += section.getNumberOfElements();
-	    if (maxPos >= pos) {
-		ret = section.extract(pos);
-		break;
-	    }
+	@Override
+	public int locate(final CharSequence s) {
+		int ret = 0;
+		int minPos = 0;
+		for (final DictionarySection section : this.sections) {
+			ret = section.locate(s);
+			if (ret == 0) {
+				minPos += section.getNumberOfElements();
+			} else {
+				ret += minPos;
+				break;
+			}
+		}
+		return ret;
 	}
-	return ret;
-    }
 
-    @Override
-    public long size() {
-	int ret = 0;
-	for (final DictionarySection section : this.sections) {
-	    ret += section.size();
+	@Override
+	public CharSequence extract(final int pos) {
+		CharSequence ret = null;
+		int minPos, maxPos = 0;
+		for (final DictionarySection section : this.sections) {
+			minPos = maxPos;
+			maxPos += section.getNumberOfElements();
+			if (maxPos >= pos) {
+				ret = section.extract(pos - minPos);
+				break;
+			}
+		}
+		return ret;
 	}
-	return ret;
-    }
 
-    @Override
-    public int getNumberOfElements() {
-	int ret = 0;
-	for (final DictionarySection section : this.sections) {
-	    ret += section.getNumberOfElements();
+	@Override
+	public long size() {
+		int ret = 0;
+		for (final DictionarySection section : this.sections) {
+			ret += section.size();
+		}
+		return ret;
 	}
-	return ret;
-    }
 
-    @Override
-    public Iterator<ComparableCharSequence> getSortedEntries() {
-	@SuppressWarnings("unchecked")
-	final Iterator<ComparableCharSequence>[] iterators = new Iterator[this.sections.length];
-	for (int i = 0; i < this.sections.length; i++) {
-	    iterators[i] = this.sections[i].getSortedEntries();
+	@Override
+	public int getNumberOfElements() {
+		int ret = 0;
+		for (final DictionarySection section : this.sections) {
+			ret += section.getNumberOfElements();
+		}
+		return ret;
 	}
-	return new CompositeSortedIterator<>(iterators);
-    }
 
-    @Override
-    public void close() throws IOException {
-	for (final DictionarySection section : this.sections) {
-	    section.close();
+	@Override
+	public Iterator<ComparableCharSequence> getSortedEntries() {
+		@SuppressWarnings("unchecked")
+		final Iterator<ComparableCharSequence>[] iterators = new Iterator[this.sections.length];
+		for (int i = 0; i < this.sections.length; i++) {
+			iterators[i] = this.sections[i].getSortedEntries();
+		}
+		return new CompositeSortedIterator<>(iterators);
 	}
-    }
+
+	@Override
+	public void close() throws IOException {
+		for (final DictionarySection section : this.sections) {
+			section.close();
+		}
+	}
 
 }

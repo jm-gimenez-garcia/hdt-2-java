@@ -106,10 +106,10 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 		@Override
 		public void processTriple(final TripleString triple, final long pos) {
 			System.out.println("processing triple [" + triple.toString() + "] to append to triples");
-			this.triples.insert(
-					this.dict.stringToId(triple.getSubject(), TripleComponentRole.SUBJECT),
-					this.dict.stringToId(triple.getPredicate(), TripleComponentRole.PREDICATE),
-					this.dict.stringToId(triple.getObject(), TripleComponentRole.OBJECT));
+			final int s = this.dict.stringToId(triple.getSubject(), TripleComponentRole.SUBJECT);
+			final int p = this.dict.stringToId(triple.getPredicate(), TripleComponentRole.PREDICATE);
+			final int o = this.dict.stringToId(triple.getObject(), TripleComponentRole.OBJECT);
+			this.triples.insert(s, p, o);
 			this.count++;
 			ListenerUtil.notifyCond(this.listener, "Generating triples " + this.count + " triples processed.", this.count, 0, 100);
 		}
@@ -117,11 +117,11 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 		@Override
 		public void processQuad(final QuadString quad, final long pos) {
 			System.out.println("processing quad [" + quad.toString() + "] to append to triples");
-			((QuadsList) this.triples).insert(
-					this.dict.stringToId(quad.getSubject(), TripleComponentRole.SUBJECT),
-					this.dict.stringToId(quad.getPredicate(), TripleComponentRole.PREDICATE),
-					this.dict.stringToId(quad.getObject(), TripleComponentRole.OBJECT),
-					this.dict.stringToId(quad.getGraph(), TripleComponentRole.GRAPH));
+			final int s =  this.dict.stringToId(quad.getSubject(), TripleComponentRole.SUBJECT);
+			final int p = this.dict.stringToId(quad.getPredicate(), TripleComponentRole.PREDICATE);
+			final int o = this.dict.stringToId(quad.getObject(), TripleComponentRole.OBJECT);
+			final int g = this.dict.stringToId(quad.getGraph(), TripleComponentRole.GRAPH);
+			((QuadsList) this.triples).insert(s, p, o, g);
 			this.count++;
 			ListenerUtil.notifyCond(this.listener, "Generating triples " + this.count + " triples processed.", this.count, 0, 100);
 		}

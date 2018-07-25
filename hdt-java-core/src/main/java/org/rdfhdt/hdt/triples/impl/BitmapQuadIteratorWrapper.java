@@ -20,16 +20,21 @@ import org.rdfhdt.hdt.triples.TripleID;
 public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 
 	protected IteratorTripleID	iteratorTripleID;
+	protected BitmapQuads		bitmapQuads;
 	protected AdjacencyList		adjY, adjZ;
 	protected Permutation	permutation;
 	protected Bitmap			bitmapPermutation;
+	protected TripleID			previousTriple;
+	protected long				previousPosition;
 
 	public BitmapQuadIteratorWrapper(final BitmapQuads bitmapQuads, final IteratorTripleID iteratorTripleID) {
 		this.iteratorTripleID = iteratorTripleID;
+		this.bitmapQuads = bitmapQuads;
 		this.adjY = bitmapQuads.adjY;
 		this.adjZ = bitmapQuads.adjZ;
 		this.permutation = bitmapQuads.permutation;
 		this.bitmapPermutation = bitmapQuads.bitmapG;
+		this.previousTriple = new TripleID();
 	}
 
 	/*
@@ -126,6 +131,21 @@ public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 	}
 
 	protected long getGraphID(final TripleID triple) {
+		long graphID;
+		if (this.previousTriple.equals(triple)) {
+			graphID = getGraphIDNextTriple(triple);
+		} else {
+			graphID = getGraphIDNewTriple(triple);
+		}
+		return graphID;
+	}
+
+	protected long getGraphIDNextTriple(final TripleID triple) {
+		this.previousPosition++;
+		return this.bitmapPermutation.access(this.previousPosition) ? (int) this.permutation.pi(this.bitmapPermutation.rank1(this.previousPosition)) : 0;
+	}
+
+	protected long getGraphIDNewTriple(final TripleID triple) {
 		long positionPredicate, positionObject;
 		int graphID = 0;
 		try {
@@ -140,11 +160,27 @@ public class BitmapQuadIteratorWrapper implements IteratorTripleID {
 			positionObject = 0;
 		}
 
+		// It is possible that more than one reified triple with the same SPO exists
+		// We need to go to the first one
+		if (positionObject != 0) {
+			TripleID firstTriple;
+			do {
+				firstTriple = this.bitmapQuads.get(--positionObject);
+			} while (firstTriple.getSubject() == triple.getSubject()
+					&& firstTriple.getPredicate() == triple.getPredicate()
+					&& firstTriple.getObject() == triple.getObject());
+			positionObject++;
+		}
+
 		if (this.bitmapPermutation.access(positionObject)) {
 			graphID = (int) this.permutation.pi(this.bitmapPermutation.rank1(positionObject));
 		} else {
 			graphID = 0;
 		}
+
+		// this.previousTriple = triple; // This does not work well. WTF?
+		this.previousTriple = new TripleID(triple);
+		this.previousPosition = positionObject;
 
 		return graphID;
 	}

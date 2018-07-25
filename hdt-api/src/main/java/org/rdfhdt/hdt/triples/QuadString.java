@@ -176,11 +176,13 @@ public class QuadString extends TripleString {
 			out.append('<').append(this.object).append('>');
 		}
 
-		final char g0 = this.graph.charAt(0);
-		if (g0 == '_' || g0 == '<') {
-			out.append(this.graph);
-		} else {
-			out.append(" <").append(this.graph).append('>');
+		if (this.graph != null) {
+			final char g0 = this.graph.charAt(0);
+			if (g0 == '_' || g0 == '<') {
+				out.append(this.graph);
+			} else {
+				out.append(" <").append(this.graph).append('>');
+			}
 		}
 
 		out.append(" .\n");

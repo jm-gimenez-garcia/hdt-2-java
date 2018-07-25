@@ -35,7 +35,7 @@ package org.rdfhdt.hdt.triples;
  */
 public final class QuadID extends TripleID {
 
-	protected int graph;
+	protected int graph = 0;
 
 	public QuadID() {
 		super();
@@ -54,6 +54,10 @@ public final class QuadID extends TripleID {
 	public QuadID(final TripleID other) {
 		super(other);
 		this.graph = other instanceof QuadID ? ((QuadID) other).getGraph() : 0;
+	}
+
+	public TripleID asTripleID() {
+		return new TripleID(getSubject(), getPredicate(), getObject());
 	}
 
 	public int getGraph() {
@@ -96,14 +100,19 @@ public final class QuadID extends TripleID {
 
 	@Override
 	public boolean equals(final TripleID other) {
-		return (super.equals(other) && other instanceof QuadID ? (this.graph == ((QuadID) other).getGraph()) : true);
+		boolean equals = super.equals(other);
+		if (equals) {
+			equals = other instanceof QuadID ? (this.graph == ((QuadID) other).getGraph()) : true;
+		}
+		return equals;
 	}
 
 	@Override
 	public int compareTo(final TripleID other) {
 		int result = super.compareTo(other);
-		if (result == 0 && other instanceof QuadID) {
-			result = this.graph - ((QuadID) other).getGraph();
+		if (result == 0) {
+			final int otherGraph = other instanceof QuadID ? ((QuadID) other).getGraph() : 0;
+			result = this.graph - otherGraph;
 		}
 		return result;
 	}

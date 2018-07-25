@@ -62,62 +62,70 @@ public abstract class BaseReificationDictionary<T extends TriplesDictionary, G e
 
 		setToGlobalIDFunction((id, role) -> {
 			int ret;
-			switch (role) {
-				case SUBJECT:
-				case PREDICATE:
-					ret = id;
-					break;
-				case OBJECT:
-					if (id <= this.getShared().getNumberOfElements()) {
+			if (id == 0) {
+				ret = 0;
+			} else {
+				switch (role) {
+					case SUBJECT:
+					case PREDICATE:
 						ret = id;
-					} else {
-						ret = id + this.getShared().getNumberOfElements() + this.getSubjects().getNumberOfElements();
-					}
-					break;
-				case GRAPH:
-					if (id <= this.getGraphsDictionary().getShared().getNumberOfElements()) {
-						ret = id + this.getTriplesDictionary().getShared().getNumberOfElements();
-					} else if (id <= this.getGraphsDictionary().getShared().getNumberOfElements() + this.getGraphsDictionary().getSubjects().getNumberOfElements()) {
-						ret = id + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements();
-					} else {
-						ret = id + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements()
-								+ this.getTriplesDictionary().getObjects().getNumberOfElements();
-					}
-					break;
-				default:
-					ret = id;
-					break;
+						break;
+					case OBJECT:
+						if (id <= this.getShared().getNumberOfElements()) {
+							ret = id;
+						} else {
+							ret = id + this.getSubjects().getNumberOfElements();
+						}
+						break;
+					case GRAPH:
+						if (id <= this.getGraphsDictionary().getShared().getNumberOfElements()) {
+							ret = id + this.getTriplesDictionary().getShared().getNumberOfElements();
+						} else if (id <= this.getGraphsDictionary().getShared().getNumberOfElements() + this.getGraphsDictionary().getSubjects().getNumberOfElements()) {
+							ret = id + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements();
+						} else {
+							ret = id + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements()
+									+ this.getTriplesDictionary().getObjects().getNumberOfElements();
+						}
+						break;
+					default:
+						ret = id;
+						break;
+				}
 			}
 			return ret;
 		});
 
 		setToRoleIDFunction((id, role) -> {
 			int ret;
-			switch (role) {
-				case SUBJECT:
-				case PREDICATE:
-					ret = id;
-					break;
-				case OBJECT:
-					if (id <= this.getShared().getNumberOfElements()) {
+			if (id == 0) {
+				ret = 0;
+			} else {
+				switch (role) {
+					case SUBJECT:
+					case PREDICATE:
 						ret = id;
-					} else {
-						ret = id - this.getShared().getNumberOfElements() - this.getSubjects().getNumberOfElements();
-					}
-					break;
-				case GRAPH:
-					if (id <= this.getShared().getNumberOfElements()) {
-						ret = id - this.getTriplesDictionary().getShared().getNumberOfElements();
-					} else if (id <= this.getShared().getNumberOfElements() + this.getSubjects().getNumberOfElements()) {
-						ret = id - this.getTriplesDictionary().getShared().getNumberOfElements() - this.getTriplesDictionary().getSubjects().getNumberOfElements();
-					} else {
-						ret = id - this.getTriplesDictionary().getShared().getNumberOfElements() - this.getTriplesDictionary().getSubjects().getNumberOfElements()
-								- this.getTriplesDictionary().getObjects().getNumberOfElements();
-					}
-					break;
-				default:
-					ret = id;
-					break;
+						break;
+					case OBJECT:
+						if (id <= this.getShared().getNumberOfElements()) {
+							ret = id;
+						} else {
+							ret = id - this.getSubjects().getNumberOfElements();
+						}
+						break;
+					case GRAPH:
+						if (id <= this.getShared().getNumberOfElements()) {
+							ret = id - this.getTriplesDictionary().getShared().getNumberOfElements();
+						} else if (id <= this.getShared().getNumberOfElements() + this.getSubjects().getNumberOfElements()) {
+							ret = id - this.getTriplesDictionary().getShared().getNumberOfElements() - this.getTriplesDictionary().getSubjects().getNumberOfElements();
+						} else {
+							ret = id - this.getTriplesDictionary().getShared().getNumberOfElements() - this.getTriplesDictionary().getSubjects().getNumberOfElements()
+									- this.getTriplesDictionary().getObjects().getNumberOfElements();
+						}
+						break;
+					default:
+						ret = id;
+						break;
+				}
 			}
 			return ret;
 		});
@@ -226,7 +234,7 @@ public abstract class BaseReificationDictionary<T extends TriplesDictionary, G e
 					if (ret <= this.getGraphsDictionary().getShared().getNumberOfElements()) {
 						ret = ret + this.getTriplesDictionary().getShared().getNumberOfElements();
 					} else if (ret <= this.getGraphsDictionary().getShared().getNumberOfElements() + this.getGraphsDictionary().getSubjects().getNumberOfElements()) {
-						ret = ret + this.getTriplesDictionary().getShared().getNumberOfElements() - this.getTriplesDictionary().getSubjects().getNumberOfElements();
+						ret = ret + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements();
 					} else {
 						ret = ret + this.getTriplesDictionary().getShared().getNumberOfElements() + this.getTriplesDictionary().getSubjects().getNumberOfElements()
 								+ this.getTriplesDictionary().getObjects().getNumberOfElements();

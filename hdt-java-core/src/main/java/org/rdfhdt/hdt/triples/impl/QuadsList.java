@@ -42,8 +42,8 @@ import org.rdfhdt.hdt.options.ControlInfo;
 import org.rdfhdt.hdt.options.HDTOptions;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.QuadID;
+import org.rdfhdt.hdt.triples.QuadIDComparator;
 import org.rdfhdt.hdt.triples.TripleID;
-import org.rdfhdt.hdt.triples.TripleIDComparator;
 import org.rdfhdt.hdt.util.io.IOUtil;
 import org.rdfhdt.hdt.util.listener.ListenerUtil;
 
@@ -54,105 +54,134 @@ import org.rdfhdt.hdt.util.listener.ListenerUtil;
  */
 public class QuadsList extends TriplesList {
 
-    public QuadsList(final HDTOptions specification) {
-	super(specification);
-    }
-
-    @Override
-    public IteratorTripleID search(final TripleID pattern) {
-	final String patternStr = pattern.getPatternString();
-	if (patternStr.equals("???") || patternStr.equals("????")) {
-	    return new TriplesListIterator(this);
-	} else {
-	    return new SequentialSearchIteratorTripleID(pattern, new TriplesListIterator(this));
-	}
-    }
-
-    @Override
-    public IteratorTripleID searchAll() {
-	final QuadID all = new QuadID(0, 0, 0, 0);
-	return this.search(all);
-    }
-
-    @Override
-    public long size() {
-	return this.getNumberOfElements() * QuadID.size();
-    }
-
-
-    @Override
-    public void save(final OutputStream output, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
-	controlInformation.clear();
-	controlInformation.setInt("numTriples", this.getNumberOfElements());
-	controlInformation.setFormat(HDTVocabulary.QUADS_TYPE_TRIPLESLIST);
-	controlInformation.setInt("order", this.getOrder().ordinal());
-	controlInformation.save(output);
-
-	final DataOutputStream dout = new DataOutputStream(output);
-	int count = 0;
-	for (final TripleID triple : this.arrayOfTriples) {
-	    if(triple.isValid()) {
-		dout.writeInt(triple.getSubject());
-		dout.writeInt(triple.getPredicate());
-		dout.writeInt(triple.getObject());
-		dout.writeInt(triple instanceof QuadID ? ((QuadID) triple).getGraph() : 0);
-		ListenerUtil.notifyCond(listener, "Saving TriplesList", count, this.arrayOfTriples.size());
-	    }
-	    count++;
-	}
-    }
-
-    @Override
-    public void load(final InputStream input, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
-	this.setOrder(TripleComponentOrder.values()[(int) controlInformation.getInt("order")]);
-	final long totalTriples = controlInformation.getInt("numTriples");
-
-	int numRead=0;
-
-	while(numRead<totalTriples) {
-	    this.arrayOfTriples.add(new QuadID(IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input)));
-	    numRead++;
-	    this.numValidTriples++;
-	    ListenerUtil.notifyCond(listener, "Loading TriplesList", numRead, totalTriples);
+	public QuadsList(final HDTOptions specification) {
+		super(specification);
 	}
 
-	this.sorted = false;
-    }
-
-    public boolean insert(final int subject, final int predicate, final int object, final int graph) {
-	this.arrayOfTriples.add(new QuadID(subject, predicate, object, graph));
-	this.numValidTriples++;
-	this.sorted = false;
-	return true;
-    }
-
-    public boolean update(final QuadID quad, final int subj, final int pred, final int obj, final int graph) {
-	if (quad == null) {
-	    return false;
+	@Override
+	public IteratorTripleID search(final TripleID pattern) {
+		final String patternStr = pattern.getPatternString();
+		if (patternStr.equals("???") || patternStr.equals("????")) {
+			return new TriplesListIterator(this);
+		} else {
+			return new SequentialSearchIteratorTripleID(pattern, new TriplesListIterator(this));
+		}
 	}
-	quad.setAll(subj, pred, obj, graph);
-	this.sorted = false;
-	return true;
-    }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see hdt.triples.TempTriples#sort(datatypes.TripleComponentOrder)
-     */
-    @Override
-    public void sort(final ProgressListener listener) {
-	if(!this.sorted) {
-	    Collections.sort(this.arrayOfTriples, TripleIDComparator.getComparator(this.getOrder()));
+	@Override
+	public IteratorTripleID searchAll() {
+		final QuadID all = new QuadID(0, 0, 0, 0);
+		return search(all);
 	}
-	this.sorted = true;
-    }
 
-    @Override
-    public void populateHeader(final Header header, final String rootNode) {
-	header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, HDTVocabulary.QUADS_TYPE_TRIPLESLIST);
-	header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, this.getNumberOfElements() );
-	header.insert(rootNode, HDTVocabulary.TRIPLES_ORDER, this.getOrder().ordinal());
-    }
+	@Override
+	public long size() {
+		return getNumberOfElements() * QuadID.size();
+	}
+
+
+	@Override
+	public void save(final OutputStream output, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
+		controlInformation.clear();
+		controlInformation.setInt("numTriples", getNumberOfElements());
+		controlInformation.setFormat(HDTVocabulary.QUADS_TYPE_TRIPLESLIST);
+		controlInformation.setInt("order", getOrder().ordinal());
+		controlInformation.save(output);
+
+		final DataOutputStream dout = new DataOutputStream(output);
+		int count = 0;
+		for (final TripleID triple : this.arrayOfTriples) {
+			if(triple.isValid()) {
+				dout.writeInt(triple.getSubject());
+				dout.writeInt(triple.getPredicate());
+				dout.writeInt(triple.getObject());
+				dout.writeInt(triple instanceof QuadID ? ((QuadID) triple).getGraph() : 0);
+				ListenerUtil.notifyCond(listener, "Saving TriplesList", count, this.arrayOfTriples.size());
+			}
+			count++;
+		}
+	}
+
+	@Override
+	public void load(final InputStream input, final ControlInfo controlInformation, final ProgressListener listener) throws IOException {
+		setOrder(TripleComponentOrder.values()[(int) controlInformation.getInt("order")]);
+		final long totalTriples = controlInformation.getInt("numTriples");
+
+		int numRead=0;
+
+		while(numRead<totalTriples) {
+			this.arrayOfTriples.add(new QuadID(IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input), IOUtil.readInt(input)));
+			numRead++;
+			this.numValidTriples++;
+			ListenerUtil.notifyCond(listener, "Loading TriplesList", numRead, totalTriples);
+		}
+
+		this.sorted = false;
+	}
+
+	public boolean insert(final int subject, final int predicate, final int object, final int graph) {
+		this.arrayOfTriples.add(new QuadID(subject, predicate, object, graph));
+		this.numValidTriples++;
+		this.sorted = false;
+		return true;
+	}
+
+	public boolean update(final QuadID quad, final int subj, final int pred, final int obj, final int graph) {
+		if (quad == null) {
+			return false;
+		}
+		quad.setAll(subj, pred, obj, graph);
+		this.sorted = false;
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see hdt.triples.TempTriples#sort(datatypes.TripleComponentOrder)
+	 */
+	@Override
+	public void sort(final ProgressListener listener) {
+		if(!this.sorted) {
+			Collections.sort(this.arrayOfTriples, QuadIDComparator.getComparator(getOrder()));
+		}
+		this.sorted = true;
+	}
+
+	@Override
+	public void removeDuplicates(final ProgressListener listener) {
+		if (this.arrayOfTriples.size() <= 1 || !this.sorted) {
+			return;
+		}
+
+		if (this.order == TripleComponentOrder.Unknown || !this.sorted) {
+			throw new IllegalArgumentException("Cannot remove duplicates unless sorted");
+		}
+
+		int j = 0;
+
+		for (int i = 1; i < this.arrayOfTriples.size(); i++) {
+			final TripleID ti = this.arrayOfTriples.get(i);
+			final TripleID tj = this.arrayOfTriples.get(j);
+			if ((tj instanceof QuadID ? tj.compareTo(ti) : ti.compareTo(tj)) != 0) {
+				j++;
+				this.arrayOfTriples.set(j, this.arrayOfTriples.get(i));
+			}
+			ListenerUtil.notifyCond(listener, "Removing duplicate triples", i, this.arrayOfTriples.size());
+		}
+
+		while (this.arrayOfTriples.size() > j + 1) {
+			this.arrayOfTriples.remove(this.arrayOfTriples.size() - 1);
+		}
+		this.arrayOfTriples.trimToSize();
+		this.numValidTriples = j + 1;
+	}
+
+	@Override
+	public void populateHeader(final Header header, final String rootNode) {
+		header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, HDTVocabulary.QUADS_TYPE_TRIPLESLIST);
+		header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, getNumberOfElements() );
+		header.insert(rootNode, HDTVocabulary.TRIPLES_ORDER, getOrder().ordinal());
+	}
 
 }

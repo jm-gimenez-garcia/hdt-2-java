@@ -83,13 +83,13 @@ public class HdtSearch implements ProgressListener {
 		}
 
 		//		Iterate over triples only as IDs
-		//		TripleID patternID = DictionaryUtil.tripleStringtoTripleID(hdt.getDictionary(), new TripleString(subject, predicate, object));
-		//		IteratorTripleID it2 = hdt.getTriples().search(patternID);
-		//		while(it2.hasNext()) {
-		//			TripleID triple = it2.next();
-		//			System.out.println(triple);
-		//			count++;
-		//		}
+		// TripleID patternID = DictionaryUtil.tripleStringtoTripleID(hdt.getDictionary(), new TripleString(subject, predicate, object));
+		// IteratorTripleID it2 = hdt.getTriples().search(patternID);
+		// while(it2.hasNext()) {
+		// TripleID triple = it2.next();
+		// System.out.println(triple);
+		// count++;
+		// }
 		System.out.println("Iterated "+ count + " triples in "+iterateTime.stopAndShow());
 	}
 

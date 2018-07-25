@@ -82,6 +82,18 @@ public class BitmapQuads extends BitmapTriples {
 	}
 
 	@Override
+	public TripleID get(final long pos) {
+		final long posY = this.adjZ.findListIndex(pos);
+
+		final int g = this.bitmapG.access(pos) ? (int) this.permutation.pi(this.bitmapG.rank1(pos)) : 0;
+		final int z = (int) this.adjZ.get(pos);
+		final int y = (int) this.adjY.get(posY);
+		final int x = (int) (this.adjY.findListIndex(posY) + 1);
+
+		return g == 0 ? new TripleID(x, y, z) : new QuadID(x, y, z, g);
+	}
+
+	@Override
 	public void load(final IteratorTripleID it, final ProgressListener listener) {
 
 		final long number = it.estimatedNumResults();

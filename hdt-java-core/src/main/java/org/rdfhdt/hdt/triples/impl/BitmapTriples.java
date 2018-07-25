@@ -125,6 +125,17 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 		return this.predicateCount;
 	}
 
+	public TripleID get(final long pos) {
+		final long posZ = pos;
+		final long posY = this.adjZ.findListIndex(posZ);
+
+		final int z = (int) this.adjZ.get(posZ);
+		final int y = (int) this.adjY.get(posY);
+		final int x = (int) (this.adjY.findListIndex(posY) + 1);
+
+		return new TripleID(x, y, z);
+	}
+
 	public void load(final IteratorTripleID it, final ProgressListener listener) {
 
 		final long number = it.estimatedNumResults();
@@ -275,7 +286,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 	 */
 	@Override
 	public IteratorTripleID searchAll() {
-		return this.search(new TripleID());
+		return search(new TripleID());
 	}
 
 	/*
@@ -303,7 +314,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 	@Override
 	public void save(final OutputStream output, final ControlInfo ci, final ProgressListener listener) throws IOException {
 		ci.clear();
-		ci.setFormat(this.getType());
+		ci.setFormat(getType());
 		ci.setInt("order", this.order.ordinal());
 		ci.setType(ControlInfo.Type.TRIPLES);
 		ci.save(output);
@@ -326,7 +337,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 			throw new IllegalFormatException("Trying to read a triples section, but was not triples.");
 		}
 
-		if (!ci.getFormat().equals(this.getType())) {
+		if (!ci.getFormat().equals(getType())) {
 			throw new IllegalFormatException("Trying to read BitmapTriples, but the data does not seem to be BitmapTriples");
 		}
 
@@ -359,7 +370,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 			throw new IllegalFormatException("Trying to read a triples section, but was not triples.");
 		}
 
-		if (!ci.getFormat().equals(this.getType())) {
+		if (!ci.getFormat().equals(getType())) {
 			throw new IllegalFormatException("Trying to read BitmapTriples, but the data does not seem to be BitmapTriples");
 		}
 
@@ -536,7 +547,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 		this.predicateIndex.generate(listener);
 
 		// createIndexObjects();
-		this.createIndexObjectMemoryEfficient();
+		createIndexObjectMemoryEfficient();
 	}
 
 	/*
@@ -545,8 +556,8 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 	 */
 	@Override
 	public void populateHeader(final Header header, final String rootNode) {
-		header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, this.getType());
-		header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, this.getNumberOfElements());
+		header.insert(rootNode, HDTVocabulary.TRIPLES_TYPE, getType());
+		header.insert(rootNode, HDTVocabulary.TRIPLES_NUM_TRIPLES, getNumberOfElements());
 		header.insert(rootNode, HDTVocabulary.TRIPLES_ORDER, this.order.toString());
 		// header.insert(rootNode, HDTVocabulary.TRIPLES_SEQY_TYPE, seqY.getType() );
 		// header.insert(rootNode, HDTVocabulary.TRIPLES_SEQZ_TYPE, seqZ.getType() );
@@ -579,7 +590,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 
 		ci.clear();
 		ci.setType(ControlInfo.Type.INDEX);
-		ci.setInt("numTriples", this.getNumberOfElements());
+		ci.setInt("numTriples", getNumberOfElements());
 		ci.setInt("order", this.order.ordinal());
 		ci.setFormat(HDTVocabulary.INDEX_TYPE_FOQ);
 		ci.save(output);
@@ -610,7 +621,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 		}
 
 		final long numTriples = ci.getInt("numTriples");
-		if (this.getNumberOfElements() != numTriples) {
+		if (getNumberOfElements() != numTriples) {
 			throw new IllegalFormatException("This index is not associated to the HDT file");
 		}
 
@@ -648,7 +659,7 @@ public class BitmapTriples extends TripleTranslatorImpl implements TriplesPrivat
 		}
 
 		final long numTriples = ci.getInt("numTriples");
-		if (this.getNumberOfElements() != numTriples) {
+		if (getNumberOfElements() != numTriples) {
 			throw new IllegalFormatException("This index is not associated to the HDT file");
 		}
 

@@ -11,8 +11,6 @@ import static org.rdfhdt.hdt.enums.TripleComponentRole.SUBJECT;
 import java.util.function.BiFunction;
 
 import org.rdfhdt.hdt.enums.TripleComponentRole;
-import org.rdfhdt.hdt.triples.QuadID;
-import org.rdfhdt.hdt.triples.TripleID;
 
 /**
  * @author José M. Giménez-García
@@ -62,15 +60,15 @@ public abstract class TripleTranslatorImpl implements TripleTranslator {
 		this.toGlobalID = function;
 	}
 
-	protected int toRoleID(final int id, final TripleComponentRole role) {
+	public int toRoleID(final int id, final TripleComponentRole role) {
 		return this.toRoleID.apply(id, role);
 	}
 
-	protected int toGlobalID(final int id, final TripleComponentRole role) {
+	public int toGlobalID(final int id, final TripleComponentRole role) {
 		return this.toGlobalID.apply(id, role);
 	}
 
-	protected TripleID toRoleIDs(final TripleID triple) {
+	public TripleID toRoleIDs(final TripleID triple) {
 		if (triple instanceof QuadID) {
 			return new QuadID(toRoleID(triple.getSubject(), SUBJECT), toRoleID(triple.getPredicate(), PREDICATE), toRoleID(triple.getObject(), OBJECT),
 					toRoleID(((QuadID) triple).getGraph(), GRAPH));
@@ -79,7 +77,7 @@ public abstract class TripleTranslatorImpl implements TripleTranslator {
 		}
 	}
 
-	protected TripleID toGlobalIDs(final TripleID triple) {
+	public TripleID toGlobalIDs(final TripleID triple) {
 		if (triple instanceof QuadID) {
 			return new QuadID(toGlobalID(triple.getSubject(), SUBJECT), toGlobalID(triple.getPredicate(), PREDICATE), toGlobalID(triple.getObject(), OBJECT),
 					this.toGlobalID.apply(((QuadID) triple).getGraph(), GRAPH));

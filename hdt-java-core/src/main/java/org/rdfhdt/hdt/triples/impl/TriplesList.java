@@ -65,7 +65,7 @@ public class TriplesList extends TripleTranslatorImpl implements TempTriples {
 	ArrayList<TripleID> arrayOfTriples;
 
 	/** The order of the triples */
-	private TripleComponentOrder order;
+	protected TripleComponentOrder	order;
 	protected long		 numValidTriples;
 
 	protected boolean		 sorted;
