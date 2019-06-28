@@ -27,11 +27,6 @@
   		<artifactId>hdt-java-cli</artifactId>
   		<version>${project.version}</version>
   	</dependency>
-  	<dependency>
-  	<groupId>org.rdfhdt</groupId>
-  		<artifactId>hdt-jena</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
   </dependencies>
   
       <build>

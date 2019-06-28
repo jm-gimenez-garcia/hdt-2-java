@@ -50,9 +50,9 @@ public abstract class BaseGraphsDictionary extends BaseDictionary implements Gra
 
 	protected HDTOptions	       spec;
 
-	// protected DictionarySectionPrivate subjects;
-	// protected DictionarySectionPrivate objects;
-	// protected DictionarySectionPrivate shared;
+	protected DictionarySectionPrivate subjects;
+	protected DictionarySectionPrivate objects;
+	protected DictionarySectionPrivate shared;
 	protected DictionarySectionPrivate graphs;
 
 	public BaseGraphsDictionary(final HDTOptions spec) {

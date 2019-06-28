@@ -49,9 +49,9 @@ public abstract class BaseTriplesDictionary extends BaseDictionary implements Tr
 
 	protected HDTOptions				spec;
 
-	// protected DictionarySectionPrivate subjects;
-	// protected DictionarySectionPrivate objects;
-	// protected DictionarySectionPrivate shared;
+	protected DictionarySectionPrivate subjects;
+	protected DictionarySectionPrivate objects;
+	protected DictionarySectionPrivate shared;
 	protected DictionarySectionPrivate	predicates;
 
 	public BaseTriplesDictionary(final HDTOptions spec) {
@@ -190,7 +190,6 @@ public abstract class BaseTriplesDictionary extends BaseDictionary implements Tr
 		return this.shared;
 	}
 
-	@Override
 	protected DictionarySectionPrivate getSection(final int id, final TripleComponentRole role) {
 		switch (role) {
 			case SUBJECT:

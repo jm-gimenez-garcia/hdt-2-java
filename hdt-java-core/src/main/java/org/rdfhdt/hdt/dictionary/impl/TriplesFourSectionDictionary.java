@@ -31,12 +31,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.function.BiFunction;
 
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.DictionarySectionPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.section.DictionarySectionFactory;
 import org.rdfhdt.hdt.dictionary.impl.section.PFCDictionarySection;
+import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
 import org.rdfhdt.hdt.hdt.HDTVocabulary;
 import org.rdfhdt.hdt.header.Header;
@@ -174,6 +176,30 @@ public class TriplesFourSectionDictionary extends BaseTriplesDictionary {
 		this.subjects.close();
 		this.predicates.close();
 		this.objects.close();
+	}
+
+	@Override
+	public void setToRoleIDFunction(BiFunction<Integer, TripleComponentRole, Integer> function) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setToGlobalIDFunction(BiFunction<Integer, TripleComponentRole, Integer> function) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public BiFunction<Integer, TripleComponentRole, Integer> getToRoleIDFunction() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BiFunction<Integer, TripleComponentRole, Integer> getToGlobalIDFunction() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

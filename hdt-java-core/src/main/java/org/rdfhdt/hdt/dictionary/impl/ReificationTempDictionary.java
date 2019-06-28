@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.rdfhdt.hdt.dictionary.GraphsTempDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesTempDictionary;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
+import org.rdfhdt.hdt.header.Header;
 import org.rdfhdt.hdt.triples.TempTriples;
 
 /**
@@ -135,5 +136,6 @@ public class ReificationTempDictionary extends BaseReificationDictionary<BaseTem
 	this.triplesDictionary.clear();
 	this.graphDictionary.clear();
     }
+
 
 }

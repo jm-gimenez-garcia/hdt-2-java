@@ -12,6 +12,7 @@ import org.rdfhdt.hdt.enums.RDFNotation;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.NotFoundException;
 import org.rdfhdt.hdt.exceptions.ParserException;
+
 import org.rdfhdt.hdt.hdt.impl.HDTImpl;
 import org.rdfhdt.hdt.hdt.impl.TempHDTImporterOnePass;
 import org.rdfhdt.hdt.hdt.impl.TempHDTImporterTwoPass;
@@ -113,7 +114,7 @@ public class HDTManagerImpl extends HDTManager {
 		final TempHDT modHdt = loader.loadFromRDF(spec, rdfFileName, baseURI, rdfNotation, listener);
 
 		// Show Basic stats
-		System.out.println("----------------------------------------");
+		/*System.out.println("----------------------------------------");
 		System.out.println("Modifiable (temporal) dictionary created");
 		System.out.println("The HDT is a " + modHdt.getClass().getName());
 		System.out.println("The dictionary is a " + modHdt.getDictionary().getClass().getName());
@@ -183,7 +184,7 @@ public class HDTManagerImpl extends HDTManager {
 		modHdt.getTriples().searchAll().forEachRemaining(X -> System.out.println(modHdt.getDictionary().idToString(X.getSubject(), TripleComponentRole.SUBJECT) + " " +
 				modHdt.getDictionary().idToString(X.getPredicate(), TripleComponentRole.PREDICATE) + " " +
 				modHdt.getDictionary().idToString(X.getObject(), TripleComponentRole.OBJECT) + " " +
-				(X instanceof QuadID ? modHdt.getDictionary().idToString(((QuadID) X).getGraph(), TripleComponentRole.GRAPH) : "")));
+				(X instanceof QuadID ? modHdt.getDictionary().idToString(((QuadID) X).getGraph(), TripleComponentRole.GRAPH) : "")));*/
 
 		// Convert to HDT
 		final HDTImpl hdt = new HDTImpl(spec, reif);
@@ -232,7 +233,20 @@ public class HDTManagerImpl extends HDTManager {
 
 		return hdt;
 	}
+	@Override
+	public HDT doHDTCat(String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
+		StopWatch st = new StopWatch();
 
+		// Create TempHDT
+		HDTPrivate hdt1 = mapHDT(hdtFileName1, listener);
+		HDTPrivate hdt2 = mapHDT(hdtFileName2, listener);
+		
+		//HDTCat hdtCat = new HDTCat(hdtFormat,hdt1,hdt2,listener);
+
+		System.out.println("HDT file joint in: "+st.stopAndShow());
+
+		return null;
+	}
 	protected class LambdaCounter {
 		long counter = 0;
 

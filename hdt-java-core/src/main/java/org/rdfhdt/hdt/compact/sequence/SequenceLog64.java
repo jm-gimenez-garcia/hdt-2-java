@@ -388,4 +388,10 @@ public class SequenceLog64 implements DynamicSequence {
 	public void close() throws IOException {
 		data=null;
 	}
+
+	@Override
+	public void aggressiveTrimToSize() {
+		// TODO Auto-generated method stub
+		
+	}
 }
