@@ -1,24 +1,21 @@
 package org.rdfhdt.hdt.dictionary.impl.util;
 
-import org.apache.commons.math3.util.Pair;
-import org.rdfhdt.hdt.util.string.CharSequenceComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * @author Ali Haidar
  *
  */
-public class CatIteratorList implements Iterator<IterElement> {
+public class CatIteratorList2 implements Iterator<ArrayList<IterElement>> {
 	ArrayList<IteratorPlusElement> list;
 	private List<Iterator<IterElement>> listIters;
 
-	public CatIteratorList(List<Iterator<IterElement>> listIters) {
+	public CatIteratorList2(List<Iterator<IterElement>> listIters) {
 
 		list = new ArrayList<IteratorPlusElement>();
 		this.listIters = new ArrayList<>(listIters);
@@ -42,13 +39,16 @@ public class CatIteratorList implements Iterator<IterElement> {
 	}
 
 	@Override
-	public IterElement next() {
-		IterElement element = null;
+	public ArrayList<IterElement> next() {
+		ArrayList<IterElement> listElements = new ArrayList<>();
 		Collections.sort(list, new ScoreComparator());
 		for (int i = 1; i <= listIters.size(); i++) {
 			if (hasNext()) {
 				if (list.get(0).iterator == i) {
-					element = list.get(0).iterElement;
+					
+					IterElement element = list.get(0).iterElement;
+					listElements.add(element);
+					
 					if (listIters.get(i - 1).hasNext()) {
 						list.set(0, new IteratorPlusElement(i, listIters.get(i - 1).next()));
 					} else {
@@ -59,7 +59,7 @@ public class CatIteratorList implements Iterator<IterElement> {
 			}
 		}
 
-		return element;
+		return listElements;
 	}
 
 

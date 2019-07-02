@@ -33,6 +33,7 @@ import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.util.CatCommon;
 import org.rdfhdt.hdt.dictionary.impl.util.CatIteratorList;
+import org.rdfhdt.hdt.dictionary.impl.util.CatIteratorList2;
 import org.rdfhdt.hdt.dictionary.impl.util.CatMapping;
 import org.rdfhdt.hdt.dictionary.impl.util.CatMappingBack;
 import org.rdfhdt.hdt.dictionary.impl.util.IterElement;
@@ -82,8 +83,8 @@ public class DictionaryCat {
 	public final String M_P_1 = "P1";
 	public final String M_P_2 = "P2";
 
-	public final String M_GSH_1 = "Sh1";
-	public final String M_GSH_2 = "Sh2";
+	public final String M_GSH_1 = "GSh1";
+	public final String M_GSH_2 = "GSh2";
 
 	public final String M_GS_1 = "GS1";
 	public final String M_GS_2 = "GS2";
@@ -107,20 +108,43 @@ public class DictionaryCat {
 	public void cat(ReificationDictionary dictionary1, ReificationDictionary dictionary2){
 		
 		
-		
+
 		//get the dictionaries of both files
 		TriplesDictionary triples_dictionary_1 = dictionary1.getTriplesDictionary();
 		TriplesDictionary triples_dictionary_2 = dictionary2.getTriplesDictionary();
 		
 		GraphsDictionary graphs_dictionary_1 = dictionary1.getGraphsDictionary();
 		GraphsDictionary graphs_dictionary_2 = dictionary2.getGraphsDictionary();
-	
+		
+		
+        mappings.put(M_P_1,new CatMapping(location,M_P_1,(int)triples_dictionary_1.getPredicates().getNumberOfElements()));
+        mappings.put(M_P_2,new CatMapping(location,M_P_2,(int)triples_dictionary_2.getPredicates().getNumberOfElements()));
+        
+        mappings.put(M_S_1,new CatMapping(location,M_S_1,(int)triples_dictionary_1.getSubjects().getNumberOfElements()));
+        mappings.put(M_S_2,new CatMapping(location,M_S_2,(int)triples_dictionary_2.getSubjects().getNumberOfElements()));
+       
+        mappings.put(M_O_1,new CatMapping(location,M_O_1,(int)triples_dictionary_1.getObjects().getNumberOfElements()));
+        mappings.put(M_O_2,new CatMapping(location,M_O_2,(int)triples_dictionary_2.getObjects().getNumberOfElements()));
+       
+        mappings.put(M_SH_1,new CatMapping(location,M_SH_1,(int)triples_dictionary_1.getShared().getNumberOfElements()));
+        mappings.put(M_SH_2,new CatMapping(location,M_SH_2,(int)triples_dictionary_2.getShared().getNumberOfElements()));
+       
+        mappings.put(M_GSH_1,new CatMapping(location,M_GSH_1,(int)graphs_dictionary_1.getShared().getNumberOfElements()));
+        mappings.put(M_GSH_2,new CatMapping(location,M_GSH_2,(int)graphs_dictionary_2.getShared().getNumberOfElements()));
+       
+        mappings.put(M_GS_1,new CatMapping(location,M_GS_1,(int)graphs_dictionary_1.getSubjects().getNumberOfElements()));
+        mappings.put(M_GS_2,new CatMapping(location,M_GS_2,(int)graphs_dictionary_2.getSubjects().getNumberOfElements()));
+        
+        mappings.put(M_GO_1,new CatMapping(location,M_GO_1,(int)graphs_dictionary_1.getObjects().getNumberOfElements()));
+        mappings.put(M_GO_2,new CatMapping(location,M_GO_2,(int)graphs_dictionary_2.getObjects().getNumberOfElements()));
+      
+        mappings.put(M_GU_1,new CatMapping(location,M_GU_1,(int)graphs_dictionary_1.getGraphs().getNumberOfElements()));
+        mappings.put(M_GU_2,new CatMapping(location,M_GU_2,(int)graphs_dictionary_2.getGraphs().getNumberOfElements()));
+      
         //join the predicates first because it is easy
         System.out.println("PREDICATES-------------------");
 
         
-        mappings.put(M_P_1,new CatMapping(location,M_P_1,(int)triples_dictionary_1.getPredicates().getNumberOfElements()));
-        mappings.put(M_P_2,new CatMapping(location,M_P_2,(int)triples_dictionary_2.getPredicates().getNumberOfElements()));
         
         int numCommonPredicates = 0;
         Iterator<IterElement> commonP1P2 = new CatCommon(getIterator(triples_dictionary_1.getPredicates()),getIterator(triples_dictionary_2.getPredicates()));
@@ -131,7 +155,7 @@ public class DictionaryCat {
         int numPredicates = triples_dictionary_1.getPredicates().getNumberOfElements()+ triples_dictionary_2.getPredicates().getNumberOfElements()-numCommonPredicates;
         catAnySection(numPredicates,triples_dictionary_1.getPredicates(),triples_dictionary_2.getPredicates(),
         		Collections.<IterElement>emptyList().iterator(), Collections.<IterElement>emptyList().iterator(),
-        		Collections.<IterElement>emptyList().iterator(),Collections.<IterElement>emptyList().iterator(),
+        		Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),
         		mappings.get(M_P_1),mappings.get(M_P_2),4);
         
        /* this.triplesDictionary.predicates = dictionarySectionCatPredicates;
@@ -214,10 +238,7 @@ public class DictionaryCat {
         commonSubject2 = new CatIteratorList(iters2);
         int numSubjects = triples_dictionary_1.getSubjects().getNumberOfElements() + triples_dictionary_2.getSubjects().getNumberOfElements()-numCommonSubjects - numCommonSubject1Hdt2 - numCommonSubject2Hdt1;
         
-        mappings.put(M_S_1,new CatMapping(location,M_S_1,(int)triples_dictionary_1.getSubjects().getNumberOfElements()));
-        mappings.put(M_S_2,new CatMapping(location,M_S_2,(int)triples_dictionary_2.getSubjects().getNumberOfElements()));
-        
-        catAnySection(numSubjects,triples_dictionary_1.getSubjects(),triples_dictionary_2.getSubjects(), commonSubject1, commonSubject2,Collections.<IterElement>emptyList().iterator(),Collections.<IterElement>emptyList().iterator(),mappings.get(M_S_1),mappings.get(M_S_2),2);
+        catAnySection(numSubjects,triples_dictionary_1.getSubjects(),triples_dictionary_2.getSubjects(), commonSubject1, commonSubject2,Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),mappings.get(M_S_1),mappings.get(M_S_2),2);
 		
         /*this.triplesDictionary.subjects = dictionarySectionCatSubjects;
 		Iterator it2 = this.triplesDictionary.subjects.getSortedEntries();
@@ -300,11 +321,9 @@ public class DictionaryCat {
         
         commonObject2 = new CatIteratorList(iters2);
         
-        mappings.put(M_O_1,new CatMapping(location,M_O_1,(int)triples_dictionary_1.getObjects().getNumberOfElements()));
-        mappings.put(M_O_2,new CatMapping(location,M_O_2,(int)triples_dictionary_2.getObjects().getNumberOfElements()));
         
         int numObjects = triples_dictionary_1.getObjects().getNumberOfElements()+triples_dictionary_2.getObjects().getNumberOfElements()-numCommonObjects-numCommonObject1Hdt2-numCommonObject2Hdt1;
-        catAnySection(numObjects,triples_dictionary_1.getObjects(),triples_dictionary_2.getObjects(), commonObject1, commonObject2,Collections.<IterElement>emptyList().iterator(),Collections.<IterElement>emptyList().iterator(),mappings.get(M_O_1),mappings.get(M_O_2),3);
+        catAnySection(numObjects,triples_dictionary_1.getObjects(),triples_dictionary_2.getObjects(), commonObject1, commonObject2,Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),mappings.get(M_O_1),mappings.get(M_O_2),3);
 		
         /*this.triplesDictionary.objects = dictionarySectionCatObjects;
 
@@ -380,11 +399,11 @@ public class DictionaryCat {
 	      iterCommonSharedGraphsHdt2 = new CatIteratorList(iters2);
 		
 	      ArrayList<Iterator<IterElement>> iters3 = new ArrayList<>();
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(triples_dictionary_2.getObjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(triples_dictionary_2.getSubjects())));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(triples_dictionary_2.getObjects()),M_S_1,M_O_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(triples_dictionary_2.getSubjects()),M_O_1,M_S_2));
 	      
 	      
-	      ArrayList<Iterator<IterElement>> iterMappings = new ArrayList<>();
+	      ArrayList<CatCommon> iterMappings = new ArrayList<>();
 	      
 	      iterMappings.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(triples_dictionary_2.getSubjects()),M_SH_1,M_S_2));
 	      iterMappings.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(triples_dictionary_2.getObjects()),M_SH_1,M_O_2));
@@ -392,14 +411,11 @@ public class DictionaryCat {
 	      iterMappings.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(triples_dictionary_1.getObjects()),M_SH_2,M_O_1));
 	
 	      
-	      CatIteratorList iterCommonMappings = new CatIteratorList(iterMappings);
-	      
+
 	      CatIteratorList iterCommonSO = new CatIteratorList(iters3);
 	      
-	      mappings.put(M_SH_1,new CatMapping(location,M_SH_1,(int)triples_dictionary_1.getShared().getNumberOfElements()));
-	        mappings.put(M_SH_2,new CatMapping(location,M_SH_2,(int)triples_dictionary_2.getShared().getNumberOfElements()));
-	        
-	     catAnySection(numShared,triples_dictionary_1.getShared(),triples_dictionary_2.getShared(), iterCommonSharedGraphsHdt1, iterCommonSharedGraphsHdt2,iterCommonSO,iterCommonMappings,mappings.get(M_SH_1),mappings.get(M_SH_2),1);
+	       
+	     catAnySection(numShared,triples_dictionary_1.getShared(),triples_dictionary_2.getShared(), iterCommonSharedGraphsHdt1, iterCommonSharedGraphsHdt2,iterCommonSO,iterMappings,mappings.get(M_SH_1),mappings.get(M_SH_2),1);
 		/*System.out.println("The shared: ");
 		Iterator it3 = this.triplesDictionary.shared.getSortedEntries();
 		while(it3.hasNext()) {
@@ -465,36 +481,36 @@ public class DictionaryCat {
 	      //System.out.println("number shared graphs: "+numentries);
 	      iters3 = new ArrayList<>();
 	      
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getSubjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getObjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getGraphs())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getSubjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getObjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getGraphs())));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getSubjects()),M_SH_1,M_GS_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getObjects()),M_SH_1,M_GO_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getShared()),getIterator(graphs_dictionary_2.getGraphs()),M_SH_1,M_GU_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getSubjects()),M_SH_2,M_GS_1));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getObjects()),M_SH_2,M_GO_1));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getGraphs()),M_SH_2,M_GU_1));
 	      
 	      //subject1 graphs2
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getObjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getSubjects()),getIterator(graphs_dictionary_1.getObjects())));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getObjects()),M_S_1,M_GO_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getSubjects()),getIterator(graphs_dictionary_1.getObjects()),M_S_2,M_GO_1));
 	      
 	    //subject1 graphs2
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getSubjects())));
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getObjects()),getIterator(graphs_dictionary_1.getSubjects())));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getSubjects()),M_O_1,M_GS_2));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_2.getObjects()),getIterator(graphs_dictionary_1.getSubjects()),M_O_2,M_GS_1));
 	      
 	      //graphs_subjects1 
 	      
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getObjects())));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getObjects()),M_S_1,M_GO_2));
 	      
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getSubjects()),getIterator(graphs_dictionary_1.getObjects())));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getSubjects()),getIterator(graphs_dictionary_1.getObjects()),M_S_2,M_GO_1));
 	      
 	      //graphs_objects1
 	      
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getSubjects())));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getSubjects()),M_GO_1,M_GS_2));
 	      
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getObjects()),getIterator(graphs_dictionary_1.getSubjects())));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getObjects()),getIterator(graphs_dictionary_1.getSubjects()),M_GO_2,M_GS_1));
 	      
 	      //graphs_unused1
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getShared())));
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getGraphs()),getIterator(triples_dictionary_1.getShared())));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getShared()),M_GU_1,M_SH_2));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_2.getGraphs()),getIterator(triples_dictionary_1.getShared()),M_GU_2,M_SH_1));
 	      
 	      CatIteratorList iterCommonSharedGraphs = new CatIteratorList(iters3);
 	      
@@ -516,12 +532,8 @@ public class DictionaryCat {
 	      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getObjects()),M_GSH_2,M_GO_1));
 	      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getShared()),getIterator(graphs_dictionary_1.getShared()),M_GSH_2,M_GU_1));
 	            
-	      iterCommonMappings = new CatIteratorList(iterMappings);
-	      
-	      mappings.put(M_GSH_1,new CatMapping(location,M_GSH_1,(int)graphs_dictionary_1.getShared().getNumberOfElements()));
-	        mappings.put(M_GSH_2,new CatMapping(location,M_GSH_2,(int)graphs_dictionary_2.getShared().getNumberOfElements()));
-	        
-	     catAnySection(numSharedGraphs,graphs_dictionary_1.getShared(),graphs_dictionary_2.getShared(), Collections.<IterElement>emptyList().iterator(), Collections.<IterElement>emptyList().iterator(),iterCommonSharedGraphs,iterCommonMappings,mappings.get(M_GSH_1),mappings.get(M_GSH_2),5);
+	
+	     catAnySection(numSharedGraphs,graphs_dictionary_1.getShared(),graphs_dictionary_2.getShared(), Collections.<IterElement>emptyList().iterator(), Collections.<IterElement>emptyList().iterator(),iterCommonSharedGraphs,iterMappings,mappings.get(M_GSH_1),mappings.get(M_GSH_2),5);
 		/*Iterator it4 = this.graphDictionary.shared.getSortedEntries();
 		while(it4.hasNext()) {
 			System.out.println(it4.next());
@@ -600,8 +612,8 @@ public class DictionaryCat {
 	      
 	      iters3 = new ArrayList<>();
 	      
-	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getGraphs())));
-	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getSubjects())));
+	      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getSubjects()),getIterator(graphs_dictionary_2.getGraphs()),M_S_1,M_GU_2));
+	      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getSubjects()),M_GU_1,M_S_2));
 	      
 	      CatIteratorList iterCommonSharedSubjectGraphs = new CatIteratorList(iters3);
 	      
@@ -612,12 +624,8 @@ public class DictionaryCat {
 	      
 	      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getSubjects()),getIterator(graphs_dictionary_1.getGraphs()),M_GS_2,M_GU_1));
 	      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getSubjects()),getIterator(triples_dictionary_1.getSubjects()),M_GS_2,M_S_1));
-	           
-	      iterCommonMappings = new CatIteratorList(iterMappings);
-	      mappings.put(M_GS_1,new CatMapping(location,M_GS_1,(int)graphs_dictionary_1.getSubjects().getNumberOfElements()));
-	        mappings.put(M_GS_2,new CatMapping(location,M_GS_2,(int)graphs_dictionary_2.getSubjects().getNumberOfElements()));
-	        
-	     catAnySection(numSubjectGraphs,graphs_dictionary_1.getSubjects(),graphs_dictionary_2.getSubjects(), iterSkip1, iterSkip2,iterCommonSharedSubjectGraphs,iterCommonMappings,mappings.get(M_GS_1),mappings.get(M_GS_2),6);
+ 
+	     catAnySection(numSubjectGraphs,graphs_dictionary_1.getSubjects(),graphs_dictionary_2.getSubjects(), iterSkip1, iterSkip2,iterCommonSharedSubjectGraphs,iterMappings,mappings.get(M_GS_1),mappings.get(M_GS_2),6);
 	     /*it4 = this.graphDictionary.subjects.getSortedEntries();
 	     while(it4.hasNext()) {
 	    	 System.out.println(it4.next());
@@ -697,12 +705,9 @@ public class DictionaryCat {
 		      
 		      iters3 = new ArrayList<>();
 		      
-		      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getGraphs())));
-		      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getObjects())));
+		      iters3.add(new CatCommon(getIterator(triples_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getGraphs()),M_O_1,M_GU_2));
+		      iters3.add(new CatCommon(getIterator(graphs_dictionary_1.getGraphs()),getIterator(triples_dictionary_2.getObjects()),M_GU_1,M_O_2));
 		      
-		      mappings.put(M_GO_1,new CatMapping(location,M_GO_1,(int)graphs_dictionary_1.getObjects().getNumberOfElements()));
-		      mappings.put(M_GO_2,new CatMapping(location,M_GO_2,(int)graphs_dictionary_2.getObjects().getNumberOfElements()));
-		       
 		      iterMappings = new ArrayList<>();
 		      
 		      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_1.getObjects()),getIterator(graphs_dictionary_2.getGraphs()),M_GO_1,M_GU_2));
@@ -710,12 +715,10 @@ public class DictionaryCat {
 		      
 		      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getObjects()),getIterator(graphs_dictionary_1.getGraphs()),M_GO_2,M_GU_1));
 		      iterMappings.add(new CatCommon(getIterator(graphs_dictionary_2.getObjects()),getIterator(triples_dictionary_1.getObjects()),M_GO_2,M_O_1));
-		      
-		      iterCommonMappings = new CatIteratorList(iterMappings);
-		     
+
 		      CatIteratorList iterCommonSharedObjectGraphs = new CatIteratorList(iters3);
 
-		     catAnySection(numObjectGraphs,graphs_dictionary_1.getObjects(),graphs_dictionary_2.getObjects(), iterSkip1, iterSkip2,iterCommonSharedObjectGraphs,iterCommonMappings,mappings.get(M_GO_1),mappings.get(M_GO_2),7);
+		     catAnySection(numObjectGraphs,graphs_dictionary_1.getObjects(),graphs_dictionary_2.getObjects(), iterSkip1, iterSkip2,iterCommonSharedObjectGraphs,iterMappings,mappings.get(M_GO_1),mappings.get(M_GO_2),7);
 		     
 		     /*it4 = this.graphDictionary.objects.getSortedEntries();
 		     while(it4.hasNext()) {
@@ -792,11 +795,8 @@ public class DictionaryCat {
 			      
 			      iterSkip1 = new CatIteratorList(iters1);
 			      iterSkip2 = new CatIteratorList(iters2);
-			      
-			      mappings.put(M_GU_1,new CatMapping(location,M_GU_1,(int)graphs_dictionary_1.getGraphs().getNumberOfElements()));
-			      mappings.put(M_GU_2,new CatMapping(location,M_GU_2,(int)graphs_dictionary_2.getGraphs().getNumberOfElements()));
-			        
-			     catAnySection(numUnusedGraphs,graphs_dictionary_1.getGraphs(),graphs_dictionary_2.getGraphs(), iterSkip1, iterSkip2,Collections.<IterElement>emptyList().iterator(),Collections.<IterElement>emptyList().iterator(),mappings.get(M_GU_1),mappings.get(M_GU_2),8);
+			       
+			     catAnySection(numUnusedGraphs,graphs_dictionary_1.getGraphs(),graphs_dictionary_2.getGraphs(), iterSkip1, iterSkip2,Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),mappings.get(M_GU_1),mappings.get(M_GU_2),8);
 			     
 			     /*it4 = this.graphDictionary.graphs.getSortedEntries();
 			     while(it4.hasNext()) {
@@ -925,7 +925,7 @@ public class DictionaryCat {
 	public void catAnySection(long numEntries, DictionarySection dictionarySectionHdt1,
 			DictionarySection dictionarySectionHdt2,Iterator<IterElement> itSkip1, 
 			Iterator<IterElement> itSkip2, Iterator<IterElement> itAdd,
-			Iterator<IterElement> itMappings, CatMapping mapping1, CatMapping mapping2, int type) {
+			ArrayList<CatCommon> itMappings, CatMapping mapping1, CatMapping mapping2, int type) {
 		
 		CRCOutputStream out_buffer = null;
 		try {
@@ -942,15 +942,16 @@ public class DictionaryCat {
          long numberElements = 0;
          SequenceLog64BigDisk blocks = new SequenceLog64BigDisk(location+"SequenceLog64BigDisk"+type,64, numEntries/16);
          ByteArrayOutputStream byteOut = new ByteArrayOutputStream(16*1024);
-		if (numEntries > 0) {
+			
+		try {
+         if (numEntries > 0) {
 			CharSequence previousStr = null;
 			Iterator<? extends CharSequence> it1 = getIterator(dictionarySectionHdt1);
 			Iterator<? extends CharSequence> it2 = getIterator(dictionarySectionHdt2);
-			
-			try {
+
 				ArrayList<IteratorPlusString> list = new ArrayList<IteratorPlusString>();
-				IterElement commonForMapping = new IterElement(new Pair(-1,-1), "defaut", "", "");
-				
+				ArrayList<IterElement> commonForMapping = new ArrayList<IterElement>();
+				IterElement nextToAdd = new IterElement(new Pair(-1,-1), "defaut", "", "");
 				if (it1.hasNext()) {
 					list.add(new IteratorPlusString(1, it1.next()));
 				}
@@ -958,7 +959,8 @@ public class DictionaryCat {
 					list.add(new IteratorPlusString(2, it2.next()));
 				}
 				if (itAdd.hasNext()) {
-					list.add(new IteratorPlusString(3, itAdd.next().getEntity()));
+					 nextToAdd = itAdd.next();
+					list.add(new IteratorPlusString(3, nextToAdd.getEntity()));
 				}
 				if (itSkip1.hasNext()) {
 					skipSection1 = itSkip1.next().getPair().getKey();
@@ -966,8 +968,12 @@ public class DictionaryCat {
 				if (itSkip2.hasNext()) {
 					skipSection2 = itSkip2.next().getPair().getKey();
 				}
-				if(itMappings.hasNext()) {
-					commonForMapping = itMappings.next();
+				for(CatCommon iter:itMappings) {
+					if(iter.hasNext()) {
+						commonForMapping.add(iter.next());
+					}else {
+						commonForMapping.add(new IterElement(new Pair(-1,-1), "defaut", "", ""));
+					}
 				}
 				while (list.size() != 0) {
 					Collections.sort(list, new ScoreComparator());
@@ -1028,33 +1034,70 @@ public class DictionaryCat {
                         previousStr = str;
 						if (list.size() >= 2 && list.get(0).value.toString().equals(list.get(1).value.toString())) {
 							
-							if(count1 == commonForMapping.getPair().getKey() || count2 == commonForMapping.getPair().getKey()) {
-								String mappingName = commonForMapping.getSecondIterName();
-								mappings.get(mappingName).set(commonForMapping.getPair().getValue(), numberElements +1, type);
+							for (IterElement element : commonForMapping) {
+								String mappingName = element.getSecondIterName();
+								
+								//if the common entry is in a section from first file then check count2 
+								if(mappingName.endsWith("1")) {
+									if (count2 == element.getPair().getKey()) {
+										mappings.get(mappingName).set(element.getPair().getValue(),
+												numberElements + 1, type);
+									}
+								}else {
+									//else check count1 with sections of the second files
+									if (count1 == element.getPair().getKey()) {
+										mappings.get(mappingName).set(element.getPair().getValue(),
+												numberElements + 1, type);
+									}
+								}
+								
 							}
 							
 							boolean removed = false;
 							mapping1.set(count1, numberElements + 1, type);
-							count1++;
+							
 							mapping2.set(count2, numberElements + 1, type);
-							count2++;
+
 							if (it1.hasNext()) {
+								count1++;
 								list.set(0, new IteratorPlusString(1, it1.next()));
-								if(count1 > commonForMapping.getPair().getKey() && itMappings.hasNext()) {
-									commonForMapping = itMappings.next();
+								int index = 0;
+								for (CatCommon iter : itMappings) {
+									IterElement element = commonForMapping.get(index);
+									String mappingName = element.getSecondIterName();
+									
+									//if the common entry is in a section from first file then check count2 
+									if(mappingName.endsWith("2")) {
+										if (count1 > element.getPair().getKey() && iter.hasNext()) {
+											commonForMapping.set(index, iter.next());
+										}
+									}
+									index++;
 								}
+								
 							} else {
 								list.remove(0);
 								removed = true;
 							}
 							if (it2.hasNext()) {
+								count2++;
 								if (removed == true) {
 									list.set(0, new IteratorPlusString(2, it2.next()));
 								} else {
 									list.set(1, new IteratorPlusString(2, it2.next()));
 								}
-								if(count2 > commonForMapping.getPair().getKey() && itMappings.hasNext()) {
-									commonForMapping = itMappings.next();
+								int index = 0;
+								for (CatCommon iter : itMappings) {
+									IterElement element = commonForMapping.get(index);
+									String mappingName = element.getSecondIterName();
+									
+									//if the common entry is in a section from first file then check count2 
+									if(mappingName.endsWith("1")) {
+										if (count2 > element.getPair().getKey() && iter.hasNext()) {
+											commonForMapping.set(index, iter.next());
+										}
+									}
+									index++;
 								}
 							} else {
 								if (removed == true) {
@@ -1064,41 +1107,88 @@ public class DictionaryCat {
 								}
 							}
 						} else if (list.get(0).iterator == 1) {
-							mapping1.set(count1, numberElements + 1, type);
-							if(count1 == commonForMapping.getPair().getKey()) {
-								String mappingName = commonForMapping.getSecondIterName();
-								mappings.get(mappingName).set(commonForMapping.getPair().getValue(), numberElements +1, type);
+							mapping2.set(count1, numberElements + 1, type);
+							
+							for (IterElement element : commonForMapping) {
+								String mappingName = element.getSecondIterName();
+								
+								//if the common entry is in a section from first file then check count2 
+								if(mappingName.endsWith("2")) {
+									if (count1 == element.getPair().getKey()) {
+										mappings.get(mappingName).set(element.getPair().getValue(),
+												numberElements + 1, type);
+									}
+								}
+								
 							}
-							count1++;
+
 							if (it1.hasNext()) {
+
+								count1++;
 								list.set(0, new IteratorPlusString(1, it1.next()));
-								if(count1 > commonForMapping.getPair().getKey() && itMappings.hasNext()) {
-									commonForMapping = itMappings.next();
+								int index = 0;
+								for (CatCommon iter : itMappings) {
+									IterElement element = commonForMapping.get(index);
+									String mappingName = element.getSecondIterName();
+									
+									//if the common entry is in a section from first file then check count2 
+									if(mappingName.endsWith("2")) {
+										if (count1 > element.getPair().getKey() && iter.hasNext()) {
+											commonForMapping.set(index, iter.next());
+										}
+									}
+									index++;
 								}
 							} else {
 								list.remove(0);
 							}
 						} else if (list.get(0).iterator == 2) {
+							
 							mapping2.set(count2, numberElements + 1, type);
-							if(count2 == commonForMapping.getPair().getKey()) {
-								String mappingName = commonForMapping.getSecondIterName();
-								mappings.get(mappingName).set(commonForMapping.getPair().getValue(), numberElements +1, type);
-							}
-							count2++;
-							if (it2.hasNext()) {
-								list.set(0, new IteratorPlusString(2, it2.next()));
-								if(count2 > commonForMapping.getPair().getKey() && itMappings.hasNext()) {
-									commonForMapping = itMappings.next();
+							
+							for (IterElement element : commonForMapping) {
+								String mappingName = element.getSecondIterName();
+								
+								//if the common entry is in a section from first file then check count2 
+								if(mappingName.endsWith("1")) {
+									if (count2 == element.getPair().getKey()) {
+										mappings.get(mappingName).set(element.getPair().getValue(),
+												numberElements + 1, type);
+									}
 								}
+								
+							}
+							if (it2.hasNext()) {
+
+								count2++;
+								list.set(0, new IteratorPlusString(2, it2.next()));
+								
+								int index = 0;
+								for (CatCommon iter : itMappings) {
+									IterElement element = commonForMapping.get(index);
+									String mappingName = element.getSecondIterName();
+									
+									//if the common entry is in a section from first file then check count2 
+									if(mappingName.endsWith("1")) {
+										if (count2 > element.getPair().getKey() && iter.hasNext()) {
+											commonForMapping.set(index, iter.next());
+										}
+									}
+									index++;
+								}
+								
 							} else {
 								list.remove(0);
 							}
 						} else if (list.get(0).iterator == 3) {
-							String mappingName = commonForMapping.getSecondIterName();
-							if(!mappingName.equals(""))
-								mappings.get(mappingName).set(commonForMapping.getPair().getValue(), numberElements +1, type);
+							String mapping_name_1 = nextToAdd.getFirstIterName();
+							String mapping_name_2 = nextToAdd.getSecondIterName();
+							mappings.get(mapping_name_1).set(nextToAdd.getPair().getKey(), numberElements + 1, type);
+							mappings.get(mapping_name_2).set(nextToAdd.getPair().getValue(), numberElements + 1, type);
+							
 							if (itAdd.hasNext()) {
-								list.set(0, new IteratorPlusString(3, itAdd.next().getEntity()));
+								nextToAdd = itAdd.next();
+								list.set(0, new IteratorPlusString(3, nextToAdd.getEntity()));
 							} else {
 								list.remove(0);
 							}
@@ -1107,7 +1197,7 @@ public class DictionaryCat {
 					}
 
 				}
-
+         }
 				// Ending block pointer.
 				blocks.append(storedBuffersSize + byteOut.size());
 				// Trim text/blocks
@@ -1148,7 +1238,6 @@ public class DictionaryCat {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
 	}
 
 	public CatMappingBack getMappingS() {

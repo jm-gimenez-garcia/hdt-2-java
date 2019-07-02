@@ -130,39 +130,51 @@ public class BitmapQuadIteratorCat implements IteratorTripleID {
 
     }
 
-    private List<TripleID> getTripleID(int count){
-        Set<TripleID> set = new HashSet<>();
-        ArrayList<Long> mapping = null;
-        ArrayList<Integer> mappingType = null;
-        mapping = dictionaryCat.getMappingS().getMapping(count);
-        mappingType = dictionaryCat.getMappingS().getType(count);
+	private List<TripleID> getTripleID(int count) {
+		Set<TripleID> set = new HashSet<>();
+		ArrayList<Long> mapping = null;
+		ArrayList<Integer> mappingType = null;
+		mapping = dictionaryCat.getMappingS().getMapping(count);
+		mappingType = dictionaryCat.getMappingS().getType(count);
 
-        for (int i = 0; i<mapping.size(); i++) {
-            if (mappingType.get(i) == 1) {
-                IteratorTripleID it = hdt1.search(new QuadID((int)(long)mapping.get(i), 0, 0,0));
-                while (it.hasNext()) {
-                	TripleID temp = it.next();
-                	if(temp instanceof QuadID) {
-                		System.out.println("quadddd");
-                	}
-                    //set.add(mapTriple(it.next(), 1));
-                }
-            }
-            if (mappingType.get(i) == 2) {
-                IteratorTripleID it = hdt2.search(new QuadID((int)(long)mapping.get(i), 0, 0,0));
-                while (it.hasNext()) {
-                	TripleID temp = it.next();
-                	if(temp instanceof QuadID) {
-                		System.out.println("quadddd");
-                	}//set.add(mapTriple(it.next(), 2));
-                }
-            }
+		for (int i = 0; i < mapping.size(); i++) {
+			IteratorTripleID it;
+			if (mappingType.get(i) == 1) {
+				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
+			} else {
+				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
+			}
+			while (it.hasNext()) {
+				TripleID temp = it.next();
+				if (temp instanceof QuadID) {
+					if (((QuadID) temp).getGraph() != 0) {
+						//System.out.println(((QuadID) temp).getGraph());
+						set.add(temp);
+					} else {
+						System.out.println("triplee");
+						set.add(temp);
+					}
+				}
+			}
+		}
+		ArrayList<TripleID> triples = new ArrayList<TripleID>(set);
+		Collections.sort(triples, tripleIDComparator);
+		return triples;
+	}
+    /*public TripleID mapTriple(TripleID tripleID, int num){
+        if (num == 1){
+            long new_subject1 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappings().get(dictionaryCat.M_SH_1),dictionaryCat.getMappings().get(dictionaryCat.M_S_1));
+            long new_predicate1 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappings().get(dictionaryCat.M_P_1));
+            long new_object1 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappings().get(dictionaryCat.M_SH_1),dictionaryCat.getMappings().get(dictionaryCat.M_O_1));
+            
+            return new QuadID(new_subject1, new_predicate1, new_object1);
+        } else {
+            long new_subject2 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingS2());
+            long new_predicate2 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappingP2());
+            long new_object2 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingO2());
+            return new TripleID(new_subject2, new_predicate2, new_object2);
         }
-        ArrayList<TripleID> triples = new ArrayList<TripleID>(set);
-        Collections.sort(triples, tripleIDComparator);
-        return triples;
-    }
-
+    }*/
     /*public TripleID mapTriple(TripleID tripleID, int num){
         if (num == 1){
             long new_subject1 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappingSh1(),dictionaryCat.getMappingS1());

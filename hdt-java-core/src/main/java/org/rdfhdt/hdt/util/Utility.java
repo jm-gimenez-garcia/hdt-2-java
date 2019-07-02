@@ -3,6 +3,7 @@ package org.rdfhdt.hdt.util;
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.impl.util.CatMapping;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertFalse;
 
 public class Utility {
 
-    public static void printDictionary(TriplesDictionary d){
+    public static void printTriplesDictionary(TriplesDictionary d){
         Iterator i = d.getShared().getSortedEntries();
         int count = 0;
         System.out.println("SHARED");
@@ -136,13 +137,37 @@ public class Utility {
             String predicate = hdt.getDictionary().idToString(tripleIDOld.getPredicate(), TripleComponentRole.PREDICATE).toString();
             String object = hdt.getDictionary().idToString(tripleIDOld.getObject(), TripleComponentRole.OBJECT).toString();
             
+			if (tripleIDOld instanceof QuadID) {
+				QuadID quad = (QuadID) tripleIDOld;
+				if (quad.getGraph() != 0) {
+					String graph = hdt.getDictionary().idToString(quad.getGraph(), TripleComponentRole.GRAPH)
+							.toString();
+					System.out.println(subject + "--" + predicate + "--" + object + "--" + graph);
+				}else {
+					System.out.println(subject + "--" + predicate + "--" + object);
+				}
+			}
+        }
+    }
+    public static void printIDs(HDT hdt) {
+    	IteratorTripleID it = hdt.getTriples().searchAll();
+        while (it.hasNext()){
+        	TripleID tripleIDOld = it.next();
+
+        	int subject = tripleIDOld.getSubject();
+            int predicate = tripleIDOld.getPredicate();
+            int object = tripleIDOld.getObject();
+            
             if(tripleIDOld instanceof QuadID) {
             	QuadID quad = (QuadID)tripleIDOld;
-            	String graph = hdt.getDictionary().idToString(quad.getGraph(), TripleComponentRole.GRAPH).toString();
-                System.out.println(subject+"--"+predicate+"--"+object+"--"+graph);
-            }else {
-
-                System.out.println(subject+"--"+predicate+"--"+object);
+            	int graph = quad.getGraph();
+            	String subject_st = hdt.getDictionary().idToString(tripleIDOld.getSubject(), TripleComponentRole.SUBJECT).toString();
+                String predicate_st = hdt.getDictionary().idToString(tripleIDOld.getPredicate(), TripleComponentRole.PREDICATE).toString();
+                String object_st = hdt.getDictionary().idToString(tripleIDOld.getObject(), TripleComponentRole.OBJECT).toString();
+                String graph_st="";
+                if(graph != 0 )
+                	graph_st = hdt.getDictionary().idToString(quad.getGraph(), TripleComponentRole.GRAPH).toString();
+                System.out.println(subject+" "+subject_st+"--"+predicate+" "+predicate_st+"--"+object+" "+object_st+"--"+graph+" "+graph_st);
             }
         }
     }
@@ -166,6 +191,12 @@ public class Utility {
             assertEquals(objectOld,objectNew);
 
         }
+    }
+    public static void printMapping(CatMapping mapping,String name) {
+    	System.out.println("name: "+name );
+    	for (int i = 0; i < mapping.getSize(); i++) {
+			System.out.println("NEW ID: "+mapping.getMapping(i)+" TYPE: "+mapping.getType(i));
+		}
     }
 
 
