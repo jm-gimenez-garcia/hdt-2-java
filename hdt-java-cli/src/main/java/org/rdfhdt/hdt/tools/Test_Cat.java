@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.swing.text.Utilities;
 
 import org.rdfhdt.hdt.dictionary.CompositeDictionary;
+import org.rdfhdt.hdt.dictionary.DictionaryFactory;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
 import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
@@ -107,15 +108,15 @@ public class Test_Cat implements ProgressListener{
 				fis_g.reset();
 				g_dictionary.mapFromFile(fis_g, new File(location + "dictionary_g"),null);
 				
-				Utility.printIDs(hdt1);
+				/*Utility.printIDs(hdt1);
 				System.out.println("-----------------------------------------");
-				Utility.printIDs(hdt2);
+				Utility.printIDs(hdt2);*/
 				
 				Utility.printTriplesDictionary(t_dictionary);
 				System.out.println("-----------------------------------------");
 				Utility.printGraphsDictionary(g_dictionary);
 
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_1),dictionaryCat.M_S_1);
+				/*Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_1),dictionaryCat.M_S_1);
 				System.out.println("-----------------------------------------");
 				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_2),dictionaryCat.M_S_2);
 				System.out.println("-----------------------------------------");
@@ -146,7 +147,7 @@ public class Test_Cat implements ProgressListener{
 				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GU_1),dictionaryCat.M_GU_1);
 				System.out.println("-----------------------------------------");
 				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GU_2),dictionaryCat.M_GU_2);
-				System.out.println("-----------------------------------------");
+				System.out.println("-----------------------------------------");*/
 				
 				//BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
 				/*while(it.hasNext()) {

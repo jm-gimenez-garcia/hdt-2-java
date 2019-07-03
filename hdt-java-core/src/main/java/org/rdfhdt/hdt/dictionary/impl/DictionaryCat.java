@@ -1043,7 +1043,7 @@ public class DictionaryCat {
 										mappings.get(mappingName).set(element.getPair().getValue(),
 												numberElements + 1, type);
 									}
-								}else {
+								}else if(mappingName.endsWith("2")){
 									//else check count1 with sections of the second files
 									if (count1 == element.getPair().getKey()) {
 										mappings.get(mappingName).set(element.getPair().getValue(),
@@ -1055,11 +1055,11 @@ public class DictionaryCat {
 							
 							boolean removed = false;
 							mapping1.set(count1, numberElements + 1, type);
-							
+							count1++;
 							mapping2.set(count2, numberElements + 1, type);
-
+							count2++;
 							if (it1.hasNext()) {
-								count1++;
+
 								list.set(0, new IteratorPlusString(1, it1.next()));
 								int index = 0;
 								for (CatCommon iter : itMappings) {
@@ -1080,7 +1080,7 @@ public class DictionaryCat {
 								removed = true;
 							}
 							if (it2.hasNext()) {
-								count2++;
+
 								if (removed == true) {
 									list.set(0, new IteratorPlusString(2, it2.next()));
 								} else {
@@ -1107,8 +1107,8 @@ public class DictionaryCat {
 								}
 							}
 						} else if (list.get(0).iterator == 1) {
-							mapping2.set(count1, numberElements + 1, type);
-							
+							mapping1.set(count1, numberElements + 1, type);
+
 							for (IterElement element : commonForMapping) {
 								String mappingName = element.getSecondIterName();
 								
@@ -1122,9 +1122,9 @@ public class DictionaryCat {
 								
 							}
 
+							count1++;
 							if (it1.hasNext()) {
 
-								count1++;
 								list.set(0, new IteratorPlusString(1, it1.next()));
 								int index = 0;
 								for (CatCommon iter : itMappings) {
@@ -1158,9 +1158,10 @@ public class DictionaryCat {
 								}
 								
 							}
+
+							count2++;
 							if (it2.hasNext()) {
 
-								count2++;
 								list.set(0, new IteratorPlusString(2, it2.next()));
 								
 								int index = 0;
@@ -1198,46 +1199,44 @@ public class DictionaryCat {
 
 				}
          }
-				// Ending block pointer.
-				blocks.append(storedBuffersSize + byteOut.size());
-				// Trim text/blocks
-				blocks.aggressiveTrimToSize();
-				byteOut.flush();
-				// section.addBuffer(buffer, byteOut.toByteArray());
-				IOUtil.writeBuffer(out_buffer, byteOut.toByteArray(), 0, byteOut.toByteArray().length, null);
-				out_buffer.writeCRC();
-				out_buffer.close();
-				// Save the section conforming to the HDT format
-				CRCOutputStream out = new CRCOutputStream(new FileOutputStream(location + "section" + type),
-						new CRC8());
-				// write the index type
-				out.write(2);
-				// write the number of strings
-				VByte.encode(out, numberElements);
-				// write the datasize
-				VByte.encode(out, storedBuffersSize + byteOut.size());
-				// wirte the blocksize
-				VByte.encode(out, DEFAULT_BLOCK_SIZE);
-				// write CRC
-				out.writeCRC();
-				// write the blocks
-				blocks.save(out, null); // Write blocks directly to output, they have their own CRC check.
-				blocks.close();
-				// write out_buffer
-				byte[] buf = new byte[100000];
-				InputStream in = new FileInputStream(location + "section_buffer_" + type);
-				int b = 0;
-				while ((b = in.read(buf)) >= 0) {
-					out.write(buf, 0, b);
-					out.flush();
-				}
-				in.close();
-				out.close();
-				Files.delete(Paths.get(location + "section_buffer_" + type));
-				Files.delete(Paths.get(location + "SequenceLog64BigDisk" + type));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+         // Ending block pointer.
+         blocks.append(storedBuffersSize+byteOut.size());
+         // Trim text/blocks
+         blocks.aggressiveTrimToSize();
+         byteOut.flush();
+         //section.addBuffer(buffer, byteOut.toByteArray());
+         IOUtil.writeBuffer(out_buffer, byteOut.toByteArray(), 0, byteOut.toByteArray().length, null);
+         out_buffer.writeCRC();
+         out_buffer.close();
+         //Save the section conforming to the HDT format
+         CRCOutputStream out = new CRCOutputStream(new FileOutputStream(location+"section"+type), new CRC8());
+         //write the index type
+         out.write(2);
+         //write the number of strings
+         VByte.encode(out, numberElements);
+         //write the datasize
+         VByte.encode(out, storedBuffersSize+byteOut.size());
+         //wirte the blocksize
+         VByte.encode(out, DEFAULT_BLOCK_SIZE);
+         //write CRC
+         out.writeCRC();
+         //write the blocks
+         blocks.save(out, null);	// Write blocks directly to output, they have their own CRC check.
+         blocks.close();
+         //write out_buffer
+         byte[] buf = new byte[100000];
+         InputStream in = new FileInputStream(location+"section_buffer_"+type);
+         int b = 0;
+         while ( (b = in.read(buf)) >= 0) {
+             out.write(buf, 0, b);
+             out.flush();
+         }
+         out.close();
+         Files.delete(Paths.get(location+"section_buffer_"+type));
+         Files.delete(Paths.get(location+"SequenceLog64BigDisk"+type));
+     } catch (IOException e) {
+         e.printStackTrace();
+     }
 	}
 
 	public CatMappingBack getMappingS() {

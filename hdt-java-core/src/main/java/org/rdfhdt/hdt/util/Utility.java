@@ -3,6 +3,7 @@ package org.rdfhdt.hdt.util;
 import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.GraphsDictionary;
 import org.rdfhdt.hdt.dictionary.TriplesDictionary;
+import org.rdfhdt.hdt.dictionary.impl.GraphsFourSectionDictionaryBig;
 import org.rdfhdt.hdt.dictionary.impl.util.CatMapping;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.hdt.HDT;
@@ -48,7 +49,7 @@ public class Utility {
             count++;
         }
     }
-    public static void printGraphsDictionary(GraphsDictionary g){
+    public static void printGraphsDictionary(GraphsFourSectionDictionaryBig g){
         Iterator i = g.getShared().getSortedEntries();
         int count = 0;
         System.out.println("SHARED");
@@ -58,6 +59,10 @@ public class Utility {
         }
         System.out.println("SUBJECTS");
         count = 0;
+        if(g.getSubjects() == null) {
+        	System.out.println("nullll");
+        	return;
+        }
         i = g.getSubjects().getSortedEntries();
         while (i.hasNext()){
             System.out.println(count +"---"+i.next().toString());
