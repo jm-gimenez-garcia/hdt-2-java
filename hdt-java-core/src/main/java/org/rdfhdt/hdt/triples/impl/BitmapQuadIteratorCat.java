@@ -36,7 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class BitmapQuadIteratorCat implements IteratorTripleID {
+public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTripleID {
 
     int count = 1;
 
@@ -54,7 +54,6 @@ public class BitmapQuadIteratorCat implements IteratorTripleID {
 
         list = getTripleID(1).listIterator();
         count++;
-
     }
 
     @Override
@@ -140,9 +139,10 @@ public class BitmapQuadIteratorCat implements IteratorTripleID {
 		for (int i = 0; i < mapping.size(); i++) {
 			IteratorTripleID it;
 			if (mappingType.get(i) == 1) {
+				
 				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
 			} else {
-				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
+				it = hdt2.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
 			}
 			while (it.hasNext()) {
 				TripleID temp = it.next();

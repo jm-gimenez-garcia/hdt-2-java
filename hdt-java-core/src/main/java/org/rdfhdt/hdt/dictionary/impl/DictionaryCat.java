@@ -815,15 +815,10 @@ public class DictionaryCat {
         for (int i=0; i<mappings.get(M_SH_2).getSize(); i++){
             mappingS.set(mappings.get(M_SH_2).getMapping(i),i+1,2);
         }
-        for (int i=0; i<mappings.get(M_GSH_1).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_1).getMapping(i),i+1,1);
-        }
-
-        for (int i=0; i<mappings.get(M_GSH_2).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_2).getMapping(i),i+1,2);
-        }
         //triples mappings
         for (int i=0; i<mappings.get(M_S_1).getSize(); i++){
+
+        	//if the element was added to the mapping in the shared section (type = 1)
             if (mappings.get(M_S_1).getType(i)==1){
                 mappingS.set(mappings.get(M_S_1).getMapping(i),(i+1+(int)triples_dictionary_1.getNshared()),1);
             } else {
@@ -832,28 +827,58 @@ public class DictionaryCat {
         }
 
         for (int i=0; i<mappings.get(M_S_2).getSize(); i++){
+        	//if the element was added to the mapping in the shared section (type = 1)
             if (mappings.get(M_S_2).getType(i)==1){
                 mappingS.set(mappings.get(M_S_2).getMapping(i), (i + 1 + (int) triples_dictionary_2.getNshared()), 2);
             } else {
                 mappingS.set(mappings.get(M_S_2).getMapping(i) + (int)numShared, (i + 1 + (int) triples_dictionary_2.getNshared()), 2);
             }
         }
+        int startIndex = numShared + numSubjects;
         
+        
+        //get the longer index between subjects and objects where shared graphs starts 
+        long longerIndex1 = 0;
+        if(triples_dictionary_1.getNobjects() > triples_dictionary_1.getNsubjects())
+        	longerIndex1 = triples_dictionary_1.getNobjects();
+        else
+        	longerIndex1 = triples_dictionary_1.getNsubjects();
+        
+        long longerIndex2 = 0;
+        if(triples_dictionary_2.getNobjects() > triples_dictionary_2.getNsubjects())
+        	longerIndex2 = triples_dictionary_2.getNobjects();
+        else
+        	longerIndex2 = triples_dictionary_2.getNsubjects();
+        
+        long startOld1 = triples_dictionary_1.getNshared() + longerIndex1;
+        long startOld2 = triples_dictionary_2.getNshared() + longerIndex2;
+        
+        System.out.println(startOld1 +" ------- "+startOld2);
         //graphs mappings 
+        for (int i=0; i<mappings.get(M_GSH_1).getSize(); i++){
+            mappingS.set(mappings.get(M_GSH_1).getMapping(i) + startIndex,i + (int)startOld1 +1,1);
+        }
+
+        for (int i=0; i<mappings.get(M_GSH_2).getSize(); i++){
+            mappingS.set(mappings.get(M_GSH_2).getMapping(i) + startIndex ,i+ (int)startOld2 +1,2);
+        }
         for (int i=0; i<mappings.get(M_GS_1).getSize(); i++){
-            if (mappings.get(M_GS_1).getType(i)==1){
-                mappingS.set(mappings.get(M_GS_1).getMapping(i),(i+1+(int)graphs_dictionary_1.getNshared()),1);
+            if (mappings.get(M_GS_1).getType(i)==5){
+                mappingS.set(mappings.get(M_GS_1).getMapping(i) + startIndex ,(i+1+ (int)startOld1 + (int)graphs_dictionary_1.getNshared()),1);
             } else {
-               mappingS.set(mappings.get(M_GS_1).getMapping(i)+(int)numSharedGraphs,(i+1+(int)graphs_dictionary_1.getNshared()),1);
+               mappingS.set(mappings.get(M_GS_1).getMapping(i)+ startIndex +(int)numSharedGraphs,(i+1 + (int)startOld1 +(int)graphs_dictionary_1.getNshared()),1);
             }
         }
 
         for (int i=0; i<mappings.get(M_GS_2).getSize(); i++){
-            if (mappings.get(M_GS_2).getType(i)==1){
-                mappingS.set(mappings.get(M_GS_2).getMapping(i), (i + 1 + (int) graphs_dictionary_2.getNshared()), 2);
+            if (mappings.get(M_GS_2).getType(i)==5){
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + startIndex , (i + (int)startOld2 + 1 + (int) graphs_dictionary_2.getNshared()), 2);
             } else {
-                mappingS.set(mappings.get(M_GS_2).getMapping(i) + (int) numSharedGraphs, (i + 1 + (int) graphs_dictionary_2.getNshared()), 2);
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + (int) numSharedGraphs, (i + (int)startOld2 + 1 + (int) graphs_dictionary_2.getNshared()), 2);
             }
+        }
+        for(int i=1;i<mappingS.size();i++) {
+        	System.out.println("Mapping: "+mappingS.getMapping(i)+" Type: "+mappingS.getType(i));
         }
     }
 	public void writeTriplesDictionary(int numElements) {

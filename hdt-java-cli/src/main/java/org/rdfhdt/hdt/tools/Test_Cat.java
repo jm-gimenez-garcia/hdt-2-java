@@ -36,38 +36,6 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
 
 public class Test_Cat implements ProgressListener{
 	
-	public void read(String hdtInput ) {
-		HDTPrivate hdt;
-		try {
-			hdt = HDTManager.mapHDT(hdtInput, this);
-			if (hdt.getDictionary() instanceof TriplesFourSectionDictionary) {
-				System.out.println("Hello");
-				final ReificationDictionary rd = (ReificationDictionary) hdt.getDictionary();
-			}
-			/*CompositeDictionary cs = (CompositeDictionary)hdt.getDictionary();
-			TriplesDictionary td = cs.getTriplesDictionary();
-			GraphsDictionary gd = cs.getGraphsDictionary();*/
-			
-		
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	public void testGenerate(String quadFile) {
-		try {
-			HDTPrivate hdt = HDTManager.generateHDT(quadFile, "file://" + quadFile, RDFNotation.NQUADS, new HDTSpecification(), true, this);
-			if (hdt.getDictionary() instanceof ReificationDictionary) {
-				final ReificationDictionary rd = (ReificationDictionary) hdt.getDictionary();
-				TriplesDictionary td = rd.getTriplesDictionary();
-				GraphsDictionary gd = rd.getGraphsDictionary();
-				//HDT hdt_cat = HDTManager.catHDT(hdtInput1, hdtInput2 , spec,this);
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	public void cat(String quadFile1,String quadFile2) {
 		try {
 			HDTPrivate hdt1 = HDTManager.generateHDT(quadFile1, "file://" + quadFile1, RDFNotation.NQUADS, new HDTSpecification(), true, this);
@@ -108,9 +76,9 @@ public class Test_Cat implements ProgressListener{
 				fis_g.reset();
 				g_dictionary.mapFromFile(fis_g, new File(location + "dictionary_g"),null);
 				
-				/*Utility.printIDs(hdt1);
+				Utility.printIDs(hdt1);
 				System.out.println("-----------------------------------------");
-				Utility.printIDs(hdt2);*/
+				Utility.printIDs(hdt2);
 				
 				Utility.printTriplesDictionary(t_dictionary);
 				System.out.println("-----------------------------------------");
@@ -149,10 +117,10 @@ public class Test_Cat implements ProgressListener{
 				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GU_2),dictionaryCat.M_GU_2);
 				System.out.println("-----------------------------------------");*/
 				
-				//BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
-				/*while(it.hasNext()) {
+				BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
+				while(it.hasNext()) {
 					System.out.println("nexttt: "+it.next());
-				}*/
+				}
 				/*BitmapQuadsCat bitmapTriplesCat = new BitmapQuadsCat(location);
 				bitmapTriplesCat.cat(it,this);
 				
