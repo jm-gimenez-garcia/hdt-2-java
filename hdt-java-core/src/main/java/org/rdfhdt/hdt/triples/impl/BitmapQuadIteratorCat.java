@@ -25,6 +25,7 @@ import org.rdfhdt.hdt.dictionary.impl.util.CatMapping;
 import org.rdfhdt.hdt.dictionary.impl.DictionaryCat;
 import org.rdfhdt.hdt.triples.IteratorTripleID;
 import org.rdfhdt.hdt.triples.QuadID;
+import org.rdfhdt.hdt.triples.QuadIDComparator;
 import org.rdfhdt.hdt.triples.TripleID;
 import org.rdfhdt.hdt.triples.TripleIDComparator;
 import org.rdfhdt.hdt.triples.Triples;
@@ -38,96 +39,95 @@ import java.util.Set;
 
 public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTripleID {
 
-    int count = 1;
+	int count = 1;
 
-    Triples hdt1;
-    Triples hdt2;
-    Iterator<TripleID> list;
-    DictionaryCat dictionaryCat;
-    TripleIDComparator tripleIDComparator = new TripleIDComparator(TripleComponentOrder.SPO);
+	Triples hdt1;
+	Triples hdt2;
+	Iterator<TripleID> list;
+	DictionaryCat dictionaryCat;
 
-    public BitmapQuadIteratorCat(Triples hdt1, Triples hdt2, DictionaryCat dictionaryCat){
+	public BitmapQuadIteratorCat(Triples hdt1, Triples hdt2, DictionaryCat dictionaryCat) {
 
-        this.dictionaryCat = dictionaryCat;
-        this.hdt1 = hdt1;
-        this.hdt2 = hdt2;
+		this.dictionaryCat = dictionaryCat;
+		this.hdt1 = hdt1;
+		this.hdt2 = hdt2;
 
-        list = getTripleID(1).listIterator();
-        count++;
-    }
+		list = getTripleID(1).listIterator();
+		count++;
+	}
 
-    @Override
-    public boolean hasPrevious() {
-        return false;
-    }
+	@Override
+	public boolean hasPrevious() {
+		return false;
+	}
 
-    @Override
-    public TripleID previous() {
-        return null;
-    }
+	@Override
+	public TripleID previous() {
+		return null;
+	}
 
-    @Override
-    public void goToStart() {
+	@Override
+	public void goToStart() {
 
-    }
+	}
 
-    @Override
-    public boolean canGoTo() {
-        return false;
-    }
+	@Override
+	public boolean canGoTo() {
+		return false;
+	}
 
-    @Override
-    public void goTo(long pos) {
+	@Override
+	public void goTo(long pos) {
 
-    }
+	}
 
-    @Override
-    public long estimatedNumResults() {
-        return hdt1.searchAll().estimatedNumResults()+hdt2.searchAll().estimatedNumResults();
-    }
+	@Override
+	public long estimatedNumResults() {
+		return hdt1.searchAll().estimatedNumResults() + hdt2.searchAll().estimatedNumResults();
+	}
 
-    @Override
-    public ResultEstimationType numResultEstimation() {
-        return null;
-    }
+	@Override
+	public ResultEstimationType numResultEstimation() {
+		return null;
+	}
 
-    @Override
-    public TripleComponentOrder getOrder() {
-        return null;
-    }
+	@Override
+	public TripleComponentOrder getOrder() {
+		return null;
+	}
 
-    @Override
-    public boolean hasNext() {
-        if (count<dictionaryCat.getMappingS().size()){
-            return true;
-        } else {
-            if (list.hasNext()){
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
+	@Override
+	public boolean hasNext() {
+		if (count < dictionaryCat.getMappingS().size()) {
+			return true;
+		} else {
+			if (list.hasNext()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 
-    @Override
-    public TripleID next() {
-        if (list.hasNext()){
-            return list.next();
-        } else {
+	@Override
+	public TripleID next() {
+		if (list.hasNext()) {
+			return list.next();
+		} else {
 
-            list = getTripleID(count).listIterator();
-            count ++;
-            if (count%100000==0){
-                System.out.println(count);
-            }
-            return list.next();
-        }
-    }
+			list = getTripleID(count).listIterator();
+			count++;
+			if (count % 100000 == 0) {
+				System.out.println(count);
+			}
+			return list.next();
+		}
+	}
 
-    @Override
-    public void remove() {
+	@Override
+	public void remove() {
 
-    }
+	}
 
 	private List<TripleID> getTripleID(int count) {
 		Set<TripleID> set = new HashSet<>();
@@ -139,71 +139,157 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 		for (int i = 0; i < mapping.size(); i++) {
 			IteratorTripleID it;
 			if (mappingType.get(i) == 1) {
-				
+
 				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
+				while (it.hasNext()) {
+					TripleID temp = it.next();
+					if (((QuadID) temp).getGraph() != 0) {
+						long newS = mapIdsubject(temp.getSubject(), 1);
+						long newP = mapIdPredicate(temp.getPredicate(), 1);
+						long newO = mapIdObject(temp.getObject(), 1);
+						long newG = mapIdGraph(((QuadID)temp).getGraph(), 1);
+						
+						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,(int)newG));
+					} else {
+						long newS = mapIdsubject(temp.getSubject(), 1);
+						long newP = mapIdPredicate(temp.getPredicate(), 1);
+						long newO = mapIdObject(temp.getObject(), 1);
+						
+						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,0));
+					}
+				}
 			} else {
 				it = hdt2.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
-			}
-			while (it.hasNext()) {
-				TripleID temp = it.next();
-				if (temp instanceof QuadID) {
+				while (it.hasNext()) {
+					TripleID temp = it.next();
 					if (((QuadID) temp).getGraph() != 0) {
-						//System.out.println(((QuadID) temp).getGraph());
-						set.add(temp);
+						long newS = mapIdsubject(temp.getSubject(), 2);
+						long newP = mapIdPredicate(temp.getPredicate(), 2);
+						long newO = mapIdObject(temp.getObject(), 2);
+						long newG = mapIdGraph(((QuadID)temp).getGraph(), 2);
+						
+						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,(int)newG));
 					} else {
-						System.out.println("triplee");
-						set.add(temp);
+						long newS = mapIdsubject(temp.getSubject(), 2);
+						long newP = mapIdPredicate(temp.getPredicate(), 2);
+						long newO = mapIdObject(temp.getObject(), 2);
+
+						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,0));
 					}
 				}
 			}
+			
 		}
 		ArrayList<TripleID> triples = new ArrayList<TripleID>(set);
-		Collections.sort(triples, tripleIDComparator);
+		Collections.sort(triples, QuadIDComparator.getComparator(TripleComponentOrder.SPO) );
 		return triples;
 	}
-    /*public TripleID mapTriple(TripleID tripleID, int num){
-        if (num == 1){
-            long new_subject1 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappings().get(dictionaryCat.M_SH_1),dictionaryCat.getMappings().get(dictionaryCat.M_S_1));
-            long new_predicate1 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappings().get(dictionaryCat.M_P_1));
-            long new_object1 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappings().get(dictionaryCat.M_SH_1),dictionaryCat.getMappings().get(dictionaryCat.M_O_1));
-            
-            return new QuadID(new_subject1, new_predicate1, new_object1);
-        } else {
-            long new_subject2 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingS2());
-            long new_predicate2 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappingP2());
-            long new_object2 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingO2());
-            return new TripleID(new_subject2, new_predicate2, new_object2);
-        }
-    }*/
-    /*public TripleID mapTriple(TripleID tripleID, int num){
-        if (num == 1){
-            long new_subject1 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappingSh1(),dictionaryCat.getMappingS1());
-            long new_predicate1 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappingP1());
-            long new_object1 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappingSh1(),dictionaryCat.getMappingO1());
-            return new TripleID(new_subject1, new_predicate1, new_object1);
-        } else {
-            long new_subject2 = mapIdSection(tripleID.getSubject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingS2());
-            long new_predicate2 = mapIdPredicate(tripleID.getPredicate(), dictionaryCat.getMappingP2());
-            long new_object2 = mapIdSection(tripleID.getObject(), dictionaryCat.getMappingSh2(),dictionaryCat.getMappingO2());
-            return new TripleID(new_subject2, new_predicate2, new_object2);
-        }
-    }*/
 
-    /*private long mapIdSection(long id, CatMapping catMappingShared, CatMapping catMapping){
-        if (id <= catMappingShared.getSize()){
-            return catMappingShared.getMapping(id-1);
-        } else {
-            if (catMapping.getType(id-catMappingShared.getSize()-1)==1){
-                return catMapping.getMapping(id-catMappingShared.getSize()-1);
-            } else {
-                return catMapping.getMapping(id - catMappingShared.getSize()-1) + dictionaryCat.getNumEntriesShared();
-            }
-        }
-    }*/
-
-    private long mapIdPredicate(long id, CatMapping catMapping){
-        return catMapping.getMapping(id-1);
+    private long mapIdsubject(long id,int type) {
+    	CatMapping m_sh;
+    	CatMapping m_gsh;
+    	CatMapping m_s;
+    	CatMapping m_gs;
+    	
+    	if(type == 1) {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_1);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_1);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_1);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_1);
+    	} else {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_2);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_2);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_2);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_2);
+    	}
+    	if(id <= m_sh.getSize()) {
+    		return m_sh.getMapping(id - 1);
+    	}else if( id > m_sh.getSize() && id <= (m_sh.getSize() + m_gsh.getSize())) {
+    		return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
+    	}else if(id > (m_sh.getSize()+ m_gsh.getSize()) && id <= (m_sh.getSize() + m_gsh.getSize() + m_s.getSize())) {
+    		return m_s.getMapping(id - m_gsh.getSize() - m_sh.getSize() -1) + dictionaryCat.numShared + dictionaryCat.numSharedGraphs;
+    	}else {
+    		return m_gs.getMapping(id - m_s.getSize() - m_gsh.getSize() - m_sh.getSize() -1)+ dictionaryCat.numShared +dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
+    	}
     }
+	private long mapIdPredicate(long id, int type) {
+		if(type == 1)
+			return dictionaryCat.getMappings().get(dictionaryCat.M_P_1).getMapping(id - 1);
+		else
+			return dictionaryCat.getMappings().get(dictionaryCat.M_P_2).getMapping(id - 1);
+	}
+	private long mapIdObject(long id,int type) {
+		CatMapping m_o;
+		CatMapping m_go;
+		CatMapping m_sh;
+		CatMapping m_gsh;
+		CatMapping m_s;
+		CatMapping m_gs;
+		if(type == 1) {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_1);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_1);
+    		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_1);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_GO_1);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_1);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_1);
+    	} else {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_2);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_2);
+    		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_2);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_GO_2);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_2);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_2);
+    	}
+		long numberOfShared = m_sh.getSize() + m_gsh.getSize();
+		long numberOfSubjects = m_s.getSize() + m_gs.getSize();
+		long total = numberOfShared + numberOfSubjects;
+		long totalNew = dictionaryCat.numShared + dictionaryCat.numSubjectGraphs + dictionaryCat.numSubjects + dictionaryCat.numSubjects;
+		if(id <= m_sh.getSize()) {
+			return m_sh.getMapping(id - 1);
+		}else if( id > m_sh.getSize() && id <= (m_sh.getSize() + m_gsh.getSize())) {
+    		return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
+		}else if( id > total && id <= (total + m_o.getSize())) {
+			return m_o.getMapping(id - total -1) + totalNew;
+		}else {
+			return m_go.getMapping(id - total - m_o.getSize() -1) + totalNew + dictionaryCat.numObjects;
+		}
+	}
+	private long mapIdGraph(long id,int type) {
+		CatMapping m_gsh;
+		CatMapping m_gs;
+		CatMapping m_go;
+		CatMapping m_gu;
+		CatMapping m_sh;
+		CatMapping m_s;
+		CatMapping m_o;
+		if(type == 1) {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_1);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_1);
+    		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_1);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_1);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_1);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_O_1);
+    		m_gu = dictionaryCat.getMappings().get(dictionaryCat.M_GU_1);
 
-
+    	} else {
+    		m_sh = dictionaryCat.getMappings().get(dictionaryCat.M_SH_2);
+    		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_2);
+    		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_2);
+    		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_2);
+    		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_2);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_O_2);
+    		m_gu = dictionaryCat.getMappings().get(dictionaryCat.M_GU_2);
+    	}
+		long total = m_sh.getSize() + m_gsh.getSize() + m_s.getSize() + m_gs.getSize();
+		long totalNew = dictionaryCat.numShared + dictionaryCat.numSubjectGraphs + dictionaryCat.numSubjects + dictionaryCat.numSubjects;
+		if(id <= (m_gsh.getSize() + m_sh.getSize())) {
+			return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
+		}else if(id > (m_gsh.getSize() + m_sh.getSize()) && id <= total){
+			return m_gs.getMapping(id - m_sh.getSize() - m_gsh.getSize() - m_s.getSize() -1) + dictionaryCat.numShared + dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
+		}else if( id > (total + m_o.getSize()) && id <= (total + m_o.getSize() + m_go.getSize())) {
+			return m_go.getMapping(id - total - m_o.getSize() -1) +totalNew +dictionaryCat.numObjects;
+		}else {
+			return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + totalNew + dictionaryCat.numObjects + dictionaryCat.numObjectGraphs;
+		}
+	}
 }

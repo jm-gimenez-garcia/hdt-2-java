@@ -94,7 +94,17 @@ public class DictionaryCat {
 
 	public final String M_GU_1 = "GU1";
 	public final String M_GU_2 = "GU2";
-
+	
+	public int numPredicates;
+	public int numSubjects;
+	public int numObjects;
+	public int numShared;
+	public int numSharedGraphs;
+	public int numSubjectGraphs;
+	public int numObjectGraphs;
+	public int numUnusedGraphs;
+	
+	
 	private HashMap<String, CatMapping> mappings;
 
 	private HDTOptions spec;
@@ -152,7 +162,7 @@ public class DictionaryCat {
             commonP1P2.next();
             numCommonPredicates++;
         }
-        int numPredicates = triples_dictionary_1.getPredicates().getNumberOfElements()+ triples_dictionary_2.getPredicates().getNumberOfElements()-numCommonPredicates;
+        this.numPredicates = triples_dictionary_1.getPredicates().getNumberOfElements()+ triples_dictionary_2.getPredicates().getNumberOfElements()-numCommonPredicates;
         catAnySection(numPredicates,triples_dictionary_1.getPredicates(),triples_dictionary_2.getPredicates(),
         		Collections.<IterElement>emptyList().iterator(), Collections.<IterElement>emptyList().iterator(),
         		Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),
@@ -236,7 +246,7 @@ public class DictionaryCat {
         
         commonSubject1 = new CatIteratorList(iters1);
         commonSubject2 = new CatIteratorList(iters2);
-        int numSubjects = triples_dictionary_1.getSubjects().getNumberOfElements() + triples_dictionary_2.getSubjects().getNumberOfElements()-numCommonSubjects - numCommonSubject1Hdt2 - numCommonSubject2Hdt1;
+        numSubjects = triples_dictionary_1.getSubjects().getNumberOfElements() + triples_dictionary_2.getSubjects().getNumberOfElements()-numCommonSubjects - numCommonSubject1Hdt2 - numCommonSubject2Hdt1;
         
         catAnySection(numSubjects,triples_dictionary_1.getSubjects(),triples_dictionary_2.getSubjects(), commonSubject1, commonSubject2,Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),mappings.get(M_S_1),mappings.get(M_S_2),2);
 		
@@ -322,7 +332,7 @@ public class DictionaryCat {
         commonObject2 = new CatIteratorList(iters2);
         
         
-        int numObjects = triples_dictionary_1.getObjects().getNumberOfElements()+triples_dictionary_2.getObjects().getNumberOfElements()-numCommonObjects-numCommonObject1Hdt2-numCommonObject2Hdt1;
+        numObjects = triples_dictionary_1.getObjects().getNumberOfElements()+triples_dictionary_2.getObjects().getNumberOfElements()-numCommonObjects-numCommonObject1Hdt2-numCommonObject2Hdt1;
         catAnySection(numObjects,triples_dictionary_1.getObjects(),triples_dictionary_2.getObjects(), commonObject1, commonObject2,Collections.<IterElement>emptyList().iterator(),new ArrayList<CatCommon>(),mappings.get(M_O_1),mappings.get(M_O_2),3);
 		
         /*this.triplesDictionary.objects = dictionarySectionCatObjects;
@@ -378,7 +388,7 @@ public class DictionaryCat {
 	        iterCommonSharedGraphsHdt2.next();
 	        numCommonSharedGraphsHdt2++;
 	    }
-		    int numShared = triples_dictionary_1.getShared().getNumberOfElements()+triples_dictionary_2.getShared().getNumberOfElements()-numCommonSh1Sh2 -numCommonSharedGraphsHdt1 - numCommonSharedGraphsHdt2 +numCommonS1O2+numCommonO1S2;
+		  numShared = triples_dictionary_1.getShared().getNumberOfElements()+triples_dictionary_2.getShared().getNumberOfElements()-numCommonSh1Sh2 -numCommonSharedGraphsHdt1 - numCommonSharedGraphsHdt2 +numCommonS1O2+numCommonO1S2;
 		
 		
 		
@@ -477,7 +487,7 @@ public class DictionaryCat {
 			  numCommonGraphSh1GraphSh2++;
 		  }
 			
-	      int numSharedGraphs = graphs_dictionary_1.getShared().getNumberOfElements() + graphs_dictionary_2.getShared().getNumberOfElements() - numCommonGraphSh1GraphSh2 + num_common;
+	      numSharedGraphs = graphs_dictionary_1.getShared().getNumberOfElements() + graphs_dictionary_2.getShared().getNumberOfElements() - numCommonGraphSh1GraphSh2 + num_common;
 	      //System.out.println("number shared graphs: "+numentries);
 	      iters3 = new ArrayList<>();
 	      
@@ -591,7 +601,7 @@ public class DictionaryCat {
 			  numskip2++;
 		  }
 	      
-	      int numSubjectGraphs = graphs_dictionary_1.getSubjects().getNumberOfElements() + graphs_dictionary_2.getSubjects().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2 + num_common;
+	      numSubjectGraphs = graphs_dictionary_1.getSubjects().getNumberOfElements() + graphs_dictionary_2.getSubjects().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2 + num_common;
 	      //System.out.println("number shared subject graphs: "+numentries);
 	      
 	      iters1 = new ArrayList<>();
@@ -684,7 +694,7 @@ public class DictionaryCat {
 				  numskip2++;
 			  }
 		      
-		      int numObjectGraphs = graphs_dictionary_1.getObjects().getNumberOfElements() + graphs_dictionary_2.getObjects().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2 + num_common;
+		      numObjectGraphs = graphs_dictionary_1.getObjects().getNumberOfElements() + graphs_dictionary_2.getObjects().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2 + num_common;
 		      //System.out.println("number shared object graphs: "+);
 		      
 		      iters1 = new ArrayList<>();
@@ -771,7 +781,7 @@ public class DictionaryCat {
 					  numskip2++;
 				  }
 			      
-			      int numUnusedGraphs = graphs_dictionary_1.getGraphs().getNumberOfElements() + graphs_dictionary_2.getGraphs().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2;
+			      numUnusedGraphs = graphs_dictionary_1.getGraphs().getNumberOfElements() + graphs_dictionary_2.getGraphs().getNumberOfElements() - numCommonGraphs1Graphs2 - numskip1 - numskip2;
 			      //System.out.println("number unused graphs: "+numentries);
 			      
 			      iters1 = new ArrayList<>();
@@ -811,70 +821,53 @@ public class DictionaryCat {
         for (int i=0; i<mappings.get(M_SH_1).getSize(); i++){
             mappingS.set(mappings.get(M_SH_1).getMapping(i),i+1,1);
         }
-
+        for (int i=0; i<mappings.get(M_GSH_1).getSize(); i++){
+            mappingS.set(mappings.get(M_GSH_1).getMapping(i) + numShared ,i + (int)triples_dictionary_1.getNshared() + 1,1);
+        }
         for (int i=0; i<mappings.get(M_SH_2).getSize(); i++){
             mappingS.set(mappings.get(M_SH_2).getMapping(i),i+1,2);
         }
+        for (int i=0; i<mappings.get(M_GSH_2).getSize(); i++){
+            mappingS.set(mappings.get(M_GSH_2).getMapping(i) + numShared,i+ (int)triples_dictionary_1.getNshared() + 1,2);
+        }
+        
+        int totalSharedNew = numShared + numSharedGraphs;
+        int totalSharedOld1 = (int)triples_dictionary_1.getNshared() + (int)graphs_dictionary_1.getNshared();
+        int totalSharedOld2 = (int)triples_dictionary_2.getNshared() + (int)graphs_dictionary_2.getNshared();
+
         //triples mappings
         for (int i=0; i<mappings.get(M_S_1).getSize(); i++){
 
         	//if the element was added to the mapping in the shared section (type = 1)
             if (mappings.get(M_S_1).getType(i)==1){
-                mappingS.set(mappings.get(M_S_1).getMapping(i),(i+1+(int)triples_dictionary_1.getNshared()),1);
+                mappingS.set(mappings.get(M_S_1).getMapping(i) + numShared,(i+1+totalSharedOld1),1);
             } else {
-               mappingS.set(mappings.get(M_S_1).getMapping(i)+(int)numShared,(i+1+(int)triples_dictionary_1.getNshared()),1);
+               mappingS.set(mappings.get(M_S_1).getMapping(i)+totalSharedNew,(i+1+totalSharedOld1),1);
             }
         }
+        for (int i=0; i<mappings.get(M_GS_1).getSize(); i++){
 
+        	//if the element was added to the mapping in the graph shared section (type = 5)
+            if (mappings.get(M_GS_1).getType(i)==5){
+              mappingS.set(mappings.get(M_GS_1).getMapping(i) + numShared ,(i+ totalSharedOld1 + (int)triples_dictionary_1.getNsubjects()),1);
+            } else {
+               mappingS.set(mappings.get(M_GS_1).getMapping(i)+totalSharedNew + numSubjects,(i+1+totalSharedOld1 + (int)triples_dictionary_1.getNsubjects()),1);
+            }
+        }
         for (int i=0; i<mappings.get(M_S_2).getSize(); i++){
         	//if the element was added to the mapping in the shared section (type = 1)
             if (mappings.get(M_S_2).getType(i)==1){
-                mappingS.set(mappings.get(M_S_2).getMapping(i), (i + 1 + (int) triples_dictionary_2.getNshared()), 2);
+                mappingS.set(mappings.get(M_S_2).getMapping(i) + numShared, (i + 1 + totalSharedOld2), 2);
             } else {
-                mappingS.set(mappings.get(M_S_2).getMapping(i) + (int)numShared, (i + 1 + (int) triples_dictionary_2.getNshared()), 2);
-            }
-        }
-        int startIndex = numShared + numSubjects;
-        
-        
-        //get the longer index between subjects and objects where shared graphs starts 
-        long longerIndex1 = 0;
-        if(triples_dictionary_1.getNobjects() > triples_dictionary_1.getNsubjects())
-        	longerIndex1 = triples_dictionary_1.getNobjects();
-        else
-        	longerIndex1 = triples_dictionary_1.getNsubjects();
-        
-        long longerIndex2 = 0;
-        if(triples_dictionary_2.getNobjects() > triples_dictionary_2.getNsubjects())
-        	longerIndex2 = triples_dictionary_2.getNobjects();
-        else
-        	longerIndex2 = triples_dictionary_2.getNsubjects();
-        
-        long startOld1 = triples_dictionary_1.getNshared() + longerIndex1;
-        long startOld2 = triples_dictionary_2.getNshared() + longerIndex2;
-        
-        System.out.println(startOld1 +" ------- "+startOld2);
-        //graphs mappings 
-        for (int i=0; i<mappings.get(M_GSH_1).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_1).getMapping(i) + startIndex,i + (int)startOld1 +1,1);
-        }
-
-        for (int i=0; i<mappings.get(M_GSH_2).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_2).getMapping(i) + startIndex ,i+ (int)startOld2 +1,2);
-        }
-        for (int i=0; i<mappings.get(M_GS_1).getSize(); i++){
-            if (mappings.get(M_GS_1).getType(i)==5){
-                mappingS.set(mappings.get(M_GS_1).getMapping(i) + startIndex ,(i+1+ (int)startOld1 + (int)graphs_dictionary_1.getNshared()),1);
-            } else {
-               mappingS.set(mappings.get(M_GS_1).getMapping(i)+ startIndex +(int)numSharedGraphs,(i+1 + (int)startOld1 +(int)graphs_dictionary_1.getNshared()),1);
+                mappingS.set(mappings.get(M_S_2).getMapping(i) + totalSharedNew , (i + 1 + totalSharedOld2), 2);
             }
         }
 
         for (int i=0; i<mappings.get(M_GS_2).getSize(); i++){
             if (mappings.get(M_GS_2).getType(i)==5){
-                mappingS.set(mappings.get(M_GS_2).getMapping(i) + startIndex , (i + (int)startOld2 + 1 + (int) graphs_dictionary_2.getNshared()), 2);
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + numShared, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getNsubjects()), 2);
             } else {
-                mappingS.set(mappings.get(M_GS_2).getMapping(i) + (int) numSharedGraphs, (i + (int)startOld2 + 1 + (int) graphs_dictionary_2.getNshared()), 2);
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + totalSharedNew + numSubjects, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getNsubjects() ), 2);
             }
         }
         for(int i=1;i<mappingS.size();i++) {
@@ -882,7 +875,6 @@ public class DictionaryCat {
         }
     }
 	public void writeTriplesDictionary(int numElements) {
-		System.out.println("Number of entries triples dic:"+numElements);
 		ControlInfo ci = new ControlInformation();
         ci.setType(ControlInfo.Type.DICTIONARY);
         ci.setFormat(HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);
@@ -918,7 +910,6 @@ public class DictionaryCat {
 	}
 	public void writeGraphsDictionary(int numElements) {
 
-		System.out.println("Number of entries graphs dic:"+numElements);
 		ControlInfo ci = new ControlInformation();
         ci.setType(ControlInfo.Type.DICTIONARY);
         ci.setFormat(HDTVocabulary.DICTIONARY_TYPE_FOUR_SECTION);

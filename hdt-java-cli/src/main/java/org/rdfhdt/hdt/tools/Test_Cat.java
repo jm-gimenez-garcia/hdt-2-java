@@ -76,6 +76,7 @@ public class Test_Cat implements ProgressListener{
 				fis_g.reset();
 				g_dictionary.mapFromFile(fis_g, new File(location + "dictionary_g"),null);
 				
+				
 				Utility.printIDs(hdt1);
 				System.out.println("-----------------------------------------");
 				Utility.printIDs(hdt2);
@@ -84,39 +85,7 @@ public class Test_Cat implements ProgressListener{
 				System.out.println("-----------------------------------------");
 				Utility.printGraphsDictionary(g_dictionary);
 
-				/*Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_1),dictionaryCat.M_S_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_2),dictionaryCat.M_S_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_O_1),dictionaryCat.M_O_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_O_2),dictionaryCat.M_O_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_P_1),dictionaryCat.M_P_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_P_2),dictionaryCat.M_P_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_SH_1),dictionaryCat.M_SH_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_SH_2),dictionaryCat.M_SH_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GSH_1),dictionaryCat.M_GSH_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GSH_2),dictionaryCat.M_GSH_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GS_1),dictionaryCat.M_GS_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GS_2),dictionaryCat.M_GS_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GO_1),dictionaryCat.M_GO_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GO_2),dictionaryCat.M_GO_2);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GU_1),dictionaryCat.M_GU_1);
-				System.out.println("-----------------------------------------");
-				Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_GU_2),dictionaryCat.M_GU_2);
-				System.out.println("-----------------------------------------");*/
-				
+			
 				BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
 				while(it.hasNext()) {
 					System.out.println("nexttt: "+it.next());

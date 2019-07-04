@@ -1,0 +1,3 @@
+<http://example.org/D3> <http://example.org/link1> <http://example.org/B1> .
+<http://example.org/A2> <http://example.org/link1> <http://example.org/G5> <http://example.org/G9> .
+<http://example.org/G5> <http://example.org/link1> <http://example.org/G6> <http://example.org/D3> .
