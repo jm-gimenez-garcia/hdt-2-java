@@ -822,58 +822,69 @@ public class DictionaryCat {
             mappingS.set(mappings.get(M_SH_1).getMapping(i),i+1,1);
         }
         for (int i=0; i<mappings.get(M_GSH_1).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_1).getMapping(i) + numShared ,i + (int)triples_dictionary_1.getNshared() + 1,1);
+            mappingS.set(mappings.get(M_GSH_1).getMapping(i) + numShared ,i + (int)triples_dictionary_1.getShared().getNumberOfElements() + 1,1);
         }
         for (int i=0; i<mappings.get(M_SH_2).getSize(); i++){
             mappingS.set(mappings.get(M_SH_2).getMapping(i),i+1,2);
         }
         for (int i=0; i<mappings.get(M_GSH_2).getSize(); i++){
-            mappingS.set(mappings.get(M_GSH_2).getMapping(i) + numShared,i+ (int)triples_dictionary_1.getNshared() + 1,2);
+            mappingS.set(mappings.get(M_GSH_2).getMapping(i) + numShared,i+ (int)triples_dictionary_1.getShared().getNumberOfElements() + 1,2);
         }
-        
+
         int totalSharedNew = numShared + numSharedGraphs;
-        int totalSharedOld1 = (int)triples_dictionary_1.getNshared() + (int)graphs_dictionary_1.getNshared();
-        int totalSharedOld2 = (int)triples_dictionary_2.getNshared() + (int)graphs_dictionary_2.getNshared();
+        int totalSharedOld1 = (int)triples_dictionary_1.getShared().getNumberOfElements() + (int)graphs_dictionary_1.getShared().getNumberOfElements();
+        int totalSharedOld2 = (int)triples_dictionary_2.getShared().getNumberOfElements() + (int)graphs_dictionary_2.getShared().getNumberOfElements();
 
         //triples mappings
         for (int i=0; i<mappings.get(M_S_1).getSize(); i++){
 
         	//if the element was added to the mapping in the shared section (type = 1)
             if (mappings.get(M_S_1).getType(i)==1){
-                mappingS.set(mappings.get(M_S_1).getMapping(i) + numShared,(i+1+totalSharedOld1),1);
+                mappingS.set(mappings.get(M_S_1).getMapping(i) ,(i+1+totalSharedOld1),1);
             } else {
                mappingS.set(mappings.get(M_S_1).getMapping(i)+totalSharedNew,(i+1+totalSharedOld1),1);
             }
+
         }
+
+        for (int i=0; i<mappings.get(M_S_2).getSize(); i++){
+        	//if the element was added to the mapping in the shared section (type = 1)
+            if (mappings.get(M_S_2).getType(i)==1){
+                mappingS.set(mappings.get(M_S_2).getMapping(i), (i + 1 + totalSharedOld2), 2);
+            } else {
+                mappingS.set(mappings.get(M_S_2).getMapping(i) + totalSharedNew , (i + 1 + totalSharedOld2), 2);
+            }
+
+        }
+
+
         for (int i=0; i<mappings.get(M_GS_1).getSize(); i++){
 
         	//if the element was added to the mapping in the graph shared section (type = 5)
             if (mappings.get(M_GS_1).getType(i)==5){
-              mappingS.set(mappings.get(M_GS_1).getMapping(i) + numShared ,(i+ totalSharedOld1 + (int)triples_dictionary_1.getNsubjects()),1);
+              mappingS.set(mappings.get(M_GS_1).getMapping(i) + numShared ,(i + 1+totalSharedOld1 + (int)triples_dictionary_1.getSubjects().getNumberOfElements()),1);
             } else {
-               mappingS.set(mappings.get(M_GS_1).getMapping(i)+totalSharedNew + numSubjects,(i+1+totalSharedOld1 + (int)triples_dictionary_1.getNsubjects()),1);
+               mappingS.set(mappings.get(M_GS_1).getMapping(i)+totalSharedNew + numSubjects,(i+1+totalSharedOld1 + (int)triples_dictionary_1.getSubjects().getNumberOfElements()),1);
             }
+
         }
-        for (int i=0; i<mappings.get(M_S_2).getSize(); i++){
-        	//if the element was added to the mapping in the shared section (type = 1)
-            if (mappings.get(M_S_2).getType(i)==1){
-                mappingS.set(mappings.get(M_S_2).getMapping(i) + numShared, (i + 1 + totalSharedOld2), 2);
-            } else {
-                mappingS.set(mappings.get(M_S_2).getMapping(i) + totalSharedNew , (i + 1 + totalSharedOld2), 2);
-            }
-        }
+
+        printMappingBack();
 
         for (int i=0; i<mappings.get(M_GS_2).getSize(); i++){
             if (mappings.get(M_GS_2).getType(i)==5){
-                mappingS.set(mappings.get(M_GS_2).getMapping(i) + numShared, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getNsubjects()), 2);
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + numShared, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getSubjects().getNumberOfElements()), 2);
             } else {
-                mappingS.set(mappings.get(M_GS_2).getMapping(i) + totalSharedNew + numSubjects, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getNsubjects() ), 2);
+                mappingS.set(mappings.get(M_GS_2).getMapping(i) + totalSharedNew + numSubjects, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getSubjects().getNumberOfElements()), 2);
             }
         }
+
+    }
+	public void printMappingBack() {
         for(int i=1;i<mappingS.size();i++) {
         	System.out.println("Mapping: "+mappingS.getMapping(i)+" Type: "+mappingS.getType(i));
         }
-    }
+	}
 	public void writeTriplesDictionary(int numElements) {
 		ControlInfo ci = new ControlInformation();
         ci.setType(ControlInfo.Type.DICTIONARY);

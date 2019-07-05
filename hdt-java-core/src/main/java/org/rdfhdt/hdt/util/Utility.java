@@ -204,7 +204,7 @@ public class Utility {
 			System.out.println("NEW ID: "+mapping.getMapping(i)+" TYPE: "+mapping.getType(i));
 		}
     }
-    public void printMappings(DictionaryCat dictionaryCat) {
+    public static void printMappings(DictionaryCat dictionaryCat) {
     	Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_1),dictionaryCat.M_S_1);
 		System.out.println("-----------------------------------------");
 		Utility.printMapping(dictionaryCat.getMappings().get(dictionaryCat.M_S_2),dictionaryCat.M_S_2);

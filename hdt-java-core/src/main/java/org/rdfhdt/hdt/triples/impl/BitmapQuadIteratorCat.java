@@ -143,39 +143,13 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 				it = hdt1.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
 				while (it.hasNext()) {
 					TripleID temp = it.next();
-					if (((QuadID) temp).getGraph() != 0) {
-						long newS = mapIdsubject(temp.getSubject(), 1);
-						long newP = mapIdPredicate(temp.getPredicate(), 1);
-						long newO = mapIdObject(temp.getObject(), 1);
-						long newG = mapIdGraph(((QuadID)temp).getGraph(), 1);
-						
-						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,(int)newG));
-					} else {
-						long newS = mapIdsubject(temp.getSubject(), 1);
-						long newP = mapIdPredicate(temp.getPredicate(), 1);
-						long newO = mapIdObject(temp.getObject(), 1);
-						
-						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,0));
-					}
+					set.add(getNewQuad(temp, 1));
 				}
 			} else {
 				it = hdt2.search(new QuadID((int) (long) mapping.get(i), 0, 0, 0));
 				while (it.hasNext()) {
 					TripleID temp = it.next();
-					if (((QuadID) temp).getGraph() != 0) {
-						long newS = mapIdsubject(temp.getSubject(), 2);
-						long newP = mapIdPredicate(temp.getPredicate(), 2);
-						long newO = mapIdObject(temp.getObject(), 2);
-						long newG = mapIdGraph(((QuadID)temp).getGraph(), 2);
-						
-						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,(int)newG));
-					} else {
-						long newS = mapIdsubject(temp.getSubject(), 2);
-						long newP = mapIdPredicate(temp.getPredicate(), 2);
-						long newO = mapIdObject(temp.getObject(), 2);
-
-						set.add(new QuadID((int)(long)mapping.get(i),(int)newP,(int)newO,0));
-					}
+					set.add(getNewQuad(temp, 2));
 				}
 			}
 			
@@ -184,8 +158,22 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 		Collections.sort(triples, QuadIDComparator.getComparator(TripleComponentOrder.SPO) );
 		return triples;
 	}
+	
+	private TripleID getNewQuad(TripleID temp,int type) {
+		if (((QuadID) temp).getGraph() != 0) {
+			long newP = mapIdPredicate(temp.getPredicate(), type);
+			long newO = mapIdObject(temp.getObject(), type);
+			long newG = mapIdGraph(((QuadID)temp).getGraph(), type);
+			
+			return new QuadID(count,(int)newP,(int)newO,(int)newG);
+		} else {
+			long newP = mapIdPredicate(temp.getPredicate(), type);
+			long newO = mapIdObject(temp.getObject(), type);
 
-    private long mapIdsubject(long id,int type) {
+			return new QuadID(count,(int)newP,(int)newO,0);
+		}
+	}
+    /*private long mapIdsubject(long id,int type) {
     	CatMapping m_sh;
     	CatMapping m_gsh;
     	CatMapping m_s;
@@ -211,7 +199,7 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
     	}else {
     		return m_gs.getMapping(id - m_s.getSize() - m_gsh.getSize() - m_sh.getSize() -1)+ dictionaryCat.numShared +dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
     	}
-    }
+    }*/
 	private long mapIdPredicate(long id, int type) {
 		if(type == 1)
 			return dictionaryCat.getMappings().get(dictionaryCat.M_P_1).getMapping(id - 1);
@@ -243,15 +231,39 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 		long numberOfShared = m_sh.getSize() + m_gsh.getSize();
 		long numberOfSubjects = m_s.getSize() + m_gs.getSize();
 		long total = numberOfShared + numberOfSubjects;
-		long totalNew = dictionaryCat.numShared + dictionaryCat.numSubjectGraphs + dictionaryCat.numSubjects + dictionaryCat.numSubjects;
+		long totalNew = dictionaryCat.numShared + dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects +dictionaryCat.numSubjectGraphs ;
 		if(id <= m_sh.getSize()) {
-			return m_sh.getMapping(id - 1);
-		}else if( id > m_sh.getSize() && id <= (m_sh.getSize() + m_gsh.getSize())) {
-    		return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
+			//if the id left to the shared graphs (type =5)
+			if(m_sh.getType(id - 1)==5) {
+				//return the new id in the graph shared section.
+				return m_sh.getType(id -1) + dictionaryCat.numShared;
+			} else {
+				//return the id from the shared
+				return m_sh.getMapping(id - 1);
+			}
+		} else if( id > m_sh.getSize() && id <= (m_sh.getSize() + m_gsh.getSize())) {
+    		//return the id from the shared graphs were nothing could leave this section in merge
+			return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
 		}else if( id > total && id <= (total + m_o.getSize())) {
-			return m_o.getMapping(id - total -1) + totalNew;
+			//if the id left to the triples shared section (type =1)
+			if(m_o.getType(id - total -1) == 1) {
+				return m_o.getMapping(id - total -1);
+			}else if(m_o.getType(id - total -1) == 5) {
+				//if the id left to the shared graphs section (type =5)
+				return m_o.getMapping(id - total -1) + dictionaryCat.numShared;
+			}else if(m_o.getType(id - total -1) == 7) {
+				//if the id left to the object graphs section (type =7)
+				return m_o.getMapping(id - total -1) + totalNew + dictionaryCat.numObjects;
+			}else {
+				return m_o.getMapping(id - total -1) + totalNew;
+			}
 		}else {
-			return m_go.getMapping(id - total - m_o.getSize() -1) + totalNew + dictionaryCat.numObjects;
+			if(m_go.getType(id - total - m_o.getSize() -1) == 5) {
+				//if id left to graphs shared section (type =5)
+				return m_go.getMapping(id - total - m_o.getSize() -1) + dictionaryCat.numShared;
+			}else {
+				return m_go.getMapping(id - total - m_o.getSize() -1) + totalNew + dictionaryCat.numObjects;
+			}
 		}
 	}
 	private long mapIdGraph(long id,int type) {
@@ -268,7 +280,7 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
     		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_1);
     		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_1);
     		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_1);
-    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_O_1);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_GO_1);
     		m_gu = dictionaryCat.getMappings().get(dictionaryCat.M_GU_1);
 
     	} else {
@@ -277,19 +289,38 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
     		m_o = dictionaryCat.getMappings().get(dictionaryCat.M_O_2);
     		m_gsh = dictionaryCat.getMappings().get(dictionaryCat.M_GSH_2);
     		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_2);
-    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_O_2);
+    		m_go = dictionaryCat.getMappings().get(dictionaryCat.M_GO_2);
     		m_gu = dictionaryCat.getMappings().get(dictionaryCat.M_GU_2);
     	}
 		long total = m_sh.getSize() + m_gsh.getSize() + m_s.getSize() + m_gs.getSize();
-		long totalNew = dictionaryCat.numShared + dictionaryCat.numSubjectGraphs + dictionaryCat.numSubjects + dictionaryCat.numSubjects;
-		if(id <= (m_gsh.getSize() + m_sh.getSize())) {
+		long totalNew = dictionaryCat.numShared + dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects +dictionaryCat.numSubjectGraphs ;
+
+		if(id > m_sh.getSize() && id <= (m_gsh.getSize() + m_sh.getSize())) {
 			return m_gsh.getMapping(id - m_sh.getSize() - 1) + dictionaryCat.numShared;
 		}else if(id > (m_gsh.getSize() + m_sh.getSize()) && id <= total){
-			return m_gs.getMapping(id - m_sh.getSize() - m_gsh.getSize() - m_s.getSize() -1) + dictionaryCat.numShared + dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
+			if(m_gs.getType(id - m_sh.getSize() - m_gsh.getSize() - m_s.getSize() -1) == 5) {
+				return m_gs.getMapping(id - m_sh.getSize() - m_gsh.getSize() - m_s.getSize() -1) + dictionaryCat.numShared;
+			}else {
+				return m_gs.getMapping(id - m_sh.getSize() - m_gsh.getSize() - m_s.getSize() -1) + dictionaryCat.numShared + dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
+			}
 		}else if( id > (total + m_o.getSize()) && id <= (total + m_o.getSize() + m_go.getSize())) {
-			return m_go.getMapping(id - total - m_o.getSize() -1) +totalNew +dictionaryCat.numObjects;
+			if(m_go.getType(id - total - m_o.getSize() -1) == 5) {
+				//if id left to graphs shared section (type =5)
+				return m_go.getMapping(id - total - m_o.getSize() -1) + dictionaryCat.numShared;
+			}else {
+				return m_go.getMapping(id - total - m_o.getSize() -1) + totalNew + dictionaryCat.numObjects;
+			}
 		}else {
-			return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + totalNew + dictionaryCat.numObjects + dictionaryCat.numObjectGraphs;
+			if(m_gu.getType(id - total -m_o.getSize() - m_go.getSize() -1) == 5) {
+				return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + dictionaryCat.numShared;
+			}else if(m_gu.getType(id - total -m_o.getSize() - m_go.getSize() -1) == 6) {
+				return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + dictionaryCat.numShared +dictionaryCat.numSharedGraphs + dictionaryCat.numSubjects;
+			}else if(m_gu.getType(id - total -m_o.getSize() - m_go.getSize() -1) == 7) {
+				return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + totalNew + dictionaryCat.numObjects;
+			}
+			else {
+				return m_gu.getMapping(id - total -m_o.getSize() - m_go.getSize() -1) + totalNew + dictionaryCat.numObjects + dictionaryCat.numObjectGraphs;
+			}
 		}
 	}
 }
