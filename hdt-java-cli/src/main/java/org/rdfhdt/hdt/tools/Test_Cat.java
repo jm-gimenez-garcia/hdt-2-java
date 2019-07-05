@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.swing.text.Utilities;
 
@@ -36,7 +38,7 @@ import org.rdfhdt.hdt.util.io.CountInputStream;
 
 public class Test_Cat implements ProgressListener{
 	
-	public void cat(String quadFile1,String quadFile2) {
+	/*public void cat(String quadFile1,String quadFile2) {
 		try {
 			HDTPrivate hdt1 = HDTManager.generateHDT(quadFile1, "file://" + quadFile1, RDFNotation.NQUADS, new HDTSpecification(), true, this);
 			HDTPrivate hdt2 = HDTManager.generateHDT(quadFile2, "file://" + quadFile2, RDFNotation.NQUADS, new HDTSpecification(), true, this);
@@ -88,10 +90,8 @@ public class Test_Cat implements ProgressListener{
 				Utility.printMappings(dictionaryCat);
 			
 				BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
-				while(it.hasNext()) {
-					System.out.println("nexttt: "+it.next());
-				}
-				/*BitmapQuadsCat bitmapTriplesCat = new BitmapQuadsCat(location);
+
+				BitmapQuadsCat bitmapTriplesCat = new BitmapQuadsCat(location);
 				bitmapTriplesCat.cat(it,this);
 				
 				CountInputStream fis2 = new CountInputStream(new BufferedInputStream(new FileInputStream(location + "triples")));
@@ -101,8 +101,8 @@ public class Test_Cat implements ProgressListener{
 				ci2.load(fis2);
 				fis2.reset();
 				TriplesPrivate triples = TriplesFactory.createTriples(ci2);
-				triples.mapFromFile(fis2,new File(location + "triples"),null);*/
-				
+				triples.mapFromFile(fis2,new File(location + "triples"),null);
+				deleteMappings(location);
 				//dictionaryCat.close();
 			}
 			
@@ -110,10 +110,43 @@ public class Test_Cat implements ProgressListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}*/
+	public void deleteMappings(String location) {
+		try {
+			Files.delete(Paths.get(location+"P1"));
+			Files.delete(Paths.get(location+"P1"+"Types"));
+			Files.delete(Paths.get(location+"P2"));
+			Files.delete(Paths.get(location+"P2"+"Types"));
+	        Files.delete(Paths.get(location+"SH1"));
+	        Files.delete(Paths.get(location+"SH1"+"Types"));
+	        Files.delete(Paths.get(location+"SH2"));
+	        Files.delete(Paths.get(location+"SH2"+"Types"));
+			Files.delete(Paths.get(location+"S1"));
+			Files.delete(Paths.get(location+"S1"+"Types"));
+			Files.delete(Paths.get(location+"S2"));
+			Files.delete(Paths.get(location+"S2"+"Types"));
+			Files.delete(Paths.get(location+"O1"));
+			Files.delete(Paths.get(location+"O1"+"Types"));
+			Files.delete(Paths.get(location+"O2"));
+			Files.delete(Paths.get(location+"O2"+"Types"));
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public static void main(String[] args) {
-		Test_Cat readHDT = new Test_Cat();
-		readHDT.cat("/home/alyhdr/Desktop/hdt/test_1.nq","/home/alyhdr/Desktop/hdt/test_2.nq");
+		  File file = new File("out");
+	        File theDir = new File(file.getAbsolutePath()+"_tmp");
+	        theDir.mkdirs();
+	        String location = theDir.getAbsolutePath()+"/";
+	        try {
+				HDT hdt = HDTManager.catHDT(location,"/home/alyhdr/Desktop/hdt/test_1.hdt", "/home/alyhdr/Desktop/hdt/test_2.hdt" , new HDTSpecification(),null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 	}
 
 	@Override

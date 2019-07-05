@@ -234,18 +234,14 @@ public class HDTManagerImpl extends HDTManager {
 		return hdt;
 	}
 	@Override
-	public HDT doHDTCat(String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
+	public HDT doHDTCat(String location, String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
 		StopWatch st = new StopWatch();
-
-		// Create TempHDT
-		HDTPrivate hdt1 = mapHDT(hdtFileName1, listener);
-		HDTPrivate hdt2 = mapHDT(hdtFileName2, listener);
-		
-		//HDTCat hdtCat = new HDTCat(hdtFormat,hdt1,hdt2,listener);
-
-		System.out.println("HDT file joint in: "+st.stopAndShow());
-
-		return null;
+	
+		HDT hdt1 = doMapHDT(hdtFileName1, listener);
+		HDT hdt2 = doMapHDT(hdtFileName2, listener);
+		HDTImpl hdt = new HDTImpl(new HDTSpecification());
+		hdt.cat(location, hdt1, hdt2, listener);
+		return hdt;
 	}
 	protected class LambdaCounter {
 		long counter = 0;

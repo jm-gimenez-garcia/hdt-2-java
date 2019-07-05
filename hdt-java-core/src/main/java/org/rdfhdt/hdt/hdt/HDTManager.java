@@ -171,8 +171,8 @@ public abstract class HDTManager {
 	return HDTManager.getInstance().doGenerateHDT(iterator, baseURI, hdtFormat, reif, listener);
     }
     
-	public static HDT catHDT(String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
-		return HDTManager.getInstance().doHDTCat(hdtFileName1, hdtFileName2, hdtFormat, listener);
+	public static HDT catHDT(String location, String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
+		return HDTManager.getInstance().doHDTCat(location, hdtFileName1, hdtFileName2, hdtFormat, listener);
 	}
 
     // Abstract methods for the current implementation
@@ -196,6 +196,6 @@ public abstract class HDTManager {
 	    throws IOException, ParserException;
 
     protected abstract HDT doGenerateHDT(IteratorTripleString iterator, String baseURI, HDTOptions hdtFormat, boolean reif, ProgressListener listener) throws IOException;
-	protected abstract HDT doHDTCat(String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException;
+	protected abstract HDT doHDTCat(String location, String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException;
 
 }

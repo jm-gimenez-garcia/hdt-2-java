@@ -35,6 +35,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
@@ -42,6 +44,10 @@ import org.rdfhdt.hdt.dictionary.Dictionary;
 import org.rdfhdt.hdt.dictionary.DictionaryFactory;
 import org.rdfhdt.hdt.dictionary.DictionaryPrivate;
 import org.rdfhdt.hdt.dictionary.TriplesDictionaryPrivate;
+import org.rdfhdt.hdt.dictionary.impl.DictionaryCat;
+import org.rdfhdt.hdt.dictionary.impl.GraphsFourSectionDictionaryBig;
+import org.rdfhdt.hdt.dictionary.impl.ReificationDictionary;
+import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionaryBig;
 import org.rdfhdt.hdt.enums.ResultEstimationType;
 import org.rdfhdt.hdt.enums.TripleComponentRole;
 import org.rdfhdt.hdt.exceptions.IllegalFormatException;
@@ -59,6 +65,7 @@ import org.rdfhdt.hdt.listener.ProgressListener;
 import org.rdfhdt.hdt.options.ControlInfo;
 import org.rdfhdt.hdt.options.ControlInformation;
 import org.rdfhdt.hdt.options.HDTOptions;
+import org.rdfhdt.hdt.options.HDTSpecification;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
 import org.rdfhdt.hdt.triples.QuadID;
 import org.rdfhdt.hdt.triples.TripleID;
@@ -66,7 +73,10 @@ import org.rdfhdt.hdt.triples.TripleString;
 import org.rdfhdt.hdt.triples.Triples;
 import org.rdfhdt.hdt.triples.TriplesFactory;
 import org.rdfhdt.hdt.triples.TriplesPrivate;
+import org.rdfhdt.hdt.triples.impl.BitmapQuadIteratorCat;
+import org.rdfhdt.hdt.triples.impl.BitmapQuadsCat;
 import org.rdfhdt.hdt.util.StringUtil;
+import org.rdfhdt.hdt.util.Utility;
 import org.rdfhdt.hdt.util.io.CountInputStream;
 import org.rdfhdt.hdt.util.io.IOUtil;
 import org.rdfhdt.hdt.util.listener.IntermediateListener;
@@ -541,4 +551,91 @@ public class HDTImpl implements HDTPrivate {
 		this.triples.close();
 	}
 
+	public void cat(String location, HDT hdt1, HDT hdt2, ProgressListener listener) {
+		try {
+			ReificationDictionary rd1 = (ReificationDictionary) hdt1.getDictionary();
+			ReificationDictionary rd2 = (ReificationDictionary) hdt2.getDictionary();
+
+			DictionaryCat dictionaryCat = new DictionaryCat(location);
+			dictionaryCat.cat(rd1, rd2);
+
+			ControlInfo ci1 = new ControlInformation();
+			CountInputStream fis_t = new CountInputStream(
+					new BufferedInputStream(new FileInputStream(location + "dictionary_t")));
+
+			ControlInfo ci2 = new ControlInformation();
+			CountInputStream fis_g = new CountInputStream(
+					new BufferedInputStream(new FileInputStream(location + "dictionary_g")));
+
+			HDTSpecification spec = new HDTSpecification();
+
+			TriplesFourSectionDictionaryBig t_dictionary = new TriplesFourSectionDictionaryBig(spec);
+
+			fis_t.mark(1024);
+			ci1.load(fis_t);
+			fis_t.reset();
+			t_dictionary.mapFromFile(fis_t, new File(location + "dictionary_t"), null);
+
+			GraphsFourSectionDictionaryBig g_dictionary = new GraphsFourSectionDictionaryBig(spec);
+
+			fis_g.mark(1024);
+			ci2.load(fis_g);
+			fis_g.reset();
+			g_dictionary.mapFromFile(fis_g, new File(location + "dictionary_g"), null);
+
+			this.dictionary = new ReificationDictionary(t_dictionary,g_dictionary);
+			
+			Utility.printIDs(hdt1);
+			System.out.println("-----------------------------------------");
+			Utility.printIDs(hdt2);
+
+			Utility.printTriplesDictionary(t_dictionary);
+			System.out.println("-----------------------------------------");
+			Utility.printGraphsDictionary(g_dictionary);
+
+			Utility.printMappings(dictionaryCat);
+			
+			
+			BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(), hdt2.getTriples(), dictionaryCat);
+
+			BitmapQuadsCat bitmapTriplesCat = new BitmapQuadsCat(location);
+			bitmapTriplesCat.cat(location,it,listener);
+			
+			CountInputStream fis2 = new CountInputStream(new BufferedInputStream(new FileInputStream(location + "triples")));
+			ci2 = new ControlInformation();
+			ci2.clear();
+			fis2.mark(1024);
+			ci2.load(fis2);
+			fis2.reset();
+			TriplesPrivate triples = TriplesFactory.createTriples(ci2);
+			triples.mapFromFile(fis2,new File(location + "triples"),null);
+			deleteMappings(location);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public void deleteMappings(String location) {
+		try {
+			Files.delete(Paths.get(location+"P1"));
+			Files.delete(Paths.get(location+"P1"+"Types"));
+			Files.delete(Paths.get(location+"P2"));
+			Files.delete(Paths.get(location+"P2"+"Types"));
+	        Files.delete(Paths.get(location+"SH1"));
+	        Files.delete(Paths.get(location+"SH1"+"Types"));
+	        Files.delete(Paths.get(location+"SH2"));
+	        Files.delete(Paths.get(location+"SH2"+"Types"));
+			Files.delete(Paths.get(location+"S1"));
+			Files.delete(Paths.get(location+"S1"+"Types"));
+			Files.delete(Paths.get(location+"S2"));
+			Files.delete(Paths.get(location+"S2"+"Types"));
+			Files.delete(Paths.get(location+"O1"));
+			Files.delete(Paths.get(location+"O1"+"Types"));
+			Files.delete(Paths.get(location+"O2"));
+			Files.delete(Paths.get(location+"O2"+"Types"));
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
