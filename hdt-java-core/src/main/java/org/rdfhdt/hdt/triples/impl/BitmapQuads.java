@@ -259,6 +259,9 @@ public class BitmapQuads extends BitmapTriples {
 	@Override
 	public void mapFromFile(final CountInputStream input, final File f, final ProgressListener listener) throws IOException {
 		super.mapFromFile(input, f, listener);
+		final IntermediateListener iListener = new IntermediateListener(listener);
+		this.bitmapG = BitmapFactory.createBitmap(input);
+		this.bitmapG.load(input, iListener);
 		this.permutation = PermutationFactory.createPermutation();
 		this.permutation.load(input, listener);
 	}
