@@ -84,7 +84,8 @@ public class Test_Cat implements ProgressListener{
 				Utility.printTriplesDictionary(t_dictionary);
 				System.out.println("-----------------------------------------");
 				Utility.printGraphsDictionary(g_dictionary);
-
+				
+				Utility.printMappings(dictionaryCat);
 			
 				BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(),hdt2.getTriples(),dictionaryCat);
 				while(it.hasNext()) {
