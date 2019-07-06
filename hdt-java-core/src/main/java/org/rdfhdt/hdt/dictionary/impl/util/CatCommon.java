@@ -10,7 +10,7 @@ import org.apache.commons.math3.util.Pair;
 
 
 /**
- * @author Ali Haidar
+ * @author alyhdr
  *
  */
 public class CatCommon implements Iterator<IterElement> {

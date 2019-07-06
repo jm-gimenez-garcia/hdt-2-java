@@ -75,7 +75,6 @@ import org.rdfhdt.hdt.triples.TriplesFactory;
 import org.rdfhdt.hdt.triples.TriplesPrivate;
 import org.rdfhdt.hdt.triples.impl.BitmapQuadIteratorCat;
 import org.rdfhdt.hdt.triples.impl.BitmapQuads;
-import org.rdfhdt.hdt.triples.impl.BitmapQuadsCat;
 import org.rdfhdt.hdt.util.StringUtil;
 import org.rdfhdt.hdt.util.Utility;
 import org.rdfhdt.hdt.util.io.CountInputStream;
@@ -84,7 +83,7 @@ import org.rdfhdt.hdt.util.listener.IntermediateListener;
 
 /**
  * Basic implementation of HDT interface
- *
+ * @author alyhdr, added cat function
  */
 public class HDTImpl implements HDTPrivate {
 

@@ -23,7 +23,9 @@ import org.rdfhdt.hdt.options.HDTSpecification;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
 import org.rdfhdt.hdt.triples.QuadID;
 import org.rdfhdt.hdt.util.StopWatch;
-
+/**
+ * @author alyhdr, added doHdtcat function
+ */
 public class HDTManagerImpl extends HDTManager {
 
 	@Override

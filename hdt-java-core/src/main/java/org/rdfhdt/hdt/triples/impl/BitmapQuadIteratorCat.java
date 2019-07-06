@@ -13,8 +13,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Contacting the authors:
- *   Dennis Diefenbach:         dennis.diefenbach@univ-st-etienne.fr
  */
 
 package org.rdfhdt.hdt.triples.impl;
@@ -36,7 +34,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
+/**
+ * @author alyhdr
+ */
 public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTripleID {
 
 	int count = 1;

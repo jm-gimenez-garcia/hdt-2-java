@@ -68,7 +68,7 @@ import org.rdfhdt.hdt.util.listener.ListenerUtil;
 
 /**
  * @author mario.arias
- *
+ * @author alyhdr, added cat triples function.
  */
 public class BitmapQuads extends BitmapTriples {
 
@@ -288,6 +288,7 @@ public class BitmapQuads extends BitmapTriples {
 		super.close();
 		this.permutation = null;
 	}
+	// function write quad IDs to disk
 	 public void cat(String location,IteratorTripleID it, ProgressListener listener){
 	        try {
 	            long number = it.estimatedNumResults();

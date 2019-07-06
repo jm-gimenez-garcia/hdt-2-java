@@ -62,6 +62,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * @author alyhdr
+ */
 public class DictionaryCat {
 
 	private String location;

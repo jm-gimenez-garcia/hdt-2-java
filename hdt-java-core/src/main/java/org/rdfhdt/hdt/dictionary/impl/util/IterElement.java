@@ -1,7 +1,9 @@
 package org.rdfhdt.hdt.dictionary.impl.util;
 
 import org.apache.commons.math3.util.Pair;
-
+/**
+ * @author alyhdr
+ */
 public class IterElement {
 	private final Pair<Integer, Integer> pair;
 	private final String entity;

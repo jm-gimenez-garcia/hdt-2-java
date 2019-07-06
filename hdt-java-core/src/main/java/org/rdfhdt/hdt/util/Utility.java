@@ -18,6 +18,9 @@ import java.util.Iterator;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+/**
+ * @author alyhdr
+ */
 public class Utility {
 
     public static void printTriplesDictionary(TriplesDictionary d){
