@@ -20,7 +20,7 @@ import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionary;
 import org.rdfhdt.hdt.dictionary.impl.TriplesFourSectionDictionaryBig;
 import org.rdfhdt.hdt.enums.RDFNotation;
 import org.rdfhdt.hdt.exceptions.ParserException;
-import org.rdfhdt.hdt.hdt.HDT;
+
 import org.rdfhdt.hdt.hdt.HDTManager;
 import org.rdfhdt.hdt.hdt.HDTPrivate;
 import org.rdfhdt.hdt.listener.ProgressListener;
@@ -141,8 +141,9 @@ public class Test_Cat implements ProgressListener{
 	        theDir.mkdirs();
 	        String location = theDir.getAbsolutePath()+"/";
 	        try {
-				HDT hdt = HDTManager.catHDT(location,"/home/alyhdr/Desktop/hdt/test_1.hdt", "/home/alyhdr/Desktop/hdt/test_2.hdt" , new HDTSpecification(),null);
-			} catch (IOException e) {
+				HDTPrivate hdt = HDTManager.catHDT(location,"/home/alyhdr/Desktop/hdt/test_1.hdt", "/home/alyhdr/Desktop/hdt/test_2.hdt" , new HDTSpecification(),null);
+				hdt.saveToHDT("/home/alyhdr/Desktop/hdt/test_1+2.hdt", null);
+	        } catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

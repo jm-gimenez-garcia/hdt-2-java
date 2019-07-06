@@ -296,106 +296,100 @@ public class BitmapQuads extends BitmapTriples {
 	            ModifiableBitmap bitY = new Bitmap375();//Disk(location + "bitY",number);
 	            ModifiableBitmap bitZ = new Bitmap375();//Disk(location + "bitZ",number);
 	            
-	            final SequenceLog64BigDisk vectorG = new SequenceLog64BigDisk(location + "vectorG",BitUtil.log2(number), number);
-	            
+
+	    		final List<Long> vectorG = new LinkedList<>();
 	    		final ModifiableBitmap bitG = new Bitmap375(number);
-	            
-	    		long lastX=0, lastY=0, lastZ=0;
-	            long x, y, z;
-	            long numTriples=0;
-	            long g;
-	            while(it.hasNext()) {
-	                TripleID triple = it.next();
-	                TripleOrderConvert.swapComponentOrder(triple, TripleComponentOrder.SPO, TripleComponentOrder.SPO);
 
-	                x = triple.getSubject();
-	                y = triple.getPredicate();
-	                z = triple.getObject();
+	    		int lastX = 0;
+	    		int lastY = 0;
+	    		int lastZ = 0;
+	    		int x, y, z;
+	    		long g;
+	    		int numTriples = 0;
+
+	    		while (it.hasNext()) {
+	    			final TripleID triple = it.next();
+	    			TripleOrderConvert.swapComponentOrder(triple, TripleComponentOrder.SPO, this.order);
+
+	    			x = toRoleID(triple.getSubject(), TripleComponentRole.SUBJECT);
+	    			y = toRoleID(triple.getPredicate(), TripleComponentRole.PREDICATE);
+	    			z = toRoleID(triple.getObject(), TripleComponentRole.OBJECT);
 	    			g = triple instanceof QuadID ? toRoleID(((QuadID) triple).getGraph(), TripleComponentRole.GRAPH) : 0;
+	    			if (x == 0 || y == 0 || z == 0) { throw new IllegalFormatException("None of the components of a triple can be null"); }
 
-	                if(x==0 || y==0 || z==0) {
-	                    throw new IllegalFormatException("None of the components of a triple can be null");
-	                }
+	    			if (numTriples == 0) {
+	    				// First triple
+	    				vectorY.append(y);
+	    				vectorZ.append(z);
+	    			} else if (x != lastX) {
+	    				if (x != lastX + 1) { throw new IllegalFormatException("Upper level must be increasing and correlative."); }
+	    				// X changed
+	    				bitY.append(true);
+	    				vectorY.append(y);
 
-	                if(numTriples==0) {
-	                    // First triple
-	                    vectorY.append(y);
-	                    vectorZ.append(z);
-	                } else if(x!=lastX) {
-	                    if(x!=lastX+1) {
-	                        throw new IllegalFormatException("Upper level must be increasing and correlative.");
-	                    }
-	                    // X changed
-	                    bitY.append(true);
-	                    vectorY.append(y);
+	    				bitZ.append(true);
+	    				vectorZ.append(z);
+	    			} else if (y != lastY) {
+	    				if (y < lastY) { throw new IllegalFormatException("Middle level must be increasing for each parent."); }
 
-	                    bitZ.append(true);
-	                    vectorZ.append(z);
-	                } else if(y!=lastY) {
-	                    if(y<lastY) {
-	                        throw new IllegalFormatException("Middle level must be increasing for each parent.");
-	                    }
+	    				// Y changed
+	    				bitY.append(false);
+	    				vectorY.append(y);
 
-	                    // Y changed
-	                    bitY.append(false);
-	                    vectorY.append(y);
+	    				bitZ.append(true);
+	    				vectorZ.append(z);
+	    			} else {
+	    				if (z < lastZ) { throw new IllegalFormatException("Lower level must be increasing for each parent."); }
 
-	                    bitZ.append(true);
-	                    vectorZ.append(z);
-	                } else {
-	                    if(z<lastZ) {
-	                        throw new IllegalFormatException("Lower level must be increasing for each parent.");
-	                    }
+	    				// Z changed
+	    				bitZ.append(false);
+	    				vectorZ.append(z);
+	    			}
 
-	                    // Z changed
-	                    bitZ.append(false);
-	                    vectorZ.append(z);
-	                }
-	                if (g == 0) {
+	    			if (g == 0) {
 	    				bitG.append(false);
 	    			} else
 	    			{
 	    				bitG.append(true);
-	    				vectorG.append(g);
+	    				vectorG.add(g);
 	    			}
 
-	                lastX = x;
-	                lastY = y;
-	                lastZ = z;
+	    			lastX = x;
+	    			lastY = y;
+	    			lastZ = z;
 
-	                ListenerUtil.notifyCond(listener, "Converting to BitmapTriples", numTriples, numTriples, number);
-	                numTriples++;
-	            }
+	    			ListenerUtil.notifyCond(listener, "Converting to BitmapTriples", numTriples, numTriples, number);
+	    			numTriples++;
+	    		}
 
-	            if(numTriples>0) {
-	                bitY.append(true);
-	                bitZ.append(true);
-	            }
-
-	            vectorY.aggressiveTrimToSize();
-	            vectorZ.trimToSize();
+	    		if(numTriples>0) {
+	    			bitY.append(true);
+	    			bitZ.append(true);
+	    		}
+	    		vectorY.aggressiveTrimToSize();
+	    		vectorZ.trimToSize();
 
 	            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(location + "triples"));
 	            ControlInfo ci = new ControlInformation();
 	            ci.setType(ControlInfo.Type.TRIPLES);
-	            ci.setFormat(HDTVocabulary.TRIPLES_TYPE_BITMAP);
+	            ci.setFormat(HDTVocabulary.QUADS_TYPE_BITMAP);
 	            ci.setInt("order", TripleComponentOrder.SPO.ordinal());
-	            ci.setType(ControlInfo.Type.TRIPLES);
 	            ci.save(bos);
 	            
 	            IntermediateListener iListener = new IntermediateListener(listener);
 	            
 	            bitY.save(bos, iListener);
 	            bitZ.save(bos, iListener);
-	            bitG.save(bos, iListener);
 	            
 	            vectorY.save(bos, iListener);
 	            vectorZ.save(bos, iListener);
-	            vectorG.save(bos, iListener);
+	            
+	            bitG.save(bos, iListener);
+	            Permutation permutation = PermutationFactory.createPermutation(vectorG, PermutationFactory.PERMUTATION_MRRR_DEFAULT_STEP);
+	            permutation.save(bos, iListener);
 	            
 	            Files.delete(Paths.get(location + "vectorY"));
 	            Files.delete(Paths.get(location + "vectorZ"));
-	            Files.delete(Paths.get(location + "vectorG"));
 	            
 	            //Files.delete(Paths.get(location + "bitY"));
 	            //Files.delete(Paths.get(location + "bitZ"));

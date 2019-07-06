@@ -74,6 +74,7 @@ import org.rdfhdt.hdt.triples.Triples;
 import org.rdfhdt.hdt.triples.TriplesFactory;
 import org.rdfhdt.hdt.triples.TriplesPrivate;
 import org.rdfhdt.hdt.triples.impl.BitmapQuadIteratorCat;
+import org.rdfhdt.hdt.triples.impl.BitmapQuads;
 import org.rdfhdt.hdt.triples.impl.BitmapQuadsCat;
 import org.rdfhdt.hdt.util.StringUtil;
 import org.rdfhdt.hdt.util.Utility;
@@ -593,13 +594,15 @@ public class HDTImpl implements HDTPrivate {
 			System.out.println("-----------------------------------------");
 			Utility.printGraphsDictionary(g_dictionary);
 
-			Utility.printMappings(dictionaryCat);
+			//Utility.printMappings(dictionaryCat);
 			
 			
 			BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(), hdt2.getTriples(), dictionaryCat);
 
-			BitmapQuadsCat bitmapTriplesCat = new BitmapQuadsCat(location);
-			bitmapTriplesCat.cat(location,it,listener);
+			BitmapQuads bitmapQuads = new BitmapQuads();
+			bitmapQuads.setToGlobalIDFunction(this.dictionary.getToGlobalIDFunction());
+			bitmapQuads.setToRoleIDFunction(this.dictionary.getToRoleIDFunction());
+			bitmapQuads.cat(location,it,listener);
 			
 			CountInputStream fis2 = new CountInputStream(new BufferedInputStream(new FileInputStream(location + "triples")));
 			ci2 = new ControlInformation();
@@ -607,9 +610,8 @@ public class HDTImpl implements HDTPrivate {
 			fis2.mark(1024);
 			ci2.load(fis2);
 			fis2.reset();
-			TriplesPrivate triples = TriplesFactory.createTriples(ci2);
 			triples.mapFromFile(fis2,new File(location + "triples"),null);
-			deleteMappings(location);
+			//deleteMappings(location);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -632,7 +634,10 @@ public class HDTImpl implements HDTPrivate {
 			Files.delete(Paths.get(location+"O1"+"Types"));
 			Files.delete(Paths.get(location+"O2"));
 			Files.delete(Paths.get(location+"O2"+"Types"));
-		
+            Files.delete(Paths.get(location+"mapping_back_1"));
+            Files.delete(Paths.get(location+"mapping_back_2"));
+            Files.delete(Paths.get(location+"mapping_back_type_1"));
+            Files.delete(Paths.get(location+"mapping_back_type_2"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -234,12 +234,12 @@ public class HDTManagerImpl extends HDTManager {
 		return hdt;
 	}
 	@Override
-	public HDT doHDTCat(String location, String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
+	public HDTPrivate doHDTCat(String location, String hdtFileName1, String hdtFileName2, HDTOptions hdtFormat, ProgressListener listener) throws IOException {
 		StopWatch st = new StopWatch();
 	
 		HDT hdt1 = doMapHDT(hdtFileName1, listener);
 		HDT hdt2 = doMapHDT(hdtFileName2, listener);
-		HDTImpl hdt = new HDTImpl(new HDTSpecification());
+		HDTImpl hdt = new HDTImpl(new HDTSpecification(),true);
 		hdt.cat(location, hdt1, hdt2, listener);
 		return hdt;
 	}
