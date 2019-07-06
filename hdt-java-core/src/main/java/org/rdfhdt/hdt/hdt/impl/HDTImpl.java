@@ -610,7 +610,9 @@ public class HDTImpl implements HDTPrivate {
 			ci2.load(fis2);
 			fis2.reset();
 			triples.mapFromFile(fis2,new File(location + "triples"),null);
-			//deleteMappings(location);
+			deleteMappings(location);
+			this.header = HeaderFactory.createHeader(spec);
+			this.populateHeaderStructure("http://wdaqua.eu/hdtrcat/");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

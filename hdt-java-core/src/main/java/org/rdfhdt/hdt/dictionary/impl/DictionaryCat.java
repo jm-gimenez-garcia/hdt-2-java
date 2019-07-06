@@ -74,8 +74,8 @@ public class DictionaryCat {
 
 	private CatMappingBack mappingS;
 
-	public final String M_SH_1 = "Sh1";
-	public final String M_SH_2 = "Sh2";
+	public final String M_SH_1 = "SH1";
+	public final String M_SH_2 = "SH2";
 
 	public final String M_S_1 = "S1";
 	public final String M_S_2 = "S2";
@@ -86,8 +86,8 @@ public class DictionaryCat {
 	public final String M_P_1 = "P1";
 	public final String M_P_2 = "P2";
 
-	public final String M_GSH_1 = "GSh1";
-	public final String M_GSH_2 = "GSh2";
+	public final String M_GSH_1 = "GSH1";
+	public final String M_GSH_2 = "GSH2";
 
 	public final String M_GS_1 = "GS1";
 	public final String M_GS_2 = "GS2";
