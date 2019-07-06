@@ -869,7 +869,6 @@ public class DictionaryCat {
 
         }
 
-        printMappingBack();
 
         for (int i=0; i<mappings.get(M_GS_2).getSize(); i++){
             if (mappings.get(M_GS_2).getType(i)==5){

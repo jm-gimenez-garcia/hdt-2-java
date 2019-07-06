@@ -586,13 +586,13 @@ public class HDTImpl implements HDTPrivate {
 
 			this.dictionary = new ReificationDictionary(t_dictionary,g_dictionary);
 			
-			Utility.printIDs(hdt1);
+			/*Utility.printIDs(hdt1);
 			System.out.println("-----------------------------------------");
 			Utility.printIDs(hdt2);
 
 			Utility.printTriplesDictionary(t_dictionary);
 			System.out.println("-----------------------------------------");
-			Utility.printGraphsDictionary(g_dictionary);
+			Utility.printGraphsDictionary(g_dictionary);*/
 
 			//Utility.printMappings(dictionaryCat);
 			

@@ -72,7 +72,9 @@ public class HDTrCAT implements ProgressListener {
 	            StopWatch sw = new StopWatch();
 	            hdt.saveToHDT(hdtOutput, this);
 	            System.out.println("HDT saved to file in: "+sw.stopAndShow());
-	            Files.delete(Paths.get(location+"dictionary"));
+	            Files.delete(Paths.get(location+"dictionary_t"));
+	            Files.delete(Paths.get(location+"dictionary_g"));
+	            
 	            Files.delete(Paths.get(location+"triples"));
 	            theDir.delete();
 
@@ -105,7 +107,7 @@ public class HDTrCAT implements ProgressListener {
 	        HDTrCAT hdtCat = new HDTrCAT();
 	        System.out.println("Welcome to hdtrCat!");
 	        JCommander com = new JCommander(hdtCat, args);
-	        com.setProgramName("hdtCat");
+	        com.setProgramName("hdtrcat");
 
 	        if(hdtCat.parameters.size()==3) {
 	            hdtCat.hdtInput1 = hdtCat.parameters.get(0);
