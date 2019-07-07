@@ -228,6 +228,9 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
     		m_s = dictionaryCat.getMappings().get(dictionaryCat.M_S_2);
     		m_gs = dictionaryCat.getMappings().get(dictionaryCat.M_GS_2);
     	}
+		if(m_sh == null || m_gsh == null) {
+			System.out.println("nulllllllllllllllllllllllllllllllll");
+		}
 		long numberOfShared = m_sh.getSize() + m_gsh.getSize();
 		long numberOfSubjects = m_s.getSize() + m_gs.getSize();
 		long total = numberOfShared + numberOfSubjects;
