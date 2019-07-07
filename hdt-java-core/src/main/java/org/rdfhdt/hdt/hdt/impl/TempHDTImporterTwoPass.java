@@ -64,7 +64,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 		@Override
 		public void processTriple(final TripleString triple, final long pos) {
-			System.out.println("processing triple [" + triple.toString() + "]  to append to dictionary");
+			// System.out.println("processing triple [" + triple.toString() + "]  to append to dictionary");
 			this.dict.insert(triple.getSubject(), TripleComponentRole.SUBJECT);
 			this.dict.insert(triple.getPredicate(), TripleComponentRole.PREDICATE);
 			this.dict.insert(triple.getObject(), TripleComponentRole.OBJECT);
@@ -74,7 +74,7 @@ public class TempHDTImporterTwoPass implements TempHDTImporter {
 
 		@Override
 		public void processQuad(final QuadString quad, final long pos) {
-			System.out.println("processing quad [" + quad.toString() + "]  to append to dictionary");
+			// System.out.println("processing quad [" + quad.toString() + "]  to append to dictionary");
 			processTriple(quad, pos);
 			this.dict.insert(quad.getGraph(), TripleComponentRole.GRAPH);
 		}
