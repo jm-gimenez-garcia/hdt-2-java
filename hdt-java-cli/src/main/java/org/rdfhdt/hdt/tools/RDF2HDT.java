@@ -118,7 +118,7 @@ public class RDF2HDT implements ProgressListener {
 				System.out.println("Could not guess notation for " + this.rdfInput + " Trying " + notation);
 			}
 		}
-
+		
 		HDTPrivate hdt = HDTManager.generateHDT(this.rdfInput, this.baseURI, notation, spec, this.reif, this);
 
 		// Show Basic stats
@@ -175,7 +175,7 @@ public class RDF2HDT implements ProgressListener {
 
 			// Debug all inserted triples
 			// first the ids
-			final IteratorTripleID iteratorID = hdt.getTriples().searchAll();
+			/*final IteratorTripleID iteratorID = hdt.getTriples().searchAll();
 			// final IteratorTripleString iterator = hdt.search("", "", "");
 			System.out.println("Next = " + iteratorID.hasNext());
 			while (iteratorID.hasNext()) {
@@ -195,7 +195,7 @@ public class RDF2HDT implements ProgressListener {
 			} catch (final NotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 
 		} finally {
 			if (hdt != null) {
