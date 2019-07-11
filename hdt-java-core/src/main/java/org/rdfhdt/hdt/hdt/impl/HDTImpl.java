@@ -635,6 +635,25 @@ public class HDTImpl implements HDTPrivate {
 			Files.delete(Paths.get(location+"O1"+"Types"));
 			Files.delete(Paths.get(location+"O2"));
 			Files.delete(Paths.get(location+"O2"+"Types"));
+
+			
+			Files.delete(Paths.get(location+"GSH1"));
+			Files.delete(Paths.get(location+"GSH1"+"Types"));
+			Files.delete(Paths.get(location+"GSH2"));
+			Files.delete(Paths.get(location+"GSH2"+"Types"));
+	        Files.delete(Paths.get(location+"GS1"));
+	        Files.delete(Paths.get(location+"GS1"+"Types"));
+	        Files.delete(Paths.get(location+"GS2"));
+	        Files.delete(Paths.get(location+"GS2"+"Types"));
+			Files.delete(Paths.get(location+"GO1"));
+			Files.delete(Paths.get(location+"GO1"+"Types"));
+			Files.delete(Paths.get(location+"GO2"));
+			Files.delete(Paths.get(location+"GO2"+"Types"));
+			Files.delete(Paths.get(location+"GU1"));
+			Files.delete(Paths.get(location+"GU1"+"Types"));
+			Files.delete(Paths.get(location+"GU2"));
+			Files.delete(Paths.get(location+"GU2"+"Types"));
+			
             Files.delete(Paths.get(location+"mapping_back_1"));
             Files.delete(Paths.get(location+"mapping_back_2"));
             Files.delete(Paths.get(location+"mapping_back_type_1"));
