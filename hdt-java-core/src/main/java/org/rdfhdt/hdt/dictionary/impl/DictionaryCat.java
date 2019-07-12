@@ -69,7 +69,7 @@ public class DictionaryCat {
 
 	private String location;
 	private int DEFAULT_BLOCK_SIZE = 16;
-	private int BLOCK_PER_BUFFER = 1000000;
+	private int BLOCK_PER_BUFFER = 100000;
 
 
 	private CatMappingBack mappingS;
@@ -1058,7 +1058,6 @@ public class DictionaryCat {
                             // Write Delta in VByte
                             VByte.encode(byteOut, delta);
                             // Write remaining
-                            System.out.println("The string: "+str);
                             ByteStringUtil.append(byteOut, str, delta);
                         }
                         byteOut.write(0); // End of string
