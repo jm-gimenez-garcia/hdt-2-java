@@ -618,6 +618,7 @@ public class HDTImpl implements HDTPrivate {
 		}
 	}
 	public void deleteMappings(String location) {
+		
 		try {
 			Files.delete(Paths.get(location+"P1"));
 			Files.delete(Paths.get(location+"P1"+"Types"));

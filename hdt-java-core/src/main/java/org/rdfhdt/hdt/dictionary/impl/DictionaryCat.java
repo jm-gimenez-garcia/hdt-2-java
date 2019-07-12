@@ -1057,6 +1057,7 @@ public class DictionaryCat {
                             // Write Delta in VByte
                             VByte.encode(byteOut, delta);
                             // Write remaining
+                            System.out.println("The string: "+str);
                             ByteStringUtil.append(byteOut, str, delta);
                         }
                         byteOut.write(0); // End of string
@@ -1233,6 +1234,7 @@ public class DictionaryCat {
          // Trim text/blocks
          blocks.aggressiveTrimToSize();
          byteOut.flush();
+         
          //section.addBuffer(buffer, byteOut.toByteArray());
          IOUtil.writeBuffer(out_buffer, byteOut.toByteArray(), 0, byteOut.toByteArray().length, null);
          out_buffer.writeCRC();

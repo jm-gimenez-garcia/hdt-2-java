@@ -78,7 +78,7 @@ public class HDTrCAT implements ProgressListener {
 	            Files.delete(Paths.get(location+"dictionary_g"));
 	            
 	            Files.delete(Paths.get(location+"triples"));
-	            theDir.delete();
+	            //theDir.delete();
 
 
 	            // Generate index and dump it to .hdt.index file
