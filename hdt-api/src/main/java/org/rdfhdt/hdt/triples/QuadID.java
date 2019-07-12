@@ -98,13 +98,35 @@ public final class QuadID extends TripleID {
 		return super.toString() + " " + this.graph;
 	}
 
-	@Override
+	/*@Override
 	public boolean equals(final TripleID other) {
 		boolean equals = super.equals(other);
 		if (equals) {
 			equals = other instanceof QuadID ? (this.graph == ((QuadID) other).getGraph()) : true;
 		}
 		return equals;
+	}*/
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + graph;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		QuadID other = (QuadID) obj;
+		if (graph != other.graph)
+			return false;
+		return true;
 	}
 
 	@Override

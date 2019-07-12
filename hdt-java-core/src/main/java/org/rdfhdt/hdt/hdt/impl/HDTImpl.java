@@ -597,7 +597,7 @@ public class HDTImpl implements HDTPrivate {
 			
 			
 			BitmapQuadIteratorCat it = new BitmapQuadIteratorCat(hdt1.getTriples(), hdt2.getTriples(), dictionaryCat);
-
+			
 			BitmapQuads bitmapQuads = new BitmapQuads();
 			bitmapQuads.setToGlobalIDFunction(this.dictionary.getToGlobalIDFunction());
 			bitmapQuads.setToRoleIDFunction(this.dictionary.getToRoleIDFunction());

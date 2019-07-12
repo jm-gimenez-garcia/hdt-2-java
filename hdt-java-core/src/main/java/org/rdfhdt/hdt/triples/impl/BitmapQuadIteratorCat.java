@@ -130,7 +130,7 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 	}
 
 	private List<TripleID> getTripleID(int count) {
-		Set<TripleID> set = new HashSet<>();
+		Set<QuadID> set = new HashSet<>();
 		ArrayList<Long> mapping = null;
 		ArrayList<Integer> mappingType = null;
 		mapping = dictionaryCat.getMappingS().getMapping(count);
@@ -159,7 +159,7 @@ public class BitmapQuadIteratorCat extends BitmapTriples implements IteratorTrip
 		return triples;
 	}
 	
-	private TripleID getNewQuad(TripleID temp,int type) {
+	private QuadID getNewQuad(TripleID temp,int type) {
 		if (((QuadID) temp).getGraph() != 0) {
 			long newP = mapIdPredicate(temp.getPredicate(), type);
 			long newO = mapIdObject(temp.getObject(), type);

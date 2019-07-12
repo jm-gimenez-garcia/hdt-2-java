@@ -176,6 +176,7 @@ public class TripleID implements Comparable<TripleID> {
 		} else {
 			return result;
 		}
+
 	}
 
 	/**
