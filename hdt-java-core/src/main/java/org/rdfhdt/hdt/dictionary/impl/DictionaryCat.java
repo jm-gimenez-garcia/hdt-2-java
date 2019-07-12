@@ -1042,6 +1042,7 @@ public class DictionaryCat {
 
                             // if a buffer is filled, flush the byteOut and store it
                             if (((numBlocks - 1) % BLOCK_PER_BUFFER == 0) && ((numBlocks - 1) / BLOCK_PER_BUFFER != 0)) {
+                            	System.out.println("Writing buffer.......................................");
                                 storedBuffersSize += byteOut.size();
                                 byteOut.flush();
                                 IOUtil.writeBuffer(out_buffer, byteOut.toByteArray(), 0, byteOut.toByteArray().length, null);
