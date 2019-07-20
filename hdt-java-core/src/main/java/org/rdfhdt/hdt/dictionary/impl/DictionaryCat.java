@@ -838,7 +838,9 @@ public class DictionaryCat {
         int totalSharedOld1 = (int)triples_dictionary_1.getShared().getNumberOfElements() + (int)graphs_dictionary_1.getShared().getNumberOfElements();
         int totalSharedOld2 = (int)triples_dictionary_2.getShared().getNumberOfElements() + (int)graphs_dictionary_2.getShared().getNumberOfElements();
 
-        //triples mappings
+        /* probably buggy must consider other cases nut just (type = 1 )for triples subjects and (type =5) for graphs subjects 
+	some entries could also went to other sections not just *Shared*.
+	*/
         for (int i=0; i<mappings.get(M_S_1).getSize(); i++){
 
         	//if the element was added to the mapping in the shared section (type = 1)
@@ -880,7 +882,7 @@ public class DictionaryCat {
                 mappingS.set(mappings.get(M_GS_2).getMapping(i) + totalSharedNew + numSubjects, (i + 1 + totalSharedOld2 + (int)triples_dictionary_2.getSubjects().getNumberOfElements()), 2);
             }
         }
-
+	
     }
 	public void printMappingBack() {
         for(int i=1;i<mappingS.size();i++) {
